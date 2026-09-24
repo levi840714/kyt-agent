@@ -1,8 +1,7 @@
 from kyt_agent.config import Settings
 from kyt_agent.report import RiskReport
 
-INVESTIGATION_SYSTEM = """你是虛擬資產服務商（VASP）的 AML 調查員，
-負責調查 Ethereum 地址的洗錢與制裁風險。
+INVESTIGATION_SYSTEM = """你是虛擬資產服務商（VASP）的 AML 調查員，負責調查 Ethereum 地址的洗錢與制裁風險。
 
 ## 工具
 - get_counterparties：查詢地址的交易對手彙整，可指定 in（資金來源）、out（資金去向）或 both
@@ -24,8 +23,7 @@ REPORT_INSTRUCTION = """調查已結束，請依據上述工具結果產出風�
 規則：
 - 每項 finding 必須引用證據 ID：工具結果中出現的 tx hash，或 label:<address> 形式的標籤證據
 - 不得引用工具結果中沒有出現的交易或地址
-- 風險等級：LOW 無明顯風險；MEDIUM 間接接觸高風險實體；
-  HIGH 直接或近距離接觸制裁、駭客、混幣器資金；SEVERE 本身為制裁或犯罪地址
+- 風險等級：LOW 無明顯風險；MEDIUM 間接接觸高風險實體；HIGH 直接或近距離接觸制裁、駭客、混幣器資金；SEVERE 本身為制裁或犯罪地址
 - limitations 需列出未能查證的部分"""
 
 
