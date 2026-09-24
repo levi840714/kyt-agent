@@ -8,6 +8,7 @@ from rich.prompt import Prompt
 from rich.table import Table
 from rich.tree import Tree
 
+from kyt_agent.evaluation.metrics import CaseResult, Summary
 from kyt_agent.report import RiskReport
 
 RISK_STYLE = {"LOW": "green", "MEDIUM": "yellow", "HIGH": "red", "SEVERE": "bold white on red"}
@@ -78,3 +79,32 @@ def show_closed(console: Console, values: dict[str, Any]) -> None:
     console.print(
         f"[bold]案件 {case_id} 結案：{values['status']}[/]，報告存於 var/cases/{case_id}/"
     )
+
+
+def eval_row(result: CaseResult) -> str:
+    if result.error:
+        return f"[red]✗[/] {result.address} 錯誤：{escape(result.error)}"
+    mark = "✓" if (result.predicted in ("HIGH", "SEVERE")) == (result.expected == "risky") else "✗"
+    return (
+        f"{mark} {result.address} 預期 {result.expected}｜agent {result.predicted}"
+        f"｜規則 {result.baseline}｜工具 {result.tool_calls} 次"
+        f"｜token {result.input_tokens + result.output_tokens}"
+    )
+
+
+def show_eval_summary(console: Console, summary: Summary) -> None:
+    table = Table("指標", "Agent", "純規則", title=f"Eval：{summary.model}")
+    table.add_row("召回率", _pct(summary.recall), _pct(summary.baseline_recall))
+    table.add_row(
+        "誤報率", _pct(summary.false_positive_rate), _pct(summary.baseline_false_positive_rate)
+    )
+    table.add_row("平均工具呼叫", f"{summary.avg_tool_calls:.1f}", "-")
+    table.add_row("平均 token", f"{summary.avg_tokens:,.0f}", "-")
+    cost = "-" if summary.estimated_cost_usd is None else f"${summary.estimated_cost_usd:.4f}"
+    table.add_row("估算成本", cost, "-")
+    table.add_row("錯誤 / 快照缺漏", f"{summary.errors} / {summary.snapshot_misses}", "-")
+    console.print(table)
+
+
+def _pct(value: float | None) -> str:
+    return "-" if value is None else f"{value:.0%}"

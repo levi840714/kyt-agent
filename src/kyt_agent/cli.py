@@ -12,7 +12,10 @@ from rich.console import Console
 
 from kyt_agent import render
 from kyt_agent.audit import AuditLog
+from kyt_agent.chain.snapshot import SnapshotMissError
 from kyt_agent.config import PROJECT_ROOT, Settings
+from kyt_agent.evaluation.dataset import load_dataset
+from kyt_agent.evaluation.runner import record_snapshots, run_eval, write_eval_result
 from kyt_agent.graph.build import build_graph, case_config, open_checkpointer
 from kyt_agent.graph.deps import make_deps
 from kyt_agent.graph.nodes import ReportError
@@ -58,6 +61,35 @@ def sync_ofac() -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     write_labels_csv(path, labels)
     console.print(f"已寫入 {len(labels)} 筆 OFAC 制裁地址至 {path}")
+
+
+@app.command("eval")
+def evaluate(
+    record: bool = typer.Option(False, "--record", help="錄製 Etherscan 快照"),
+    model: str | None = typer.Option(
+        None, "--model", help="覆蓋 LLM_MODEL，格式 <provider>:<model>"
+    ),
+) -> None:
+    """錄製快照，或以快照重播執行 eval。"""
+    settings = Settings()
+    cases = load_dataset(PROJECT_ROOT / "eval" / "dataset.jsonl")
+    if record:
+        record_snapshots(
+            settings,
+            cases,
+            lambda case, count: console.print(f"已錄製 {case.address}：{count} 個地址"),
+        )
+        return
+    try:
+        summary, results = run_eval(
+            settings, cases, model, lambda result: console.print(render.eval_row(result))
+        )
+    except SnapshotMissError as error:
+        console.print(f"[red]缺少快照 {error}，請先執行 kyt eval --record[/]")
+        raise typer.Exit(1) from error
+    path = write_eval_result(settings.var_dir / "eval", summary, results)
+    render.show_eval_summary(console, summary)
+    console.print(f"結果已寫入 {path}")
 
 
 def _run_case(settings: Settings, case_id: str, graph_input: Any) -> None:
