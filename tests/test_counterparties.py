@@ -17,13 +17,18 @@ def test_groups_transfers_by_counterparty():
     assert mixer.totals == {"ETH": Decimal("3")}
     assert mixer.sample_hashes == [tx_hash(2), tx_hash(1)]
     assert (exchange.direction, exchange.totals) == (
-        "both", {"USDT": Decimal("5"), "ETH": Decimal("1")}
+        "both",
+        {"USDT": Decimal("5"), "ETH": Decimal("1")},
     )
     assert (exchange.first_seen, exchange.last_seen) == (1_700_000_003, 1_700_000_004)
 
 
 def test_direction_filter_and_self_transfers():
-    transfers = [transfer(1, TARGET, MIXER), transfer(2, EXCHANGE, TARGET), transfer(3, TARGET, TARGET)]
+    transfers = [
+        transfer(1, TARGET, MIXER),
+        transfer(2, EXCHANGE, TARGET),
+        transfer(3, TARGET, TARGET),
+    ]
     assert [c.address for c in summarize_counterparties(TARGET, transfers, "in")] == [EXCHANGE]
     assert [c.address for c in summarize_counterparties(TARGET, transfers, "out")] == [MIXER]
     assert len(summarize_counterparties(TARGET, transfers)) == 2

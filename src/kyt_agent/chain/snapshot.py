@@ -9,7 +9,7 @@ from kyt_agent.chain.client import ChainClient, ContractInfo, TransactionDetail,
 T = TypeVar("T")
 
 _TRANSFERS = TypeAdapter(list[Transfer])
-_TRANSACTION = TypeAdapter(TransactionDetail | None)
+_TRANSACTION: TypeAdapter[TransactionDetail | None] = TypeAdapter(TransactionDetail | None)
 _CONTRACT = TypeAdapter(ContractInfo)
 
 

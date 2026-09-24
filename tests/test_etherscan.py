@@ -22,15 +22,25 @@ def rpc(result: Any) -> dict[str, Any]:
 
 def native(hash_: str, value: str, is_error: str = "0") -> dict[str, str]:
     return {
-        "hash": hash_, "timeStamp": "1700000000", "from": A, "to": B,
-        "value": value, "isError": is_error, "contractAddress": "",
+        "hash": hash_,
+        "timeStamp": "1700000000",
+        "from": A,
+        "to": B,
+        "value": value,
+        "isError": is_error,
+        "contractAddress": "",
     }
 
 
 def token(hash_: str, value: str, decimals: str, symbol: str) -> dict[str, str]:
     return {
-        "hash": hash_, "timeStamp": "1700000001", "from": B, "to": A, "value": value,
-        "tokenDecimal": decimals, "tokenSymbol": symbol,
+        "hash": hash_,
+        "timeStamp": "1700000001",
+        "from": B,
+        "to": A,
+        "value": value,
+        "tokenDecimal": decimals,
+        "tokenSymbol": symbol,
     }
 
 
@@ -47,15 +57,21 @@ def make_client(responses: dict[str, list[dict[str, Any]]]) -> tuple[EtherscanCl
 
 
 def test_get_transfers_merges_native_internal_and_token_transfers():
-    client, _ = make_client({
-        "txlist": [ok([
-            native("0xAA", "1500000000000000000"),
-            native("0xBB", "1000", is_error="1"),
-            native("0xCC", "0"),
-        ])],
-        "txlistinternal": [ok([native("0xEE", "2000000000000000000")])],
-        "tokentx": [ok([token("0xDD", "2500000", "6", "USDT")])],
-    })
+    client, _ = make_client(
+        {
+            "txlist": [
+                ok(
+                    [
+                        native("0xAA", "1500000000000000000"),
+                        native("0xBB", "1000", is_error="1"),
+                        native("0xCC", "0"),
+                    ]
+                )
+            ],
+            "txlistinternal": [ok([native("0xEE", "2000000000000000000")])],
+            "tokentx": [ok([token("0xDD", "2500000", "6", "USDT")])],
+        }
+    )
     transfers = client.get_transfers(A)
     assert [(t.tx_hash, t.amount, t.asset) for t in transfers] == [
         ("0xaa", Decimal("1.5"), "ETH"),
@@ -72,9 +88,13 @@ def test_no_transactions_found_returns_empty_list():
 
 def test_rate_limit_is_retried_with_backoff():
     limited = {"status": "0", "message": "NOTOK", "result": "Max rate limit reached"}
-    client, sleeps = make_client({
-        "txlist": [limited, ok([])], "txlistinternal": [ok([])], "tokentx": [ok([])],
-    })
+    client, sleeps = make_client(
+        {
+            "txlist": [limited, ok([])],
+            "txlistinternal": [ok([])],
+            "tokentx": [ok([])],
+        }
+    )
     assert client.get_transfers(A) == []
     assert sleeps == [1.0]
 
@@ -87,10 +107,12 @@ def test_other_errors_raise():
 
 
 def test_contract_info_distinguishes_eoa_and_contract():
-    client, _ = make_client({
-        "eth_getCode": [rpc("0x"), rpc("0x6080")],
-        "getsourcecode": [ok([{"ContractName": "TornadoCash_Eth"}])],
-    })
+    client, _ = make_client(
+        {
+            "eth_getCode": [rpc("0x"), rpc("0x6080")],
+            "getsourcecode": [ok([{"ContractName": "TornadoCash_Eth"}])],
+        }
+    )
     assert client.get_contract_info(A) == ContractInfo(address=A, is_contract=False)
     assert client.get_contract_info(B) == ContractInfo(
         address=B, is_contract=True, name="TornadoCash_Eth"
@@ -98,13 +120,29 @@ def test_contract_info_distinguishes_eoa_and_contract():
 
 
 def test_get_transaction_parses_hex_fields():
-    client, _ = make_client({"eth_getTransactionByHash": [rpc({
-        "hash": "0xAA", "from": A, "to": B, "value": hex(10**18),
-        "blockNumber": "0x10", "input": "0xa9059cbb0000",
-    })]})
+    client, _ = make_client(
+        {
+            "eth_getTransactionByHash": [
+                rpc(
+                    {
+                        "hash": "0xAA",
+                        "from": A,
+                        "to": B,
+                        "value": hex(10**18),
+                        "blockNumber": "0x10",
+                        "input": "0xa9059cbb0000",
+                    }
+                )
+            ]
+        }
+    )
     assert client.get_transaction("0xaa") == TransactionDetail(
-        tx_hash="0xaa", sender=A, recipient=B, value_eth=Decimal(1),
-        block_number=16, method_id="0xa9059cbb",
+        tx_hash="0xaa",
+        sender=A,
+        recipient=B,
+        value_eth=Decimal(1),
+        block_number=16,
+        method_id="0xa9059cbb",
     )
 
 
