@@ -28,6 +28,14 @@ def test_sync_ofac_writes_csv(monkeypatch, tmp_path):
     assert SANCTIONED in (tmp_path / "labels" / "ofac.csv").read_text(encoding="utf-8")
 
 
+def test_eval_reports_missing_dataset(monkeypatch, tmp_path):
+    monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
+    result = runner.invoke(cli.app, ["eval"])
+    assert result.exit_code == 1
+    assert "找不到" in result.output
+    assert "dataset.jsonl" in result.output
+
+
 def test_show_report_renders_level_and_unverified_findings():
     console = Console(record=True, width=160)
     report = finalize(draft("LOW", ["0xfake"]), floor="HIGH", unverified=[0], version=1)

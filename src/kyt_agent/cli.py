@@ -72,7 +72,12 @@ def evaluate(
 ) -> None:
     """錄製快照，或以快照重播執行 eval。"""
     settings = Settings()
-    cases = load_dataset(PROJECT_ROOT / "eval" / "dataset.jsonl")
+    dataset_path = PROJECT_ROOT / "eval" / "dataset.jsonl"
+    try:
+        cases = load_dataset(dataset_path)
+    except FileNotFoundError as error:
+        console.print(f"[red]找不到 eval 資料集：{dataset_path}[/]")
+        raise typer.Exit(1) from error
     if record:
         record_snapshots(
             settings,

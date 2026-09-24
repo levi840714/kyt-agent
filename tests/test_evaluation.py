@@ -19,6 +19,7 @@ from tests.fakes import (
     draft,
     label,
     transfer,
+    tx_hash,
 )
 from tests.graph_fakes import ai_text, ai_tool_call, fake_deps
 
@@ -42,6 +43,8 @@ def test_crawl_expands_requested_layers():
         chain.calls
     )
     assert ("transfers", MIXER) not in chain.calls
+    assert ("transaction", tx_hash(1)) in chain.calls
+    assert ("transaction", tx_hash(2)) not in chain.calls
 
 
 def test_baseline_checks_every_direct_counterparty():
