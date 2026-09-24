@@ -88,13 +88,15 @@ kyt_agent/
 | `TOP_COUNTERPARTIES` | 10 | `get_counterparties` 回傳的對手數 |
 | `SUPPLEMENT_TOOL_CALLS` | 10 | 每次補查追加的工具呼叫額度 |
 | `MAX_REVIEW_ROUNDS` | 3 | 補查輪數上限 |
+| `ETHERSCAN_MIN_INTERVAL` | 0.25 | Etherscan 請求最小間隔（秒） |
+| `TX_PAGE_SIZE` | 100 | 每次交易查詢取回的筆數 |
 
 ### 4.2 chain
 
-- `ChainClient` Protocol：`get_normal_transactions(address)`、`get_token_transfers(address)`、`get_transaction(tx_hash)`、`get_contract_info(address)`，回傳 pydantic 模型
+- `ChainClient` Protocol：`get_transfers(address)`（合併一般交易、internal 交易與 token 轉帳，各取最近 `TX_PAGE_SIZE` 筆）、`get_transaction(tx_hash)`、`get_contract_info(address)`，回傳 pydantic 模型
 - `EtherscanClient`：Etherscan V2（`chainid=1`），處理 rate limit 重試與錯誤
 - `SnapshotClient`：包裝任一 client
-  - `record`：委派給內部 client，並以「方法名稱 + 參數」為 key 將回應寫入 `data/snapshots/`
+  - `record`：委派給內部 client，並以「方法名稱 + 參數」為 key，將 `ChainClient` 的 pydantic 輸出寫入 `data/snapshots/`
   - `replay`：只讀快照；缺少時拋出 `SnapshotMissError`，不回退到網路
 
 ### 4.3 labels
@@ -132,7 +134,7 @@ kyt_agent/
 
 | 工具 | 行為 |
 | ---- | ---- |
-| `get_counterparties(address, direction)` | 彙整一般交易與 token 轉帳，回傳依金額排序的前 N 名對手：筆數、總額、時間區間、範例 tx hash、已知標籤 |
+| `get_counterparties(address, direction)` | 彙整一般交易與 token 轉帳，回傳對手清單：已知標籤的對手全部列出，其餘依互動次數取前 N 名（無價格資料，無法依金額排序）；含筆數、總額、時間區間、範例 tx hash、已知標籤 |
 | `lookup_address(address)` | 標籤庫分類、是否為合約、合約名稱 |
 | `get_transaction(tx_hash)` | 單筆交易細節 |
 
@@ -193,6 +195,7 @@ LangSmith 為選配，以 `LANGSMITH_TRACING=true` 啟用。
 - 判定：`risk_level >= HIGH` 視為標記
 - 輸出：召回率、誤報率、每 case 的工具呼叫數、token 數、估算成本、快照 miss 次數，並與純規則 baseline（screen + risk_floor，不經 LLM）對照
 - 結果寫入 `var/eval/<timestamp>-<model>.json`
+- eval 執行時 `MAX_DEPTH` 固定為 2，與錄製深度一致
 
 ## 7. 錯誤處理
 
