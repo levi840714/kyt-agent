@@ -1,7 +1,8 @@
 from decimal import Decimal
 
 from kyt_agent.chain.client import ContractInfo, TransactionDetail, Transfer
-from kyt_agent.models import Category, Label
+from kyt_agent.models import Category, Label, RiskLevel
+from kyt_agent.report import Finding, ReportDraft
 
 TARGET = "0x" + "1" * 40
 MIXER = "0x" + "2" * 40
@@ -55,3 +56,15 @@ class StubChain:
     def get_contract_info(self, address: str) -> ContractInfo:
         self.calls.append(("contract", address))
         return self.contracts.get(address, ContractInfo(address=address, is_contract=False))
+
+
+def draft(level: RiskLevel = "LOW", evidence: list[str] | None = None) -> ReportDraft:
+    findings = [Finding(claim="測試發現", evidence=evidence)] if evidence else []
+    return ReportDraft(
+        risk_level=level,
+        summary="測試摘要",
+        findings=findings,
+        fund_paths=[],
+        recommendation="測試建議",
+        limitations=[],
+    )
