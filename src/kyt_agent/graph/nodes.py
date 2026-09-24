@@ -3,6 +3,7 @@ from typing import Any
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, ToolMessage
 from langgraph.graph import END
 from langgraph.types import interrupt
+from pydantic import ValidationError
 
 from kyt_agent import rules
 from kyt_agent.audit import digest
@@ -148,30 +149,28 @@ class CaseNodes:
         report = state["report"]
         assert report is not None
         settings = self._deps.settings
-        allow_more = state["review_round"] <= settings.max_review_rounds
-        if self._deps.auto_approve:
-            payload = {"decision": "approve", "comment": "eval 自動核准", "reviewer": "eval"}
-        else:
-            payload = interrupt(
-                {
-                    "case_id": state["case_id"],
-                    "target": state["target"],
-                    "round": state["review_round"],
-                    "allow_more": allow_more,
-                    "report": report.model_dump(mode="json"),
-                }
-            )
-        review = Review.model_validate({**payload, "round": state["review_round"]})
-        if review.decision == "request_more" and not allow_more:
-            raise ValueError("已達補查輪數上限")
+        tokens_left = state["input_tokens"] + state["output_tokens"] < settings.max_tokens
+        allow_more = state["review_round"] <= settings.max_review_rounds and tokens_left
+        request = {
+            "case_id": state["case_id"],
+            "target": state["target"],
+            "round": state["review_round"],
+            "allow_more": allow_more,
+            "report": report.model_dump(mode="json"),
+        }
+        review = self._await_review(request)
         self._audit(state, "human_decision", **review.model_dump())
         if review.decision == "request_more":
+            limit = state["tool_call_limit"] + settings.supplement_tool_calls
+            remaining = limit - state["tool_calls"]
             return {
                 "reviews": [review],
                 "review_round": state["review_round"] + 1,
-                "tool_call_limit": state["tool_call_limit"] + settings.supplement_tool_calls,
+                "tool_call_limit": limit,
                 "budget_note": None,
-                "messages": [HumanMessage(prompts.supplement_message(report, review.comment))],
+                "messages": [
+                    HumanMessage(prompts.supplement_message(report, review.comment, remaining))
+                ],
             }
         status = "approved" if review.decision == "approve" else "rejected"
         write_case_files(
@@ -183,15 +182,37 @@ class CaseNodes:
         self._audit(state, "case_closed", status=status)
         return {"reviews": [review], "status": status}
 
+    def _await_review(self, request: dict[str, Any]) -> Review:
+        if self._deps.auto_approve:
+            return Review(
+                decision="approve", comment="eval 自動核准", reviewer="eval", round=request["round"]
+            )
+        error: str | None = None
+        while True:
+            # 輸入無效時再次中斷而非拋錯，否則錯誤的 resume 值會卡死整個 thread
+            payload = interrupt(request if error is None else {**request, "error": error})
+            data = {**payload, "round": request["round"]} if isinstance(payload, dict) else payload
+            try:
+                review = Review.model_validate(data)
+            except ValidationError as exc:
+                error = "；".join(item["msg"] for item in exc.errors())
+                continue
+            if review.decision == "request_more" and not request["allow_more"]:
+                error = "已達補查輪數或 token 預算上限，無法要求補查"
+                continue
+            return review
+
     def _draft(self, state: CaseState, messages: list[BaseMessage]) -> tuple[ReportDraft, Usage]:
         usage: Usage = {"input_tokens": 0, "output_tokens": 0}
+        attempt = list(messages)
         for _ in range(2):
-            result = self._deps.drafter.invoke(messages)
+            result = self._deps.drafter.invoke(attempt)
             call_usage = _usage(result["raw"])
             usage = _add(usage, call_usage)
             self._audit(state, "llm_call", node="report", model=self._deps.model_name, **call_usage)
             if result["parsed"] is not None:
                 return result["parsed"], usage
+            attempt.append(HumanMessage(prompts.parse_retry_message(result["parsing_error"])))
         raise ReportError("報告格式解析失敗")
 
     def _audit(self, state: CaseState, event: str, **data: Any) -> None:

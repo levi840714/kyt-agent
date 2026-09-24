@@ -51,9 +51,13 @@ def evidence_retry_message(invalid: list[int]) -> str:
     return f"第 {numbers} 項 finding 引用了工具結果中不存在的證據 ID，請修正後重新輸出完整報告。"
 
 
-def supplement_message(report: RiskReport, comment: str) -> str:
+def parse_retry_message(error: object) -> str:
+    return f"上一次輸出的報告無法解析（{error}），請依指定格式重新輸出完整報告。"
+
+
+def supplement_message(report: RiskReport, comment: str, remaining_tool_calls: int) -> str:
     return (
         f"合規人員審閱了第 {report.version} 版報告"
         f"（風險等級 {report.risk_level}：{report.summary}），要求補查：\n"
-        f"{comment}\n\n請依此意見繼續調查。"
+        f"{comment}\n\n請依此意見繼續調查，本輪可再使用 {remaining_tool_calls} 次工具呼叫。"
     )

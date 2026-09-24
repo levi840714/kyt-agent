@@ -40,7 +40,9 @@ def scripted_drafter(drafts: Iterable[ReportDraft | None]) -> Runnable[Any, dict
 
     def respond(_: Any) -> dict[str, Any]:
         raw = AIMessage(content="", usage_metadata=REPORT_USAGE)
-        return {"raw": raw, "parsed": next(queue), "parsing_error": None}
+        parsed = next(queue)
+        error = None if parsed is not None else ValueError("invalid json")
+        return {"raw": raw, "parsed": parsed, "parsing_error": error}
 
     return RunnableLambda(respond)
 
