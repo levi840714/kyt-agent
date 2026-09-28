@@ -13,6 +13,8 @@ class Transfer(BaseModel):
     recipient: LowerStr
     amount: Decimal
     asset: str
+    # 原生 ETH 與 internal 轉帳為 None；不給預設值，缺欄位的舊快照會直接驗證失敗
+    token_contract: LowerStr | None
 
 
 class TransactionDetail(BaseModel):

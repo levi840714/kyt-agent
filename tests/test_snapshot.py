@@ -1,4 +1,7 @@
+import json
+
 import pytest
+from pydantic import ValidationError
 
 from kyt_agent.chain.client import ContractInfo
 from kyt_agent.chain.etherscan import EtherscanClient
@@ -44,3 +47,11 @@ def test_factory_requires_api_key_outside_replay(settings):
         make_chain_client(settings.model_copy(update={"etherscan_api_key": ""}))
     no_key_replay = settings.model_copy(update={"etherscan_api_key": "", "chain_mode": "replay"})
     assert isinstance(make_chain_client(no_key_replay), SnapshotClient)
+
+
+def test_snapshot_without_token_contract_must_be_rerecorded(tmp_path):
+    old = transfer(1, TARGET, MIXER).model_dump(mode="json", exclude={"token_contract"})
+    (tmp_path / "transfers").mkdir()
+    (tmp_path / "transfers" / f"{TARGET}.json").write_text(json.dumps([old]), encoding="utf-8")
+    with pytest.raises(ValidationError, match="token_contract"):
+        SnapshotClient(tmp_path).get_transfers(TARGET)

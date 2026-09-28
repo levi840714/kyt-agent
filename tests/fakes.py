@@ -21,7 +21,12 @@ def label(address: str, category: Category, name: str = "測試標籤") -> Label
 
 
 def transfer(
-    n: int, sender: str, recipient: str, amount: str = "1", asset: str = "ETH"
+    n: int,
+    sender: str,
+    recipient: str,
+    amount: str = "1",
+    asset: str = "ETH",
+    token_contract: str | None = None,
 ) -> Transfer:
     return Transfer(
         tx_hash=tx_hash(n),
@@ -30,6 +35,7 @@ def transfer(
         recipient=recipient,
         amount=Decimal(amount),
         asset=asset,
+        token_contract=token_contract,
     )
 
 
