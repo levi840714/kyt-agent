@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 import pytest
+from pydantic import ValidationError
 
 from kyt_agent.tokens import KnownToken, TokenRegistry, classify_transfer
 from tests.fakes import TARGET, UNKNOWN, transfer
@@ -31,6 +32,11 @@ def test_registry_rejects_duplicate_symbols():
         TokenRegistry([usdt(), usdt(contract=FAKE, symbol="usdt")])
 
 
+def test_registry_rejects_duplicate_contracts():
+    with pytest.raises(ValueError, match=USDT):
+        TokenRegistry([usdt(), usdt(symbol="USDC")])
+
+
 def test_from_csv_reads_rows_and_tolerates_missing_file(tmp_path):
     path = tmp_path / "tokens.csv"
     path.write_text(
@@ -40,6 +46,16 @@ def test_from_csv_reads_rows_and_tolerates_missing_file(tmp_path):
     )
     assert TokenRegistry.from_csv(path).by_contract(USDT) == usdt()
     assert len(TokenRegistry.from_csv(tmp_path / "missing.csv")) == 0
+
+
+def test_from_csv_rejects_unexpected_column(tmp_path):
+    path = tmp_path / "tokens.csv"
+    path.write_text(
+        f"contract,symbol,decimals,dust_threshold,source,typo\n{USDT},USDT,6,0.01,test,oops\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(ValidationError, match="typo"):
+        TokenRegistry.from_csv(path)
 
 
 @pytest.mark.parametrize(
@@ -54,6 +70,7 @@ def test_from_csv_reads_rows_and_tolerates_missing_file(tmp_path):
         ("5", "USDT", USDT, set()),
         ("0.001", "USDT", USDT, {"dust"}),
         ("0.0000001", "PEPE", FAKE, set()),
+        ("0.01", "USDT", USDT, set()),
     ],
 )
 def test_classify_transfer(amount, asset, contract, expected):

@@ -4,7 +4,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from kyt_agent.chain.client import Transfer
 from kyt_agent.models import LowerStr
@@ -14,6 +14,9 @@ NATIVE_SYMBOL = "ETH"
 
 
 class KnownToken(BaseModel):
+    # 拒絕未知欄位，CSV 打錯欄名時直接驗證失敗而非默默忽略
+    model_config = ConfigDict(extra="forbid")
+
     contract: LowerStr
     symbol: str
     decimals: int
@@ -31,6 +34,8 @@ class TokenRegistry:
             symbol = token.symbol.upper()
             if symbol in self._by_symbol:
                 raise ValueError(f"代幣 symbol 重複：{symbol}")
+            if token.contract in self._by_contract:
+                raise ValueError(f"代幣合約重複：{token.contract}")
             self._by_contract[token.contract] = token
             self._by_symbol[symbol] = token
 
