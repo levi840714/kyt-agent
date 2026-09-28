@@ -1,7 +1,7 @@
 [project]
 name = "kyt-agent"
 version = "0.1.0"
-description = "鏈上地址風險調查 Agent（簡易版 KYT）"
+description = "鏈上地址風險調查 Agent（KYT）"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

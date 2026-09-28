@@ -24,7 +24,7 @@ from kyt_agent.labels import fetch_ofac_labels, write_labels_csv
 
 ADDRESS_PATTERN = re.compile(r"^0x[0-9a-fA-F]{40}$")
 
-app = typer.Typer(help="鏈上地址風險調查 Agent（簡易版 KYT）", no_args_is_help=True)
+app = typer.Typer(help="鏈上地址風險調查 Agent（KYT）", no_args_is_help=True)
 labels_app = typer.Typer(help="標籤庫管理", no_args_is_help=True)
 app.add_typer(labels_app, name="labels")
 console = Console()

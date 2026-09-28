@@ -1,6 +1,6 @@
 # AGENTS.md
 
-鏈上地址風險調查 Agent（簡易版 KYT）。以 Python、LangChain、LangGraph 實作，形式為 CLI。
+鏈上地址風險調查 Agent（KYT）。以 Python、LangChain、LangGraph 實作，形式為 CLI。
 設計文件在 `docs/specs/`，實作計畫在 `docs/plans/`。
 
 ## 目錄結構
