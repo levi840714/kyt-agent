@@ -12,9 +12,11 @@ from rich.console import Console
 
 from kyt_agent import render
 from kyt_agent.audit import AuditLog
+from kyt_agent.chain.etherscan import EtherscanError
 from kyt_agent.chain.snapshot import SnapshotMissError
 from kyt_agent.config import PROJECT_ROOT, Settings
 from kyt_agent.evaluation.dataset import load_dataset
+from kyt_agent.evaluation.metrics import CaseResult, summarize
 from kyt_agent.evaluation.runner import record_snapshots, run_eval, write_eval_result
 from kyt_agent.graph.build import build_graph, case_config, open_checkpointer
 from kyt_agent.graph.deps import make_deps
@@ -88,16 +90,28 @@ def evaluate(
             lambda case, count: console.print(f"已錄製 {case.address}：{count} 個地址"),
         )
         return
+    collected: list[CaseResult] = []
+
+    def record_result(result: CaseResult) -> None:
+        collected.append(result)
+        console.print(render.eval_row(result))
+
     try:
         summary, results = run_eval(
-            settings,
-            cases,
-            model,
-            lambda result: console.print(render.eval_row(result)),
-            fill_missing=fill_missing,
+            settings, cases, model, record_result, fill_missing=fill_missing
         )
-    except SnapshotMissError as error:
-        console.print(f"[red]缺少快照 {error}，請先執行 kyt eval --record 或加上 --fill-missing[/]")
+    except (SnapshotMissError, EtherscanError) as error:
+        # 付費的即時查詢中斷不該整批浪費，把已完成的案例先寫下來
+        if collected:
+            partial = summarize(model or settings.llm_model, collected)
+            path = write_eval_result(settings.var_dir / "eval", partial, collected)
+            console.print(f"[yellow]已寫入中斷前的部分結果（{len(collected)} 筆）：{path}[/]")
+        if isinstance(error, SnapshotMissError):
+            console.print(
+                f"[red]缺少快照 {error}，請先執行 kyt eval --record 或加上 --fill-missing[/]"
+            )
+        else:
+            console.print(f"[red]Etherscan 錯誤：{error}[/]")
         raise typer.Exit(1) from error
     path = write_eval_result(settings.var_dir / "eval", summary, results)
     render.show_eval_summary(console, summary)

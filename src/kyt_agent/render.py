@@ -88,7 +88,7 @@ def eval_row(result: CaseResult) -> str:
     return (
         f"{mark} {result.address} {result.category}｜預期 {result.expected}"
         f"｜agent {result.predicted}"
-        f"｜規則 {result.baseline}｜工具 {result.tool_calls} 次"
+        f"｜規則 {result.baseline or '-'}｜工具 {result.tool_calls} 次"
         f"｜token {result.input_tokens + result.output_tokens}"
     )
 

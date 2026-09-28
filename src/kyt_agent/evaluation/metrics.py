@@ -24,7 +24,7 @@ class CaseResult(BaseModel):
     expected: Expected
     category: str
     predicted: RiskLevel | None
-    baseline: RiskLevel
+    baseline: RiskLevel | None
     tool_calls: int = 0
     input_tokens: int = 0
     output_tokens: int = 0
@@ -69,8 +69,8 @@ def summarize(model: str, results: Sequence[CaseResult], snapshots_filled: int =
         errors=len(results) - len(ok),
         recall=_rate(positives, _flagged),
         false_positive_rate=_rate(negatives, _flagged),
-        baseline_recall=_rate(positives, _baseline_flagged),
-        baseline_false_positive_rate=_rate(negatives, _baseline_flagged),
+        baseline_recall=_rate(_with_baseline(positives), _baseline_flagged),
+        baseline_false_positive_rate=_rate(_with_baseline(negatives), _baseline_flagged),
         avg_tool_calls=_mean([result.tool_calls for result in ok]),
         avg_tokens=_mean([_tokens(result) for result in ok]),
         avg_clean_tokens=_mean([_tokens(result) for result in negatives]),
@@ -98,7 +98,7 @@ def _by_category(results: Sequence[CaseResult]) -> dict[str, CategoryMetrics]:
             expected=rows[0].expected,
             cases=len(rows),
             flag_rate=_mean([_flagged(row) for row in rows]),
-            baseline_flag_rate=_mean([_baseline_flagged(row) for row in rows]),
+            baseline_flag_rate=_mean([_baseline_flagged(row) for row in _with_baseline(rows)]),
             avg_tokens=_mean([_tokens(row) for row in rows]),
         )
         for category, rows in sorted(groups.items())
@@ -111,6 +111,11 @@ def _flagged(result: CaseResult) -> bool:
 
 def _baseline_flagged(result: CaseResult) -> bool:
     return result.baseline in FLAGGED
+
+
+def _with_baseline(rows: Sequence[CaseResult]) -> list[CaseResult]:
+    """即時查詢失敗時 baseline 為 None，不該拉低純規則的召回率／誤報率。"""
+    return [row for row in rows if row.baseline is not None]
 
 
 def _tokens(result: CaseResult) -> int:

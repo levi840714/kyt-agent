@@ -2,6 +2,7 @@ import json
 
 import pytest
 
+from kyt_agent.chain.etherscan import EtherscanError
 from kyt_agent.chain.snapshot import SnapshotClient
 from kyt_agent.evaluation import runner
 from kyt_agent.evaluation.crawler import baseline_level, crawl
@@ -114,6 +115,21 @@ def test_summarize_metrics():
     )
 
 
+def test_summarize_skips_none_baseline_in_baseline_rates():
+    # baseline 為 None 代表當次即時查詢失敗，不該拉低純規則的召回率／誤報率
+    results = [
+        CaseResult(
+            address=TARGET, expected="risky", category="mixer", predicted="HIGH", baseline=None
+        ),
+        CaseResult(
+            address=MIXER, expected="risky", category="mixer", predicted="MEDIUM", baseline="HIGH"
+        ),
+    ]
+    summary = summarize("fake:model", results)
+    assert summary.baseline_recall == 1.0
+    assert summary.by_category["mixer"].baseline_flag_rate == 1.0
+
+
 def test_run_case_collects_prediction_and_usage(settings):
     chain = StubChain(transfers={TARGET: [transfer(1, TARGET, MIXER)]})
     labels = LabelStore([label(MIXER, "mixer")])
@@ -163,3 +179,29 @@ def test_run_eval_fill_missing_records_through_then_replays(settings, monkeypatc
     assert modes == ["record", "replay"]
     assert (results[0].error, results[0].snapshot_misses) == (None, 0)
     assert replayed.snapshots_filled == 0
+
+
+def test_run_eval_isolates_live_etherscan_failures_per_case(settings, monkeypatch):
+    class FlakyChain(StubChain):
+        def get_transfers(self, address):
+            if address == MIXER:
+                raise EtherscanError("HTTP 502")
+            return super().get_transfers(address)
+
+    chain = FlakyChain(transfers={TARGET: [transfer(1, TARGET, UNKNOWN)]})
+    script = [ai_tool_call("get_counterparties", "c1", address=TARGET), ai_text("完成")]
+
+    def fake_make_deps(eval_settings, *, model, auto_approve):
+        return fake_deps(eval_settings, chain, LabelStore([]), script, [draft("LOW")], auto_approve)
+
+    monkeypatch.setattr(runner, "make_deps", fake_make_deps)
+    failing = EvalCase(address=MIXER, expected="clean", category="exchange_user", source="test")
+    ok = EvalCase(address=TARGET, expected="clean", category="exchange_user", source="test")
+
+    summary, results = runner.run_eval(settings, [failing, ok], None, lambda _: None)
+
+    failing_result, ok_result = results
+    assert failing_result.baseline is None
+    assert failing_result.error.startswith("EtherscanError")
+    assert (ok_result.error, ok_result.baseline) == (None, "LOW")
+    assert summary.errors == 1

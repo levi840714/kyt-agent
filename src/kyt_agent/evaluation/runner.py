@@ -15,6 +15,7 @@ from kyt_agent.graph.build import build_graph, case_config
 from kyt_agent.graph.deps import Deps, make_deps
 from kyt_agent.graph.state import initial_state
 from kyt_agent.labels import LabelStore
+from kyt_agent.models import RiskLevel
 
 EVAL_DEPTH = 2
 
@@ -55,13 +56,14 @@ def run_eval(
 
 
 def run_case(graph: CompiledStateGraph, deps: Deps, case: EvalCase) -> CaseResult:
-    baseline = baseline_level(deps.chain, deps.labels, case.address)
     case_id = f"eval-{uuid.uuid4().hex[:12]}"
+    baseline: RiskLevel | None = None
     try:
+        baseline = baseline_level(deps.chain, deps.labels, case.address)
         final = graph.invoke(
             initial_state(case_id, case.address, deps.settings), case_config(case_id)
         )
-    except Exception as error:  # 單一案例失敗不應中斷整批 eval
+    except Exception as error:  # 單一案例失敗（含 --fill-missing 即時查詢失敗）不應中斷整批 eval
         return CaseResult(
             address=case.address,
             expected=case.expected,

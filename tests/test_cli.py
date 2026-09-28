@@ -7,6 +7,7 @@ from rich.console import Console
 from typer.testing import CliRunner
 
 from kyt_agent import cli, render
+from kyt_agent.chain.etherscan import EtherscanError
 from kyt_agent.evaluation.metrics import CaseResult, summarize
 from kyt_agent.graph.nodes import ReportError
 from kyt_agent.labels import LabelStore
@@ -205,3 +206,55 @@ def test_eval_fill_missing_is_passed_to_runner(monkeypatch, tmp_path):
     assert result.exit_code == 0, result.output
     assert seen["fill_missing"] is True
     assert "補錄快照 2 個檔案" in result.output
+
+
+def test_eval_reports_etherscan_error(monkeypatch, tmp_path):
+    (tmp_path / "eval").mkdir()
+    row = {"address": TARGET, "expected": "clean", "category": "exchange_user", "source": "t"}
+    (tmp_path / "eval" / "dataset.jsonl").write_text(json.dumps(row) + "\n", encoding="utf-8")
+    monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
+    monkeypatch.setenv("VAR_DIR", str(tmp_path / "var"))
+
+    def fake_run_eval(settings, cases, model, on_result, *, fill_missing):
+        raise EtherscanError("HTTP 502")
+
+    monkeypatch.setattr(cli, "run_eval", fake_run_eval)
+    result = runner.invoke(cli.app, ["eval"])
+    assert result.exit_code == 1
+    assert "Etherscan" in result.output
+    assert not (tmp_path / "var" / "eval").exists()
+
+
+def test_eval_writes_partial_results_when_etherscan_fails_mid_run(monkeypatch, tmp_path):
+    (tmp_path / "eval").mkdir()
+    row = {"address": TARGET, "expected": "clean", "category": "exchange_user", "source": "t"}
+    (tmp_path / "eval" / "dataset.jsonl").write_text(json.dumps(row) + "\n", encoding="utf-8")
+    monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
+    monkeypatch.setenv("VAR_DIR", str(tmp_path / "var"))
+
+    def fake_run_eval(settings, cases, model, on_result, *, fill_missing):
+        on_result(
+            CaseResult(
+                address=TARGET,
+                expected="clean",
+                category="exchange_user",
+                predicted="LOW",
+                baseline="LOW",
+            )
+        )
+        raise EtherscanError("HTTP 502")
+
+    monkeypatch.setattr(cli, "run_eval", fake_run_eval)
+    result = runner.invoke(cli.app, ["eval"])
+    assert result.exit_code == 1
+    assert "部分結果" in result.output
+    written = list((tmp_path / "var" / "eval").glob("*.json"))
+    assert len(written) == 1
+    assert json.loads(written[0].read_text(encoding="utf-8"))["results"][0]["address"] == TARGET
+
+
+def test_eval_row_shows_dash_for_missing_baseline():
+    result = CaseResult(
+        address=TARGET, expected="clean", category="exchange_user", predicted="LOW", baseline=None
+    )
+    assert "規則 -" in render.eval_row(result)
