@@ -1,5 +1,5 @@
 from kyt_agent.graph.budget import exhausted_reason
-from kyt_agent.graph.prompts import report_request
+from kyt_agent.graph.prompts import INVESTIGATION_SYSTEM, REPORT_INSTRUCTION, report_request
 from kyt_agent.graph.state import initial_state
 from tests.fakes import MIXED_CASE, TARGET
 
@@ -30,3 +30,17 @@ def test_report_request_lists_label_evidence_and_budget_note():
     )
     assert "label:0xabc" in text
     assert "預算限制" in text
+
+
+def test_prompts_restrict_judgement_to_tool_facts_and_explain_flags():
+    for prompt in (INVESTIGATION_SYSTEM, REPORT_INSTRUCTION):
+        assert "只能依據工具結果與標籤庫" in prompt
+        assert "不得稱為受制裁" in prompt
+        assert "偽冒代幣" in prompt
+        assert "粉塵" in prompt
+
+
+def test_report_instruction_defines_indirect_high_via_intermediary():
+    assert "不符合 HIGH 條件者" in REPORT_INSTRUCTION
+    assert "經由中間地址間接接觸" in REPORT_INSTRUCTION
+    assert "超過一半" in REPORT_INSTRUCTION
