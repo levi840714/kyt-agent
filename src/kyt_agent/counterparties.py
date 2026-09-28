@@ -60,7 +60,7 @@ def _non_spoofed_count(items: list[Transfer], classify: Classifier) -> int:
 
 
 class InflowComposition(BaseModel):
-    """查詢地址「全部」轉入（不只列出的交易對手）的風險組成，排除偽冒代幣。"""
+    """已取得的最近轉入（不只列出的交易對手）的風險組成，排除偽冒代幣、粉塵與自轉。"""
 
     total: int
     risky: int
@@ -68,7 +68,12 @@ class InflowComposition(BaseModel):
 
     @property
     def share_pct(self) -> int:
-        return round(self.risky / self.total * 100) if self.total else 0
+        # 只供顯示且無條件捨去；是否過半以 majority_risky 的筆數比較為準
+        return self.risky * 100 // self.total if self.total else 0
+
+    @property
+    def majority_risky(self) -> bool:
+        return self.risky * 2 > self.total
 
 
 def inflow_composition(
@@ -81,7 +86,9 @@ def inflow_composition(
     total = 0
     by_category: Counter[str] = Counter()
     for item in transfers:
-        if item.recipient != address or "spoofed_token" in classify(item):
+        if item.recipient != address or item.sender == address:
+            continue
+        if classify(item) & {"spoofed_token", "dust"}:
             continue
         total += 1
         label = labels.get(item.sender)

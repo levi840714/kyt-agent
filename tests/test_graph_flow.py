@@ -1,5 +1,7 @@
 import json
+import re
 from dataclasses import replace
+from decimal import Decimal
 
 import ormsgpack
 import pytest
@@ -8,6 +10,7 @@ from langchain_core.runnables import RunnableLambda
 from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer
 from langgraph.types import Command
 
+from kyt_agent.chain.client import TransactionDetail
 from kyt_agent.graph.build import CHECKPOINT_TYPES, build_graph, case_config, open_checkpointer
 from kyt_agent.graph.nodes import CaseNodes, ReportError
 from kyt_agent.graph.state import initial_state
@@ -435,3 +438,41 @@ def test_evidence_from_old_checkpoint_deserializes_with_ref_fallback():
     restored = serde.loads_typed(("msgpack", blob))
     assert isinstance(restored, Evidence)
     assert (restored.id, restored.ref) == (tx_hash(1), tx_hash(1))
+
+
+def test_audit_log_maps_every_alias_to_a_hash(settings):
+    chain = StubChain(
+        transfers={
+            TARGET: [transfer(1, TARGET, UNKNOWN), transfer(2, EXCHANGE, TARGET)],
+            UNKNOWN: [transfer(1, TARGET, UNKNOWN), transfer(3, UNKNOWN, MIXER)],
+        },
+        transactions={
+            tx_hash(3): TransactionDetail(
+                tx_hash=tx_hash(3),
+                sender=UNKNOWN,
+                recipient=MIXER,
+                value_eth=Decimal("1"),
+                block_number=1,
+                method_id="0x",
+            )
+        },
+    )
+    script = [
+        ai_tool_call("get_counterparties", "c1", address=TARGET),
+        ai_tool_call("get_counterparties", "c2", address=UNKNOWN),
+        ai_tool_call("get_transaction", "c3", tx="t3"),
+        ai_text("完成"),
+    ]
+    deps = fake_deps(settings, chain, LabelStore([]), script, [draft("LOW")], auto_approve=True)
+    build_graph(deps).invoke(initial_state("case-18", TARGET, settings), case_config("case-18"))
+
+    path = settings.var_dir / "audit" / "case-18.jsonl"
+    entries = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
+    calls = [entry for entry in entries if entry["event"] == "tool_call"]
+    mapping = {alias: ref for entry in calls for alias, ref in entry["evidence"].items()}
+    # 兩個交易對手筆數相同時依地址排序，EXCHANGE 在前
+    assert mapping == {"T1": tx_hash(2), "T2": tx_hash(1), "T3": tx_hash(3)}
+    assert calls[1]["evidence"] == {"T3": tx_hash(3)}
+    seen = {alias for entry in calls for alias in re.findall(r"T\d+", entry["result_preview"])}
+    assert seen and seen <= mapping.keys()
+    assert calls[2]["resolved_tx"] == tx_hash(3)

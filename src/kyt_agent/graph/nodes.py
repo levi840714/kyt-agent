@@ -81,9 +81,8 @@ class CaseNodes:
                 )
                 continue
             known = {**state["nodes"], **nodes}
-            outcome = self._investigator.execute(
-                call["name"], call["args"], known, {**state["evidence"], **evidence}
-            )
+            known_evidence = {**state["evidence"], **evidence}
+            outcome = self._investigator.execute(call["name"], call["args"], known, known_evidence)
             used += 1
             misses += outcome.miss
             streak = 0 if _reveals_risk(outcome, known) else streak + 1
@@ -97,6 +96,13 @@ class CaseNodes:
                 args=call["args"],
                 result_sha256=digest(outcome.content),
                 result_preview=outcome.content[:200],
+                # 工具結果只有代號，記下新配的代號與 hash 對應，audit log 才能獨立追溯
+                evidence={
+                    item.id: item.ref
+                    for item in outcome.evidence.values()
+                    if item.kind == "tx" and item.id not in known_evidence
+                },
+                **({"resolved_tx": outcome.resolved_tx} if outcome.resolved_tx else {}),
             )
         hinted = state.get("wrap_up_hinted", False)
         hint = streak >= self._deps.settings.wrap_up_hint_after and not hinted

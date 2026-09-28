@@ -101,10 +101,10 @@ def test_inflow_composition_counts_risky_share_by_category():
     composition = inflow_composition(TARGET, transfers, labels)
     assert (composition.total, composition.risky) == (6, 3)
     assert composition.by_category == {"mixer": 2, "sanctioned": 1}
-    assert composition.share_pct == 50
+    assert (composition.share_pct, composition.majority_risky) == (50, False)
 
 
-def test_inflow_composition_rounds_share_to_nearest_percent():
+def test_inflow_composition_floors_share_percent():
     labels = LabelStore([label(MIXER, "mixer")])
     transfers = [
         transfer(1, MIXER, TARGET),
@@ -113,7 +113,7 @@ def test_inflow_composition_rounds_share_to_nearest_percent():
     ]
     composition = inflow_composition(TARGET, transfers, labels)
     assert (composition.total, composition.risky) == (3, 2)
-    assert composition.share_pct == 67  # 2/3 = 66.67% -> 67
+    assert (composition.share_pct, composition.majority_risky) == (66, True)
 
 
 def test_inflow_composition_zero_inflow():
@@ -134,3 +134,31 @@ def test_inflow_composition_excludes_spoofed_transfers_and_outgoing():
     ]
     composition = inflow_composition(TARGET, transfers, labels, classify=classify)
     assert (composition.total, composition.risky) == (1, 1)
+
+
+def test_inflow_majority_is_decided_by_counts_not_rounded_percent():
+    labels = LabelStore([label(MIXER, "mixer")])
+
+    def composition(risky: int, total: int):
+        transfers = [transfer(n, MIXER, TARGET) for n in range(risky)]
+        transfers += [transfer(n, EXCHANGE, TARGET) for n in range(risky, total)]
+        return inflow_composition(TARGET, transfers, labels)
+
+    above = composition(51, 101)
+    assert (above.share_pct, above.majority_risky) == (50, True)
+    half = composition(50, 100)
+    assert (half.share_pct, half.majority_risky) == (50, False)
+
+
+def test_inflow_composition_excludes_dust_and_self_transfers():
+    def classify(item):
+        return {"dust"} if item.amount < Decimal("0.001") else set()
+
+    labels = LabelStore([label(MIXER, "mixer")])
+    transfers = [
+        transfer(1, MIXER, TARGET, "0.00001"),
+        transfer(2, TARGET, TARGET),
+        transfer(3, EXCHANGE, TARGET),
+    ]
+    composition = inflow_composition(TARGET, transfers, labels, classify=classify)
+    assert (composition.total, composition.risky) == (1, 0)

@@ -69,6 +69,7 @@ class ToolOutcome(BaseModel):
     nodes: dict[str, AddressNode] = {}
     evidence: dict[str, Evidence] = {}
     miss: bool = False
+    resolved_tx: str | None = None
 
 
 class Investigator:
@@ -133,7 +134,8 @@ class Investigator:
             inflow = f"{_format_inflow(composition)}；"
         lines = [
             f"{address}（第 {node.depth} 層）方向 {args.direction}：{inflow}"
-            f"共 {len(found)} 個交易對手，列出 {len(shown)} 個（已知標籤全列，其餘依互動次數排序）"
+            f"共 {len(found)} 個交易對手，列出 {len(shown)} 個"
+            "（已知標籤全列，其餘依互動次數（不含偽冒代幣）排序）"
         ]
         for counterparty in shown:
             label = self._labels.get(counterparty.address)
@@ -175,13 +177,14 @@ class Investigator:
             return ToolOutcome(content="拒絕：只能查詢工具結果中出現過的交易")
         detail = self._chain.get_transaction(item.ref)
         if detail is None:
-            return ToolOutcome(content=f"查無交易 {item.id}")
+            return ToolOutcome(content=f"查無交易 {item.id}", resolved_tx=item.ref)
         return ToolOutcome(
             content=(
                 f"{item.id}（{item.ref}）\n區塊：{detail.block_number}\n從：{detail.sender}\n"
                 f"到：{detail.recipient or '（合約建立）'}\n"
                 f"金額：{_amount(detail.value_eth)} ETH\n方法：{detail.method_id or '（無）'}"
-            )
+            ),
+            resolved_tx=item.ref,
         )
 
 
@@ -254,14 +257,16 @@ def _format_counterparty(
 
 
 def _format_inflow(composition: InflowComposition) -> str:
+    window = f"最近 {composition.total} 筆轉入（不含偽冒代幣與粉塵）"
     if composition.total == 0:
-        return "轉入 0 筆"
+        return window
     ranked = sorted(composition.by_category.items(), key=lambda kv: (-kv[1], kv[0]))
     breakdown = "、".join(f"{name} {count}" for name, count in ranked)
     detail = f"：{breakdown}" if breakdown else ""
+    majority = "（過半）" if composition.majority_risky else ""
     return (
-        f"轉入 {composition.total} 筆（不含偽冒代幣），"
-        f"來自風險標籤地址 {composition.risky} 筆（{composition.share_pct}%）{detail}"
+        f"{window}，來自風險標籤地址 {composition.risky} 筆"
+        f"（{composition.share_pct}%）{majority}{detail}"
     )
 
 

@@ -152,6 +152,7 @@ def test_get_transaction_accepts_alias_or_registered_hash(investigator):
     alias = tx_refs(found)[tx_hash(1)]
     by_alias = investigator.execute("get_transaction", {"tx": alias.lower()}, ROOT, found)
     assert by_alias.content.splitlines()[0] == f"{alias}（{tx_hash(1)}）"
+    assert by_alias.resolved_tx == tx_hash(1)
     assert "0xb214faa5" in by_alias.content
     by_hash = investigator.execute("get_transaction", {"tx": tx_hash(1)}, ROOT, found)
     assert by_hash.content == by_alias.content
@@ -280,7 +281,9 @@ def test_header_shows_inflow_composition_for_in_and_both_directions(settings):
         "get_counterparties", {"address": TARGET, "direction": "both"}, ROOT, {}
     )
     header = outcome.content.splitlines()[0]
-    assert "轉入 4 筆（不含偽冒代幣），來自風險標籤地址 2 筆（50%）" in header
+    assert "最近 4 筆轉入（不含偽冒代幣與粉塵），來自風險標籤地址 2 筆（50%）：" in header
+    assert "過半" not in header
+    assert "依互動次數（不含偽冒代幣）排序" in header
     assert "mixer 1" in header
     assert "sanctioned 1" in header
 
@@ -302,7 +305,7 @@ def test_header_shows_zero_inflow(settings):
         "get_counterparties", {"address": TARGET, "direction": "in"}, ROOT, {}
     )
     header = outcome.content.splitlines()[0]
-    assert "轉入 0 筆" in header
+    assert "最近 0 筆轉入（不含偽冒代幣與粉塵）；" in header
 
 
 def test_counterparty_with_only_spoofed_transfers_shows_dash_totals(settings):
@@ -362,3 +365,18 @@ def test_descendant_reparented_directly_keeps_shallower_depth(settings):
     assert outcome.content.index(MIXER) < outcome.content.index(UNKNOWN)
     assert (outcome.nodes[MIXER].depth, outcome.nodes[MIXER].parent) == (1, TARGET)
     assert (outcome.nodes[UNKNOWN].depth, outcome.nodes[UNKNOWN].parent) == (1, TARGET)
+
+
+def test_header_marks_majority_risky_inflow(settings):
+    transfers = [transfer(n, MIXER, TARGET) for n in range(51)]
+    transfers += [transfer(n, EXCHANGE, TARGET) for n in range(51, 101)]
+    chain = StubChain(transfers={TARGET: transfers})
+    investigator = Investigator(chain, LabelStore([label(MIXER, "mixer")]), NO_TOKENS, settings)
+    outcome = investigator.execute(
+        "get_counterparties", {"address": TARGET, "direction": "in"}, ROOT, {}
+    )
+    header = outcome.content.splitlines()[0]
+    assert (
+        "最近 101 筆轉入（不含偽冒代幣與粉塵），來自風險標籤地址 51 筆（50%）（過半）：mixer 51"
+        in header
+    )
