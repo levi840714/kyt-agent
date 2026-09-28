@@ -172,7 +172,7 @@ class Investigator:
 
 
 def _with_descendants(moved: AddressNode, nodes: dict[str, AddressNode]) -> dict[str, AddressNode]:
-    # 子孫深度不跟著更新的話，風險下限與深度上限會用到過時的層數
+    # 子孫深度不跟著更新的話，深度上限與回報的層數會用到過時的值
     updated = {moved.address: moved}
     frontier = [moved]
     while frontier:
