@@ -1,7 +1,7 @@
 # KYT Agent 設計文件：鏈上地址風險調查（簡易版）
 
 - 日期：2026-09-25
-- 狀態：設計已確認，待實作
+- 狀態：v1 已實作
 
 ## 1. 目標
 
@@ -45,19 +45,25 @@ kyt_agent/
 ├── data/
 │   ├── labels/            # 本地標籤庫 CSV（進版控）
 │   └── snapshots/         # 錄製的 Etherscan 回應（進版控，供 eval 重播）
-├── var/                   # checkpoint.sqlite、audit/、cases/（不進版控）
+├── var/                   # checkpoints.sqlite、audit/、cases/、eval/（不進版控）
 ├── eval/dataset.jsonl
 ├── src/kyt_agent/
 │   ├── __main__.py / cli.py
+│   ├── render.py          # rich 呈現：進度、報告、審核提示、eval 摘要
 │   ├── config.py
+│   ├── models.py          # Label、AddressNode、Evidence、RuleHit、Review、RiskLevel
 │   ├── chain/
 │   │   ├── client.py      # ChainClient Protocol 與資料模型
 │   │   ├── etherscan.py   # Etherscan V2 實作（httpx）
-│   │   └── snapshot.py    # 錄製 / 重播包裝
+│   │   ├── snapshot.py    # 錄製 / 重播包裝
+│   │   └── factory.py     # 依 CHAIN_MODE 組出 client
 │   ├── labels.py
+│   ├── counterparties.py  # 交易對手彙整與挑選
 │   ├── rules.py
 │   ├── graph/
 │   │   ├── state.py
+│   │   ├── deps.py        # 模型、chain、標籤庫、audit 等依賴注入
+│   │   ├── budget.py      # 預算用盡判斷
 │   │   ├── nodes.py
 │   │   ├── tools.py
 │   │   ├── prompts.py
@@ -65,6 +71,10 @@ kyt_agent/
 │   ├── report.py
 │   ├── audit.py
 │   └── evaluation/
+│       ├── dataset.py     # 讀取 eval/dataset.jsonl
+│       ├── crawler.py     # 錄製用確定性爬蟲與純規則 baseline
+│       ├── runner.py      # 錄製、執行、寫出結果
+│       └── metrics.py     # 召回率、誤報率、成本
 └── tests/
 ```
 
@@ -88,13 +98,15 @@ kyt_agent/
 | `TOP_COUNTERPARTIES` | 10 | `get_counterparties` 回傳的對手數 |
 | `SUPPLEMENT_TOOL_CALLS` | 10 | 每次補查追加的工具呼叫額度 |
 | `MAX_REVIEW_ROUNDS` | 3 | 補查輪數上限 |
+| `ETHERSCAN_MIN_INTERVAL` | 0.25 | Etherscan 請求最小間隔（秒） |
+| `TX_PAGE_SIZE` | 100 | 每次交易查詢取回的筆數 |
 
 ### 4.2 chain
 
-- `ChainClient` Protocol：`get_normal_transactions(address)`、`get_token_transfers(address)`、`get_transaction(tx_hash)`、`get_contract_info(address)`，回傳 pydantic 模型
+- `ChainClient` Protocol：`get_transfers(address)`（合併一般交易、internal 交易與 token 轉帳，各取最近 `TX_PAGE_SIZE` 筆）、`get_transaction(tx_hash)`、`get_contract_info(address)`，回傳 pydantic 模型
 - `EtherscanClient`：Etherscan V2（`chainid=1`），處理 rate limit 重試與錯誤
 - `SnapshotClient`：包裝任一 client
-  - `record`：委派給內部 client，並以「方法名稱 + 參數」為 key 將回應寫入 `data/snapshots/`
+  - `record`：委派給內部 client，並以「方法名稱 + 參數」為 key，將 `ChainClient` 的 pydantic 輸出寫入 `data/snapshots/`
   - `replay`：只讀快照；缺少時拋出 `SnapshotMissError`，不回退到網路
 
 ### 4.3 labels
@@ -109,8 +121,8 @@ kyt_agent/
 - `screen(address)`：目標地址命中 `sanctioned` 時回傳 SEVERE 的 rule hit
 - `risk_floor(case_graph)`：依證據計算風險下限
   - 目標地址本身為 `sanctioned` → SEVERE
-  - 目標地址一層內有 `sanctioned` 對手 → 至少 HIGH
-  - 目標地址一層內有 `mixer` 或 `hack` 對手 → 至少 MEDIUM
+  - 目標地址本身為 `mixer` 或 `hack` → 至少 HIGH
+  - 目標地址一層內有 `sanctioned`、`mixer` 或 `hack` 對手 → 至少 HIGH（直接接觸即須人工審查，粉塵亦同）
   - 其餘 → LOW
 
 ### 4.5 graph
@@ -123,21 +135,27 @@ kyt_agent/
 | `messages` | agent 對話紀錄 |
 | `nodes` | 已發現地址：深度、父地址、標籤、是否已展開 |
 | `evidence` | 工具實際取得的證據，ID 為 tx hash 或 `label:<address>` |
-| `budget` | 已用工具呼叫、已展開地址、token 數與當輪上限 |
 | `rule_hits` | 規則層結果 |
-| `report` | 最新報告與版本號 |
+| `tool_calls`、`tool_call_limit` | 已用工具呼叫數與目前上限（補查時追加） |
+| `input_tokens`、`output_tokens` | 案件累計 LLM token |
+| `snapshot_misses` | 重播模式下的快照缺漏次數 |
+| `budget_note` | 預算用盡原因，未用盡為 `None` |
+| `report` | 最新 `RiskReport`，含 `version` |
 | `review_round`、`reviews` | 審核輪數與歷次決策 |
+| `status` | `investigating` / `approved` / `rejected` |
+
+已展開地址數由 `nodes` 中 `expanded` 計算，不另存欄位。
 
 **工具**
 
 | 工具 | 行為 |
 | ---- | ---- |
-| `get_counterparties(address, direction)` | 彙整一般交易與 token 轉帳，回傳依金額排序的前 N 名對手：筆數、總額、時間區間、範例 tx hash、已知標籤 |
+| `get_counterparties(address, direction)` | 彙整一般交易與 token 轉帳，回傳對手清單：已知標籤的對手全部列出，其餘依互動次數取前 N 名（無價格資料，無法依金額排序）；含筆數、總額、時間區間、範例 tx hash、已知標籤 |
 | `lookup_address(address)` | 標籤庫分類、是否為合約、合約名稱 |
 | `get_transaction(tx_hash)` | 單筆交易細節 |
 
 - 工具只接受已出現在 `nodes` 中的地址，以及已出現在 `evidence` 中的 tx hash
-- 新發現的對手以「父深度 + 1」登記；深度超過 `MAX_DEPTH` 的地址不可展開
+- 新發現的對手以「父深度 + 1」登記；已登記的對手若在較淺層再次出現，改掛到較淺的父地址與深度；深度達 `MAX_DEPTH` 的地址不可展開
 - 快照缺漏時工具回傳「資料不可用」而非拋出例外
 
 **prompts**：system prompt 說明調查目標、深追與停止的指引（混幣器、跨鏈橋深追；交易所熱錢包停止）、證據引用規則。
@@ -149,7 +167,7 @@ kyt_agent/
 - `risk_level`：LOW / MEDIUM / HIGH / SEVERE
 - `summary`
 - `findings[]`：`claim` + `evidence`（至少一個 evidence ID）
-- `fund_paths[]`：地址序列，每個節點附標籤
+- `fund_paths[]`：地址序列，每個節點的標籤由程式依標籤庫覆寫，不採用 LLM 填寫的值
 - `recommendation`
 - `limitations`
 
@@ -169,7 +187,7 @@ kyt_agent/
 
 ### 4.8 audit
 
-`var/audit/<case_id>.jsonl`，只追加。事件：`case_opened`、`rule_screen`、`tool_call`（參數、結果摘要、結果 sha256）、`llm_call`（模型、token）、`budget_exhausted`、`report_generated`（版本）、`evidence_check`、`human_decision`（審核人為 OS 使用者、決策、意見）、`case_closed`。
+`var/audit/<case_id>.jsonl`，只追加。事件：`case_opened`、`rule_screen`、`tool_call`（參數、結果摘要、結果 sha256）、`llm_call`（模型、token）、`budget_exhausted`、`report_generated`（版本）、`evidence_check`、`human_decision`（審核人為 OS 使用者、決策、意見）、`case_closed`、`case_error`（報告解析失敗）。
 
 LangSmith 為選配，以 `LANGSMITH_TRACING=true` 啟用。
 
@@ -193,16 +211,17 @@ LangSmith 為選配，以 `LANGSMITH_TRACING=true` 啟用。
 - 判定：`risk_level >= HIGH` 視為標記
 - 輸出：召回率、誤報率、每 case 的工具呼叫數、token 數、估算成本、快照 miss 次數，並與純規則 baseline（screen + risk_floor，不經 LLM）對照
 - 結果寫入 `var/eval/<timestamp>-<model>.json`
+- eval 執行時 `MAX_DEPTH` 固定為 2，與錄製深度一致
 
 ## 7. 錯誤處理
 
 | 情境 | 處理 |
 | ---- | ---- |
-| Etherscan rate limit / 暫時錯誤 | client 內指數退避重試，仍失敗則工具回傳錯誤訊息給 agent |
+| Etherscan rate limit、HTTP 5xx、逾時或連線錯誤 | client 內指數退避重試，仍失敗則工具回傳錯誤訊息給 agent；錯誤訊息只含狀態碼或例外類型，不含帶 API key 的 URL |
 | 快照缺漏 | 工具回傳「資料不可用」，計入 miss |
 | LLM 呼叫非法地址或超出深度 | 工具拒絕並說明原因，計入工具呼叫額度 |
 | 預算用盡 | 不執行工具，進入 report，`limitations` 註明 |
-| 報告 structured output 解析失敗 | 重試一次，仍失敗則案件標為錯誤並寫入 audit |
+| 報告 structured output 解析失敗 | 重試一次，仍失敗則寫入 audit `case_error`、CLI 結束；案件停在 checkpoint，可用 `kyt resume` 重試（不另設錯誤狀態） |
 
 ## 8. 測試
 
