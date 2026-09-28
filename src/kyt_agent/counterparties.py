@@ -48,8 +48,15 @@ def summarize_counterparties(
         if direction == "out" and incoming:
             continue
         groups[other].append(item)
-    ranked = sorted(groups.items(), key=lambda group: (-len(group[1]), group[0]))
+    # 依非偽冒代幣筆數排序，避免偽冒代幣洗版把真實交易對手擠出列表；transfer_count 仍為原始筆數
+    ranked = sorted(
+        groups.items(), key=lambda group: (-_non_spoofed_count(group[1], classify), group[0])
+    )
     return [_summarize(address, other, items, samples, classify) for other, items in ranked]
+
+
+def _non_spoofed_count(items: list[Transfer], classify: Classifier) -> int:
+    return sum(1 for item in items if "spoofed_token" not in classify(item))
 
 
 class InflowComposition(BaseModel):

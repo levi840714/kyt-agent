@@ -71,6 +71,23 @@ def test_counts_flags_and_excludes_spoofed_amounts_from_totals():
     assert summarize_counterparties(TARGET, transfers)[0].flags == {}
 
 
+def test_ranks_by_non_spoofed_count_so_spoofed_spam_cannot_crowd_out_real_counterparties():
+    def classify(item):
+        return {"spoofed_token"} if item.asset == "FAKE" else set()
+
+    transfers = [
+        transfer(1, TARGET, EXCHANGE, "1", "FAKE"),
+        transfer(2, TARGET, EXCHANGE, "1", "FAKE"),
+        transfer(3, TARGET, EXCHANGE, "1", "FAKE"),
+        transfer(4, TARGET, MIXER),
+        transfer(5, TARGET, MIXER),
+    ]
+    ranked = summarize_counterparties(TARGET, transfers, classify=classify)
+    assert [c.address for c in ranked] == [MIXER, EXCHANGE]
+    exchange = next(c for c in ranked if c.address == EXCHANGE)
+    assert exchange.transfer_count == 3  # 原始筆數不受排序影響
+
+
 def test_inflow_composition_counts_risky_share_by_category():
     labels = LabelStore([label(MIXER, "mixer"), label(SANCTIONED, "sanctioned")])
     transfers = [
