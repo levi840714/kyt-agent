@@ -10,9 +10,11 @@ from kyt_agent.graph.tools import Investigator, tool_schemas
 from kyt_agent.labels import LabelStore
 from kyt_agent.models import AddressNode
 from kyt_agent.rules import risk_floor
+from kyt_agent.tokens import TokenRegistry
 from tests.fakes import EXCHANGE, MIXER, TARGET, UNKNOWN, StubChain, label, transfer, tx_hash
 
 ROOT = {TARGET: AddressNode(address=TARGET, depth=0)}
+NO_TOKENS = TokenRegistry([])
 
 
 @pytest.fixture
@@ -41,7 +43,8 @@ def chain() -> StubChain:
 
 @pytest.fixture
 def investigator(chain, settings) -> Investigator:
-    return Investigator(chain, LabelStore([label(MIXER, "mixer", "Tornado Cash")]), settings)
+    labels = LabelStore([label(MIXER, "mixer", "Tornado Cash")])
+    return Investigator(chain, labels, NO_TOKENS, settings)
 
 
 def test_tool_schemas_expose_three_tools():
@@ -68,7 +71,7 @@ def test_expands_target_and_registers_counterparties(investigator):
 def test_labeled_counterparty_is_listed_beyond_top_n(chain, settings):
     narrow = settings.model_copy(update={"top_counterparties": 1})
     labels = LabelStore([label(MIXER, "mixer")])
-    outcome = Investigator(chain, labels, narrow).execute(
+    outcome = Investigator(chain, labels, NO_TOKENS, narrow).execute(
         "get_counterparties", {"address": TARGET}, ROOT, {}
     )
     assert {MIXER, EXCHANGE} <= outcome.nodes.keys()
@@ -86,7 +89,7 @@ def test_rejects_expansion_beyond_address_limit(chain, settings):
         TARGET: AddressNode(address=TARGET, depth=0, expanded=True),
         UNKNOWN: AddressNode(address=UNKNOWN, depth=1),
     }
-    outcome = Investigator(chain, LabelStore([]), limited).execute(
+    outcome = Investigator(chain, LabelStore([]), NO_TOKENS, limited).execute(
         "get_counterparties", {"address": UNKNOWN}, nodes, {}
     )
     assert "上限" in outcome.content
@@ -113,7 +116,8 @@ def test_invalid_arguments_and_unknown_tool(investigator):
 
 
 def test_snapshot_miss_is_reported(settings, tmp_path):
-    replay = Investigator(SnapshotClient(tmp_path / "snapshots"), LabelStore([]), settings)
+    snapshots = SnapshotClient(tmp_path / "snapshots")
+    replay = Investigator(snapshots, LabelStore([]), NO_TOKENS, settings)
     outcome = replay.execute("get_counterparties", {"address": TARGET}, ROOT, {})
     assert outcome.miss
     assert "資料不可用" in outcome.content
@@ -135,7 +139,7 @@ def test_etherscan_failure_does_not_leak_api_key(settings, failure):
         min_interval=0,
         sleep=lambda _: None,
     )
-    outcome = Investigator(client, LabelStore([]), settings).execute(
+    outcome = Investigator(client, LabelStore([]), NO_TOKENS, settings).execute(
         "get_counterparties", {"address": TARGET}, ROOT, {}
     )
     assert outcome.content.startswith("查詢失敗")
@@ -149,7 +153,7 @@ def test_counterparty_found_at_shallower_depth_is_reparented(settings):
             EXCHANGE: [transfer(3, MIXER, EXCHANGE)],
         }
     )
-    investigator = Investigator(chain, LabelStore([label(MIXER, "mixer")]), settings)
+    investigator = Investigator(chain, LabelStore([label(MIXER, "mixer")]), NO_TOKENS, settings)
     nodes = dict(ROOT)
     for address, direction in [(TARGET, "in"), (EXCHANGE, "both"), (TARGET, "out")]:
         args = {"address": address, "direction": direction}
@@ -159,3 +163,23 @@ def test_counterparty_found_at_shallower_depth_is_reparented(settings):
     assert (nodes[MIXER].depth, nodes[MIXER].parent) == (1, TARGET)
     assert nodes[MIXER].label.category == "mixer"
     assert risk_floor(TARGET, nodes) == "HIGH"
+
+
+def test_counterparty_flags_are_shown_and_spoofed_amounts_excluded(settings):
+    fake_eth = "0x" + "e" * 40
+    chain = StubChain(
+        transfers={
+            TARGET: [
+                transfer(1, UNKNOWN, TARGET, "0.3", "ETH", token_contract=fake_eth),
+                transfer(2, UNKNOWN, TARGET, "0.3", "ETH", token_contract=fake_eth),
+                transfer(3, UNKNOWN, TARGET, "0.00001"),
+                transfer(4, UNKNOWN, TARGET, "1"),
+            ]
+        }
+    )
+    investigator = Investigator(chain, LabelStore([]), NO_TOKENS, settings)
+    outcome = investigator.execute("get_counterparties", {"address": TARGET}, ROOT, {})
+    line = next(row for row in outcome.content.splitlines() if row.startswith(f"- {UNKNOWN}"))
+    assert line.endswith("| ⚠ 偽冒代幣 2 筆、粉塵 1 筆")
+    assert "| 1 ETH |" in line
+    assert tx_hash(4) in outcome.evidence

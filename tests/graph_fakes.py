@@ -11,6 +11,7 @@ from kyt_agent.config import Settings
 from kyt_agent.graph.deps import Deps
 from kyt_agent.labels import LabelStore
 from kyt_agent.report import ReportDraft
+from kyt_agent.tokens import TokenRegistry
 
 AGENT_USAGE = {"input_tokens": 100, "output_tokens": 10, "total_tokens": 110}
 REPORT_USAGE = {"input_tokens": 200, "output_tokens": 50, "total_tokens": 250}
@@ -59,6 +60,7 @@ def fake_deps(
         settings=settings,
         chain=chain,
         labels=labels,
+        tokens=TokenRegistry([]),
         audit=AuditLog(settings.var_dir / "audit"),
         agent_model=ScriptedModel(messages=iter(list(script))),
         drafter=scripted_drafter(drafts),

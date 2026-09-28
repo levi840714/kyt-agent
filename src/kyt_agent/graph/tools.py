@@ -4,7 +4,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field, ValidationError
 
-from kyt_agent.chain.client import ChainClient
+from kyt_agent.chain.client import ChainClient, Transfer
 from kyt_agent.chain.etherscan import EtherscanError
 from kyt_agent.chain.snapshot import SnapshotMissError
 from kyt_agent.config import Settings
@@ -16,8 +16,10 @@ from kyt_agent.counterparties import (
 )
 from kyt_agent.labels import LabelStore
 from kyt_agent.models import AddressNode, Evidence, Label
+from kyt_agent.tokens import TokenRegistry, TransferFlag, classify_transfer
 
 _UNKNOWN_ADDRESS = "拒絕：只能查詢目標地址，或工具結果中出現過的地址"
+_FLAG_NAMES: dict[TransferFlag, str] = {"spoofed_token": "偽冒代幣", "dust": "粉塵"}
 
 
 class GetCounterpartiesArgs(BaseModel):
@@ -67,9 +69,12 @@ class ToolOutcome(BaseModel):
 
 
 class Investigator:
-    def __init__(self, chain: ChainClient, labels: LabelStore, settings: Settings) -> None:
+    def __init__(
+        self, chain: ChainClient, labels: LabelStore, tokens: TokenRegistry, settings: Settings
+    ) -> None:
         self._chain = chain
         self._labels = labels
+        self._tokens = tokens
         self._settings = settings
 
     def execute(
@@ -107,7 +112,7 @@ class Investigator:
         if not node.expanded and expanded >= self._settings.max_addresses:
             return ToolOutcome(content=f"拒絕：已展開 {expanded} 個地址，達到上限")
         found = summarize_counterparties(
-            address, self._chain.get_transfers(address), args.direction
+            address, self._chain.get_transfers(address), args.direction, classify=self._flags
         )
         shown = select_counterparties(found, self._labels, self._settings.top_counterparties)
         new_nodes = {address: node.model_copy(update={"expanded": True})}
@@ -133,6 +138,9 @@ class Investigator:
                 evidence.update(label_evidence(label))
             lines.append(_format_counterparty(counterparty, label))
         return ToolOutcome(content="\n".join(lines), nodes=new_nodes, evidence=evidence)
+
+    def _flags(self, item: Transfer) -> set[TransferFlag]:
+        return classify_transfer(item, self._tokens, self._settings.native_dust_threshold)
 
     def _lookup(self, args: LookupAddressArgs, nodes: dict[str, AddressNode]) -> ToolOutcome:
         address = args.address.lower()
@@ -186,10 +194,16 @@ def _format_counterparty(counterparty: Counterparty, label: Label | None) -> str
     totals = ", ".join(f"{_amount(value)} {asset}" for asset, value in counterparty.totals.items())
     period = f"{_date(counterparty.first_seen)}~{_date(counterparty.last_seen)}"
     samples = ", ".join(counterparty.sample_hashes)
-    return (
+    line = (
         f"- {counterparty.address} {tag} {counterparty.direction} "
-        f"{counterparty.transfer_count} 筆 | {totals} | {period} | 例：{samples}"
+        f"{counterparty.transfer_count} 筆 | {totals or '-'} | {period} | 例：{samples}"
     )
+    flags = [
+        f"{name} {counterparty.flags[flag]} 筆"
+        for flag, name in _FLAG_NAMES.items()
+        if flag in counterparty.flags
+    ]
+    return f"{line} | ⚠ {'、'.join(flags)}" if flags else line
 
 
 def _amount(value: Decimal) -> str:

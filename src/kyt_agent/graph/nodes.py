@@ -25,7 +25,7 @@ class ReportError(RuntimeError):
 class CaseNodes:
     def __init__(self, deps: Deps) -> None:
         self._deps = deps
-        self._investigator = Investigator(deps.chain, deps.labels, deps.settings)
+        self._investigator = Investigator(deps.chain, deps.labels, deps.tokens, deps.settings)
 
     def screen(self, state: CaseState) -> dict[str, Any]:
         target = state["target"]

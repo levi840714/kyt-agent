@@ -12,6 +12,7 @@ from kyt_agent.config import Settings
 from kyt_agent.graph.tools import tool_schemas
 from kyt_agent.labels import LabelStore
 from kyt_agent.report import ReportDraft
+from kyt_agent.tokens import TokenRegistry
 
 
 @dataclass(frozen=True)
@@ -19,6 +20,7 @@ class Deps:
     settings: Settings
     chain: ChainClient
     labels: LabelStore
+    tokens: TokenRegistry
     audit: AuditLog
     agent_model: Runnable[Any, AIMessage]
     drafter: Runnable[Any, Any]
@@ -33,6 +35,7 @@ def make_deps(settings: Settings, *, model: str | None = None, auto_approve: boo
         settings=settings,
         chain=make_chain_client(settings),
         labels=LabelStore.from_dir(settings.data_dir / "labels"),
+        tokens=TokenRegistry.from_csv(settings.data_dir / "tokens.csv"),
         audit=AuditLog(settings.var_dir / "audit"),
         agent_model=llm.bind_tools(tool_schemas()),
         drafter=llm.with_structured_output(ReportDraft, include_raw=True),
