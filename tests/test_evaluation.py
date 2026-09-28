@@ -2,6 +2,8 @@ import json
 
 import pytest
 
+from kyt_agent.chain.snapshot import SnapshotClient
+from kyt_agent.evaluation import runner
 from kyt_agent.evaluation.crawler import baseline_level, crawl
 from kyt_agent.evaluation.dataset import EvalCase, load_dataset
 from kyt_agent.evaluation.metrics import CaseResult, CategoryMetrics, summarize
@@ -137,3 +139,27 @@ def test_write_eval_result(tmp_path):
     path = write_eval_result(tmp_path, summary, [])
     assert path.name.endswith("fake_model.json")
     assert json.loads(path.read_text(encoding="utf-8"))["summary"]["model"] == "fake:model"
+
+
+def test_run_eval_fill_missing_records_through_then_replays(settings, monkeypatch):
+    live = StubChain(transfers={TARGET: [transfer(1, TARGET, UNKNOWN)]})
+    modes: list[str] = []
+
+    def fake_make_deps(eval_settings, *, model, auto_approve):
+        modes.append(eval_settings.chain_mode)
+        inner = live if eval_settings.chain_mode == "record" else None
+        chain = SnapshotClient(eval_settings.data_dir / "snapshots", inner)
+        script = [ai_tool_call("get_counterparties", "c1", address=TARGET), ai_text("完成")]
+        return fake_deps(eval_settings, chain, LabelStore([]), script, [draft("LOW")], auto_approve)
+
+    monkeypatch.setattr(runner, "make_deps", fake_make_deps)
+    case = EvalCase(address=TARGET, expected="clean", category="exchange_user", source="test")
+
+    filled, results = runner.run_eval(settings, [case], None, lambda _: None, fill_missing=True)
+    assert (results[0].error, filled.snapshots_filled) == (None, 1)
+    assert (settings.data_dir / "snapshots" / "transfers" / f"{TARGET}.json").exists()
+
+    replayed, results = runner.run_eval(settings, [case], None, lambda _: None)
+    assert modes == ["record", "replay"]
+    assert (results[0].error, results[0].snapshot_misses) == (None, 0)
+    assert replayed.snapshots_filled == 0

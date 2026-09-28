@@ -55,10 +55,11 @@ class Summary(BaseModel):
     avg_clean_tokens: float
     estimated_cost_usd: float | None
     snapshot_misses: int
+    snapshots_filled: int
     by_category: dict[str, CategoryMetrics]
 
 
-def summarize(model: str, results: Sequence[CaseResult]) -> Summary:
+def summarize(model: str, results: Sequence[CaseResult], snapshots_filled: int = 0) -> Summary:
     ok = [result for result in results if result.error is None]
     positives = [result for result in ok if result.expected == "risky"]
     negatives = [result for result in ok if result.expected == "clean"]
@@ -75,6 +76,7 @@ def summarize(model: str, results: Sequence[CaseResult]) -> Summary:
         avg_clean_tokens=_mean([_tokens(result) for result in negatives]),
         estimated_cost_usd=estimate_cost(model, ok),
         snapshot_misses=sum(result.snapshot_misses for result in ok),
+        snapshots_filled=snapshots_filled,
         by_category=_by_category(ok),
     )
 

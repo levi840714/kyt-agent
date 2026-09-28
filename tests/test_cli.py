@@ -1,3 +1,4 @@
+import json
 from typing import Any
 
 import pytest
@@ -185,3 +186,22 @@ def test_eval_summary_shows_category_rates_and_clean_tokens():
     assert "indirect_exposure" in text
     assert "indirect_minor" in text
     assert "indirect_minor" in render.eval_row(results[1])
+
+
+def test_eval_fill_missing_is_passed_to_runner(monkeypatch, tmp_path):
+    (tmp_path / "eval").mkdir()
+    row = {"address": TARGET, "expected": "clean", "category": "exchange_user", "source": "t"}
+    (tmp_path / "eval" / "dataset.jsonl").write_text(json.dumps(row) + "\n", encoding="utf-8")
+    monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
+    monkeypatch.setenv("VAR_DIR", str(tmp_path / "var"))
+    seen: dict[str, Any] = {}
+
+    def fake_run_eval(settings, cases, model, on_result, *, fill_missing):
+        seen["fill_missing"] = fill_missing
+        return summarize("fake:model", [], snapshots_filled=2), []
+
+    monkeypatch.setattr(cli, "run_eval", fake_run_eval)
+    result = runner.invoke(cli.app, ["eval", "--fill-missing"])
+    assert result.exit_code == 0, result.output
+    assert seen["fill_missing"] is True
+    assert "補錄快照 2 個檔案" in result.output

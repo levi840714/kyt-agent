@@ -69,6 +69,9 @@ def evaluate(
     model: str | None = typer.Option(
         None, "--model", help="覆蓋 LLM_MODEL，格式 <provider>:<model>"
     ),
+    fill_missing: bool = typer.Option(
+        False, "--fill-missing", help="重播時即時補錄缺漏的快照（需要 ETHERSCAN_API_KEY）"
+    ),
 ) -> None:
     """錄製快照，或以快照重播執行 eval。"""
     settings = Settings()
@@ -87,13 +90,19 @@ def evaluate(
         return
     try:
         summary, results = run_eval(
-            settings, cases, model, lambda result: console.print(render.eval_row(result))
+            settings,
+            cases,
+            model,
+            lambda result: console.print(render.eval_row(result)),
+            fill_missing=fill_missing,
         )
     except SnapshotMissError as error:
-        console.print(f"[red]缺少快照 {error}，請先執行 kyt eval --record[/]")
+        console.print(f"[red]缺少快照 {error}，請先執行 kyt eval --record 或加上 --fill-missing[/]")
         raise typer.Exit(1) from error
     path = write_eval_result(settings.var_dir / "eval", summary, results)
     render.show_eval_summary(console, summary)
+    if fill_missing:
+        console.print(f"補錄快照 {summary.snapshots_filled} 個檔案")
     console.print(f"結果已寫入 {path}")
 
 

@@ -35,16 +35,23 @@ def run_eval(
     cases: list[EvalCase],
     model: str | None,
     on_result: Callable[[CaseResult], None],
+    *,
+    fill_missing: bool = False,
 ) -> tuple[Summary, list[CaseResult]]:
-    replay = settings.model_copy(update={"chain_mode": "replay", "max_depth": EVAL_DEPTH})
-    deps = make_deps(replay, model=model, auto_approve=True)
+    # 補錄模式為 read-through：有快照就重播，缺漏時才即時查詢並寫入快照
+    mode = "record" if fill_missing else "replay"
+    eval_settings = settings.model_copy(update={"chain_mode": mode, "max_depth": EVAL_DEPTH})
+    snapshots = settings.data_dir / "snapshots"
+    before = _count_snapshots(snapshots)
+    deps = make_deps(eval_settings, model=model, auto_approve=True)
     graph = build_graph(deps)
     results: list[CaseResult] = []
     for case in cases:
         result = run_case(graph, deps, case)
         on_result(result)
         results.append(result)
-    return summarize(deps.model_name, results), results
+    filled = _count_snapshots(snapshots) - before
+    return summarize(deps.model_name, results, snapshots_filled=filled), results
 
 
 def run_case(graph: CompiledStateGraph, deps: Deps, case: EvalCase) -> CaseResult:
@@ -74,6 +81,10 @@ def run_case(graph: CompiledStateGraph, deps: Deps, case: EvalCase) -> CaseResul
         output_tokens=final["output_tokens"],
         snapshot_misses=final["snapshot_misses"],
     )
+
+
+def _count_snapshots(directory: Path) -> int:
+    return sum(1 for _ in directory.rglob("*.json"))
 
 
 def write_eval_result(directory: Path, summary: Summary, results: list[CaseResult]) -> Path:
