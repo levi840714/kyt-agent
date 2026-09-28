@@ -2,6 +2,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, Field
 
+from kyt_agent.labels import LabelStore
 from kyt_agent.models import Review, RiskLevel, max_risk
 
 
@@ -49,16 +50,32 @@ def unknown_evidence(draft: ReportDraft, evidence_ids: set[str]) -> list[int]:
 
 
 def finalize(
-    draft: ReportDraft, *, floor: RiskLevel, unverified: list[int], version: int
+    draft: ReportDraft,
+    *,
+    floor: RiskLevel,
+    unverified: list[int],
+    version: int,
+    labels: LabelStore,
 ) -> RiskReport:
     return RiskReport(
-        **draft.model_dump(exclude={"risk_level"}),
+        **draft.model_dump(exclude={"risk_level", "fund_paths"}),
         risk_level=max_risk(draft.risk_level, floor),
+        fund_paths=[_relabel(path, labels) for path in draft.fund_paths],
         llm_risk_level=draft.risk_level,
         risk_floor=floor,
         unverified_findings=unverified,
         version=version,
     )
+
+
+def _relabel(path: FundPath, labels: LabelStore) -> FundPath:
+    # LLM 填的標籤可能是編造的，一律以標籤庫覆寫
+    hops = []
+    for hop in path.hops:
+        label = labels.get(hop.address)
+        text = f"{label.category}: {label.name}" if label else None
+        hops.append(PathHop(address=hop.address, label=text))
+    return FundPath(hops=hops, note=path.note)
 
 
 def to_markdown(report: RiskReport, target: str, reviews: list[Review]) -> str:

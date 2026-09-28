@@ -25,6 +25,9 @@ def test_screen_hits_only_sanctioned_target():
     [
         ([node(TARGET, 0)], "LOW"),
         ([node(TARGET, 0, "sanctioned")], "SEVERE"),
+        ([node(TARGET, 0, "mixer")], "HIGH"),
+        ([node(TARGET, 0, "hack")], "HIGH"),
+        ([node(TARGET, 0, "exchange")], "LOW"),
         ([node(TARGET, 0), node(SANCTIONED, 1, "sanctioned")], "HIGH"),
         ([node(TARGET, 0), node(MIXER, 1, "mixer")], "HIGH"),
         ([node(TARGET, 0), node(MIXER, 1, "hack")], "HIGH"),

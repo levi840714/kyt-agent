@@ -134,6 +134,7 @@ class CaseNodes:
             floor=floor,
             unverified=invalid,
             version=previous.version + 1 if previous else 1,
+            labels=self._deps.labels,
         )
         self._audit(
             state,

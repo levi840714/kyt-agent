@@ -1,7 +1,7 @@
 from kyt_agent.labels import LabelStore
 from kyt_agent.models import AddressNode, Category, RiskLevel, RuleHit, max_risk
 
-# 直接接觸即須人工審查，與報告 prompt 的 HIGH 定義一致
+# 目標本身或直接接觸即須人工審查，與報告 prompt 的 HIGH 定義一致
 _HIGH_RISK_NEIGHBORS: frozenset[Category] = frozenset({"sanctioned", "hack", "mixer"})
 
 
@@ -26,6 +26,6 @@ def risk_floor(target: str, nodes: dict[str, AddressNode]) -> RiskLevel:
             continue
         if node.address == target.lower() and node.label.category == "sanctioned":
             levels.append("SEVERE")
-        elif node.depth == 1 and node.label.category in _HIGH_RISK_NEIGHBORS:
+        elif node.depth <= 1 and node.label.category in _HIGH_RISK_NEIGHBORS:
             levels.append("HIGH")
     return max_risk(*levels)
