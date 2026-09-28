@@ -1,8 +1,12 @@
 from decimal import Decimal
 
-from kyt_agent.counterparties import select_counterparties, summarize_counterparties
+from kyt_agent.counterparties import (
+    inflow_composition,
+    select_counterparties,
+    summarize_counterparties,
+)
 from kyt_agent.labels import LabelStore
-from tests.fakes import EXCHANGE, MIXER, TARGET, UNKNOWN, label, transfer, tx_hash
+from tests.fakes import EXCHANGE, MIXER, SANCTIONED, TARGET, UNKNOWN, label, transfer, tx_hash
 
 
 def test_groups_transfers_by_counterparty():
@@ -65,3 +69,51 @@ def test_counts_flags_and_excludes_spoofed_amounts_from_totals():
     assert mixer.flags == {"spoofed_token": 2, "dust": 1}
     assert mixer.totals == {"ETH": Decimal("2.5")}
     assert summarize_counterparties(TARGET, transfers)[0].flags == {}
+
+
+def test_inflow_composition_counts_risky_share_by_category():
+    labels = LabelStore([label(MIXER, "mixer"), label(SANCTIONED, "sanctioned")])
+    transfers = [
+        transfer(1, MIXER, TARGET),
+        transfer(2, MIXER, TARGET),
+        transfer(3, SANCTIONED, TARGET),
+        transfer(4, EXCHANGE, TARGET),
+        transfer(5, EXCHANGE, TARGET),
+        transfer(6, EXCHANGE, TARGET),
+    ]
+    composition = inflow_composition(TARGET, transfers, labels)
+    assert (composition.total, composition.risky) == (6, 3)
+    assert composition.by_category == {"mixer": 2, "sanctioned": 1}
+    assert composition.share_pct == 50
+
+
+def test_inflow_composition_rounds_share_to_nearest_percent():
+    labels = LabelStore([label(MIXER, "mixer")])
+    transfers = [
+        transfer(1, MIXER, TARGET),
+        transfer(2, MIXER, TARGET),
+        transfer(3, EXCHANGE, TARGET),
+    ]
+    composition = inflow_composition(TARGET, transfers, labels)
+    assert (composition.total, composition.risky) == (3, 2)
+    assert composition.share_pct == 67  # 2/3 = 66.67% -> 67
+
+
+def test_inflow_composition_zero_inflow():
+    composition = inflow_composition(TARGET, [transfer(1, TARGET, MIXER)], LabelStore([]))
+    assert (composition.total, composition.risky, composition.by_category) == (0, 0, {})
+    assert composition.share_pct == 0
+
+
+def test_inflow_composition_excludes_spoofed_transfers_and_outgoing():
+    def classify(item):
+        return {"spoofed_token"} if item.asset == "FAKE" else set()
+
+    labels = LabelStore([label(MIXER, "mixer")])
+    transfers = [
+        transfer(1, MIXER, TARGET, "1", "FAKE"),
+        transfer(2, MIXER, TARGET),
+        transfer(3, TARGET, MIXER),
+    ]
+    composition = inflow_composition(TARGET, transfers, labels, classify=classify)
+    assert (composition.total, composition.risky) == (1, 1)

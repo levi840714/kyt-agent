@@ -195,6 +195,49 @@ def test_counterparty_flags_are_shown_and_spoofed_amounts_excluded(settings):
     assert tx_hash(4) in outcome.evidence
 
 
+def test_header_shows_inflow_composition_for_in_and_both_directions(settings):
+    chain = StubChain(
+        transfers={
+            TARGET: [
+                transfer(1, MIXER, TARGET),
+                transfer(2, SANCTIONED, TARGET),
+                transfer(3, EXCHANGE, TARGET),
+                transfer(4, EXCHANGE, TARGET),
+                transfer(5, TARGET, EXCHANGE),
+            ]
+        }
+    )
+    labels = LabelStore([label(MIXER, "mixer"), label(SANCTIONED, "sanctioned")])
+    investigator = Investigator(chain, labels, NO_TOKENS, settings)
+    outcome = investigator.execute(
+        "get_counterparties", {"address": TARGET, "direction": "both"}, ROOT, {}
+    )
+    header = outcome.content.splitlines()[0]
+    assert "轉入 4 筆（不含偽冒代幣），來自風險標籤地址 2 筆（50%）" in header
+    assert "mixer 1" in header
+    assert "sanctioned 1" in header
+
+
+def test_header_omits_inflow_for_out_direction(settings):
+    chain = StubChain(transfers={TARGET: [transfer(1, TARGET, MIXER)]})
+    investigator = Investigator(chain, LabelStore([]), NO_TOKENS, settings)
+    outcome = investigator.execute(
+        "get_counterparties", {"address": TARGET, "direction": "out"}, ROOT, {}
+    )
+    header = outcome.content.splitlines()[0]
+    assert "轉入" not in header
+
+
+def test_header_shows_zero_inflow(settings):
+    chain = StubChain(transfers={TARGET: [transfer(1, TARGET, MIXER)]})
+    investigator = Investigator(chain, LabelStore([]), NO_TOKENS, settings)
+    outcome = investigator.execute(
+        "get_counterparties", {"address": TARGET, "direction": "in"}, ROOT, {}
+    )
+    header = outcome.content.splitlines()[0]
+    assert "轉入 0 筆" in header
+
+
 def test_counterparty_with_only_spoofed_transfers_shows_dash_totals(settings):
     fake_eth = "0x" + "e" * 40
     chain = StubChain(

@@ -11,6 +11,8 @@ from kyt_agent.config import Settings
 from kyt_agent.counterparties import (
     Counterparty,
     Direction,
+    InflowComposition,
+    inflow_composition,
     select_counterparties,
     summarize_counterparties,
 )
@@ -111,15 +113,18 @@ class Investigator:
         expanded = sum(item.expanded for item in nodes.values())
         if not node.expanded and expanded >= self._settings.max_addresses:
             return ToolOutcome(content=f"拒絕：已展開 {expanded} 個地址，達到上限")
-        found = summarize_counterparties(
-            address, self._chain.get_transfers(address), args.direction, classify=self._flags
-        )
+        transfers = list(self._chain.get_transfers(address))
+        found = summarize_counterparties(address, transfers, args.direction, classify=self._flags)
         shown = select_counterparties(found, self._labels, self._settings.top_counterparties)
         new_nodes = {address: node.model_copy(update={"expanded": True})}
         evidence: dict[str, Evidence] = {}
+        inflow = ""
+        if args.direction in ("in", "both"):
+            composition = inflow_composition(address, transfers, self._labels, self._flags)
+            inflow = f"{_format_inflow(composition)}；"
         lines = [
-            f"{address}（第 {node.depth} 層）方向 {args.direction}：共 {len(found)} 個交易對手，"
-            f"列出 {len(shown)} 個（已知標籤全列，其餘依互動次數排序）"
+            f"{address}（第 {node.depth} 層）方向 {args.direction}：{inflow}"
+            f"共 {len(found)} 個交易對手，列出 {len(shown)} 個（已知標籤全列，其餘依互動次數排序）"
         ]
         for counterparty in shown:
             label = self._labels.get(counterparty.address)
@@ -217,6 +222,18 @@ def _format_counterparty(counterparty: Counterparty, label: Label | None) -> str
         if flag in counterparty.flags
     ]
     return f"{line} | ⚠ {'、'.join(flags)}" if flags else line
+
+
+def _format_inflow(composition: InflowComposition) -> str:
+    if composition.total == 0:
+        return "轉入 0 筆"
+    ranked = sorted(composition.by_category.items(), key=lambda kv: (-kv[1], kv[0]))
+    breakdown = "、".join(f"{name} {count}" for name, count in ranked)
+    detail = f"：{breakdown}" if breakdown else ""
+    return (
+        f"轉入 {composition.total} 筆（不含偽冒代幣），"
+        f"來自風險標籤地址 {composition.risky} 筆（{composition.share_pct}%）{detail}"
+    )
 
 
 def _amount(value: Decimal) -> str:

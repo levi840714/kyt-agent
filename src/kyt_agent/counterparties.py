@@ -7,10 +7,13 @@ from pydantic import BaseModel
 
 from kyt_agent.chain.client import Transfer
 from kyt_agent.labels import LabelStore
+from kyt_agent.models import Category
 from kyt_agent.tokens import TransferFlag
 
 Direction = Literal["in", "out", "both"]
 Classifier = Callable[[Transfer], set[TransferFlag]]
+# 中間地址判斷「高度依賴風險來源」時計入的標籤分類（不含 bridge/exchange/defi）
+INFLOW_RISK_CATEGORIES: tuple[Category, ...] = ("sanctioned", "hack", "mixer")
 
 
 class Counterparty(BaseModel):
@@ -47,6 +50,39 @@ def summarize_counterparties(
         groups[other].append(item)
     ranked = sorted(groups.items(), key=lambda group: (-len(group[1]), group[0]))
     return [_summarize(address, other, items, samples, classify) for other, items in ranked]
+
+
+class InflowComposition(BaseModel):
+    """查詢地址「全部」轉入（不只列出的交易對手）的風險組成，排除偽冒代幣。"""
+
+    total: int
+    risky: int
+    by_category: dict[str, int]
+
+    @property
+    def share_pct(self) -> int:
+        return round(self.risky / self.total * 100) if self.total else 0
+
+
+def inflow_composition(
+    address: str,
+    transfers: Iterable[Transfer],
+    labels: LabelStore,
+    classify: Classifier = _no_flags,
+) -> InflowComposition:
+    address = address.lower()
+    total = 0
+    by_category: Counter[str] = Counter()
+    for item in transfers:
+        if item.recipient != address or "spoofed_token" in classify(item):
+            continue
+        total += 1
+        label = labels.get(item.sender)
+        if label and label.category in INFLOW_RISK_CATEGORIES:
+            by_category[label.category] += 1
+    return InflowComposition(
+        total=total, risky=sum(by_category.values()), by_category=dict(by_category)
+    )
 
 
 def select_counterparties(
