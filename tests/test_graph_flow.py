@@ -7,7 +7,7 @@ from langchain_core.runnables import RunnableLambda
 from langgraph.types import Command
 
 from kyt_agent.graph.build import build_graph, case_config, open_checkpointer
-from kyt_agent.graph.nodes import ReportError
+from kyt_agent.graph.nodes import CaseNodes, ReportError
 from kyt_agent.graph.state import initial_state
 from kyt_agent.labels import LabelStore
 from kyt_agent.models import RuleHit
@@ -212,6 +212,21 @@ def test_invalid_review_input_reprompts_instead_of_failing(settings, open_db):
     assert final["status"] == "approved"
     assert [review.decision for review in final["reviews"]] == ["approve"]
     assert audit_events(settings, "case-9").count("human_decision") == 1
+
+
+def test_tools_node_tolerates_checkpoint_without_wrap_up_fields(settings):
+    chain = StubChain(transfers={TARGET: [transfer(1, TARGET, UNKNOWN)]})
+    deps = fake_deps(settings, chain, LabelStore([]), auto_approve=True)
+    state = initial_state("case-13", TARGET, settings)
+    # 模擬從 v1.1 之前的 checkpoint resume：state 尚未帶有這兩個欄位
+    del state["calls_without_risk"]
+    del state["wrap_up_hinted"]
+    state["messages"] = [
+        *state["messages"],
+        ai_tool_call("get_counterparties", "c1", address=TARGET),
+    ]
+    result = CaseNodes(deps).tools(state)
+    assert (result["calls_without_risk"], result["wrap_up_hinted"]) == (1, False)
 
 
 def wrap_up_hints(messages):

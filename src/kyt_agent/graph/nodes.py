@@ -71,7 +71,8 @@ class CaseNodes:
         evidence: dict[str, Evidence] = {}
         messages: list[BaseMessage] = []
         used = misses = 0
-        streak = state["calls_without_risk"]
+        # resume 舊版 checkpoint 時可能沒有這兩個欄位，缺省視為尚未累積收尾提示
+        streak = state.get("calls_without_risk", 0)
         for call in _last_ai(state).tool_calls:
             call_id = call["id"] or ""
             if used >= remaining:
@@ -97,7 +98,8 @@ class CaseNodes:
                 result_sha256=digest(outcome.content),
                 result_preview=outcome.content[:200],
             )
-        hint = streak >= self._deps.settings.wrap_up_hint_after and not state["wrap_up_hinted"]
+        hinted = state.get("wrap_up_hinted", False)
+        hint = streak >= self._deps.settings.wrap_up_hint_after and not hinted
         if hint:
             # 放在所有 ToolMessage 之後，才不會拆開 tool_call 與 ToolMessage 的配對
             messages.append(HumanMessage(prompts.wrap_up_message(streak)))
@@ -109,7 +111,7 @@ class CaseNodes:
             "tool_calls": state["tool_calls"] + used,
             "snapshot_misses": state["snapshot_misses"] + misses,
             "calls_without_risk": streak,
-            "wrap_up_hinted": state["wrap_up_hinted"] or hint,
+            "wrap_up_hinted": hinted or hint,
         }
 
     def report(self, state: CaseState) -> dict[str, Any]:
