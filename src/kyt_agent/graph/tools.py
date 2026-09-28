@@ -118,9 +118,15 @@ class Investigator:
         ]
         for counterparty in shown:
             label = self._labels.get(counterparty.address)
-            if counterparty.address not in nodes:
+            known = nodes.get(counterparty.address)
+            if known is None:
                 new_nodes[counterparty.address] = AddressNode(
                     address=counterparty.address, depth=node.depth + 1, parent=address, label=label
+                )
+            elif known.depth > node.depth + 1:
+                # 較淺層也出現時改掛到較近的路徑，否則直接接觸的高風險對手會被當成間接
+                new_nodes[counterparty.address] = known.model_copy(
+                    update={"depth": node.depth + 1, "parent": address}
                 )
             evidence.update(_tx_evidence(address, counterparty))
             if label:

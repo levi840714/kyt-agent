@@ -9,6 +9,7 @@ from kyt_agent.chain.snapshot import SnapshotClient
 from kyt_agent.graph.tools import Investigator, tool_schemas
 from kyt_agent.labels import LabelStore
 from kyt_agent.models import AddressNode
+from kyt_agent.rules import risk_floor
 from tests.fakes import EXCHANGE, MIXER, TARGET, UNKNOWN, StubChain, label, transfer, tx_hash
 
 ROOT = {TARGET: AddressNode(address=TARGET, depth=0)}
@@ -139,3 +140,22 @@ def test_etherscan_failure_does_not_leak_api_key(settings, failure):
     )
     assert outcome.content.startswith("查詢失敗")
     assert "super-secret-key" not in outcome.content
+
+
+def test_counterparty_found_at_shallower_depth_is_reparented(settings):
+    chain = StubChain(
+        transfers={
+            TARGET: [transfer(1, EXCHANGE, TARGET), transfer(2, TARGET, MIXER)],
+            EXCHANGE: [transfer(3, MIXER, EXCHANGE)],
+        }
+    )
+    investigator = Investigator(chain, LabelStore([label(MIXER, "mixer")]), settings)
+    nodes = dict(ROOT)
+    for address, direction in [(TARGET, "in"), (EXCHANGE, "both"), (TARGET, "out")]:
+        args = {"address": address, "direction": direction}
+        nodes.update(investigator.execute("get_counterparties", args, nodes, {}).nodes)
+        if address == EXCHANGE:
+            assert (nodes[MIXER].depth, nodes[MIXER].parent) == (2, EXCHANGE)
+    assert (nodes[MIXER].depth, nodes[MIXER].parent) == (1, TARGET)
+    assert nodes[MIXER].label.category == "mixer"
+    assert risk_floor(TARGET, nodes) == "HIGH"
