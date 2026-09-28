@@ -1,17 +1,30 @@
 import json
 from dataclasses import replace
 
+import ormsgpack
 import pytest
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from langchain_core.runnables import RunnableLambda
+from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer
 from langgraph.types import Command
 
-from kyt_agent.graph.build import build_graph, case_config, open_checkpointer
+from kyt_agent.graph.build import CHECKPOINT_TYPES, build_graph, case_config, open_checkpointer
 from kyt_agent.graph.nodes import CaseNodes, ReportError
 from kyt_agent.graph.state import initial_state
 from kyt_agent.labels import LabelStore
-from kyt_agent.models import AddressNode, RuleHit
-from tests.fakes import EXCHANGE, MIXER, TARGET, UNKNOWN, StubChain, draft, label, transfer, tx_hash
+from kyt_agent.models import AddressNode, Evidence, RuleHit
+from tests.fakes import (
+    EXCHANGE,
+    MIXER,
+    TARGET,
+    UNKNOWN,
+    StubChain,
+    draft,
+    label,
+    transfer,
+    tx_hash,
+    tx_refs,
+)
 from tests.graph_fakes import AGENT_USAGE, ai_text, ai_tool_call, fake_deps, scripted_drafter
 
 
@@ -47,7 +60,7 @@ def test_full_case_with_supplement_round_survives_restart(settings, open_db):
         ai_tool_call("lookup_address", "c2", address=MIXER),
         ai_text("補查完成"),
     ]
-    drafts = [draft("MEDIUM", [tx_hash(1)]), draft("HIGH", [f"label:{MIXER}"])]
+    drafts = [draft("MEDIUM", ["T1"]), draft("HIGH", ["t1", f"label:{MIXER}"])]
     deps = fake_deps(settings, chain, labels, script, drafts)
     config = case_config("case-1")
 
@@ -57,6 +70,7 @@ def test_full_case_with_supplement_round_survives_restart(settings, open_db):
     first_report = first["report"]
     assert (first_report["version"], first_report["llm_risk_level"]) == (1, "MEDIUM")
     assert first_report["risk_level"] == "HIGH"
+    assert first_report["findings"][0]["evidence"] == [tx_hash(1)]
     assert first["allow_more"]
 
     # 以新的 graph 實例接續，模擬關掉終端機後 resume
@@ -73,7 +87,11 @@ def test_full_case_with_supplement_round_survives_restart(settings, open_db):
     assert final["status"] == "approved"
     assert [review.decision for review in final["reviews"]] == ["request_more", "approve"]
     assert final["tool_call_limit"] == settings.max_tool_calls + settings.supplement_tool_calls
-    assert (settings.var_dir / "cases" / "case-1" / "report.md").exists()
+    case_dir = settings.var_dir / "cases" / "case-1"
+    saved = json.loads((case_dir / "report.json").read_text(encoding="utf-8"))
+    assert saved["findings"][0]["evidence"] == [tx_hash(1), f"label:{MIXER}"]
+    markdown = (case_dir / "report.md").read_text(encoding="utf-8")
+    assert f"證據：{tx_hash(1)}, label:{MIXER}" in markdown
     events = audit_events(settings, "case-1")
     assert (events[0], events[-1]) == ("case_opened", "case_closed")
     assert events.count("human_decision") == 2
@@ -122,8 +140,11 @@ def test_budget_exhaustion_forces_report(settings):
     assert "budget_exhausted" in audit_events(tight, "case-3")
 
 
-@pytest.mark.parametrize(("second_evidence", "unverified"), [([tx_hash(1)], []), (["0xfake"], [0])])
-def test_invalid_evidence_is_retried_once(settings, second_evidence, unverified):
+@pytest.mark.parametrize(
+    ("second_evidence", "unverified", "saved"),
+    [(["T1"], [], [tx_hash(1)]), (["0xfake"], [0], ["0xfake"])],
+)
+def test_invalid_evidence_is_retried_once(settings, second_evidence, unverified, saved):
     chain = StubChain(transfers={TARGET: [transfer(1, TARGET, UNKNOWN)]})
     script = [ai_tool_call("get_counterparties", "c1", address=TARGET), ai_text("完成")]
     drafts = [draft("LOW", ["0xfake"]), draft("LOW", second_evidence)]
@@ -132,6 +153,7 @@ def test_invalid_evidence_is_retried_once(settings, second_evidence, unverified)
         initial_state("case-4", TARGET, settings), case_config("case-4")
     )
     assert final["report"].unverified_findings == unverified
+    assert final["report"].findings[0].evidence == saved
 
 
 def test_unparseable_report_raises(settings):
@@ -372,3 +394,40 @@ def test_reparented_already_known_risky_node_does_not_reset_streak(settings):
     result = CaseNodes(deps).tools(state)
     assert result["calls_without_risk"] == 3
     assert (result["nodes"][MIXER].depth, result["nodes"][MIXER].parent) == (1, TARGET)
+
+
+def test_same_batch_calls_get_distinct_aliases(settings):
+    chain = StubChain(
+        transfers={
+            TARGET: [transfer(1, TARGET, UNKNOWN)],
+            UNKNOWN: [transfer(1, TARGET, UNKNOWN), transfer(2, UNKNOWN, EXCHANGE)],
+        }
+    )
+    both = AIMessage(
+        content="",
+        tool_calls=[
+            {"name": "get_counterparties", "args": {"address": TARGET}, "id": "c1"},
+            {"name": "get_counterparties", "args": {"address": UNKNOWN}, "id": "c2"},
+        ],
+        usage_metadata=AGENT_USAGE,
+    )
+    deps = fake_deps(settings, chain, LabelStore([]), auto_approve=True)
+    state = initial_state("case-17", TARGET, settings)
+    state["nodes"] = {TARGET: AddressNode(address=TARGET, depth=0)}
+    state["messages"] = [*state["messages"], both]
+    result = CaseNodes(deps).tools(state)
+    assert tx_refs(result["evidence"]) == {tx_hash(1): "T1", tx_hash(2): "T2"}
+    replies = {m.tool_call_id: m.text for m in result["messages"] if m.type == "tool"}
+    assert "例：T1" in replies["c1"]
+    assert "例：T2" in replies["c2"]
+    assert "例：T1" in replies["c2"]
+
+
+def test_evidence_from_old_checkpoint_deserializes_with_ref_fallback():
+    serde = JsonPlusSerializer(allowed_msgpack_modules=CHECKPOINT_TYPES)
+    old = {"id": tx_hash(1), "kind": "tx", "summary": "s"}
+    payload = ("kyt_agent.models", "Evidence", old, "model_validate_json")
+    blob = ormsgpack.packb(ormsgpack.Ext(5, ormsgpack.packb(payload)))
+    restored = serde.loads_typed(("msgpack", blob))
+    assert isinstance(restored, Evidence)
+    assert (restored.id, restored.ref) == (tx_hash(1), tx_hash(1))

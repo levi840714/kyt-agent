@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Any
@@ -17,7 +18,7 @@ from kyt_agent.counterparties import (
     summarize_counterparties,
 )
 from kyt_agent.labels import LabelStore
-from kyt_agent.models import AddressNode, Evidence, Label
+from kyt_agent.models import AddressNode, Evidence, Label, evidence_key, tx_alias_number
 from kyt_agent.tokens import TokenRegistry, TransferFlag, classify_transfer
 
 _UNKNOWN_ADDRESS = "拒絕：只能查詢目標地址，或工具結果中出現過的地址"
@@ -36,7 +37,7 @@ class LookupAddressArgs(BaseModel):
 
 
 class GetTransactionArgs(BaseModel):
-    tx_hash: str = Field(description="交易 hash")
+    tx: str = Field(description="交易代號（如 T1），也接受工具結果中出現過的 hash")
 
 
 _TOOLS: dict[str, tuple[type[BaseModel], str]] = {
@@ -88,7 +89,9 @@ class Investigator:
     ) -> ToolOutcome:
         try:
             if name == "get_counterparties":
-                return self._counterparties(GetCounterpartiesArgs.model_validate(args), nodes)
+                return self._counterparties(
+                    GetCounterpartiesArgs.model_validate(args), nodes, evidence
+                )
             if name == "lookup_address":
                 return self._lookup(LookupAddressArgs.model_validate(args), nodes)
             if name == "get_transaction":
@@ -102,7 +105,10 @@ class Investigator:
             return ToolOutcome(content=f"查詢失敗：{error}")
 
     def _counterparties(
-        self, args: GetCounterpartiesArgs, nodes: dict[str, AddressNode]
+        self,
+        args: GetCounterpartiesArgs,
+        nodes: dict[str, AddressNode],
+        known_evidence: dict[str, Evidence],
     ) -> ToolOutcome:
         address = args.address.lower()
         node = nodes.get(address)
@@ -117,6 +123,9 @@ class Investigator:
         found = summarize_counterparties(address, transfers, args.direction, classify=self._flags)
         shown = select_counterparties(found, self._labels, self._settings.top_counterparties)
         new_nodes = {address: node.model_copy(update={"expanded": True})}
+        aliases = assign_tx_aliases(
+            (tx_hash for item in shown for tx_hash in item.sample_hashes), known_evidence
+        )
         evidence: dict[str, Evidence] = {}
         inflow = ""
         if args.direction in ("in", "both"):
@@ -138,10 +147,10 @@ class Investigator:
                 # 較淺層也出現時改掛到較近的路徑，否則直接接觸的高風險對手會被當成間接
                 moved = known.model_copy(update={"depth": node.depth + 1, "parent": address})
                 new_nodes.update(_with_descendants(moved, graph))
-            evidence.update(_tx_evidence(address, counterparty))
+            evidence.update(_tx_evidence(address, counterparty, aliases))
             if label:
                 evidence.update(label_evidence(label))
-            lines.append(_format_counterparty(counterparty, label))
+            lines.append(_format_counterparty(counterparty, label, aliases))
         return ToolOutcome(content="\n".join(lines), nodes=new_nodes, evidence=evidence)
 
     def _flags(self, item: Transfer) -> set[TransferFlag]:
@@ -161,15 +170,15 @@ class Investigator:
         )
 
     def _transaction(self, args: GetTransactionArgs, evidence: dict[str, Evidence]) -> ToolOutcome:
-        tx_hash = args.tx_hash.lower()
-        if tx_hash not in evidence:
+        item = _find_tx(args.tx, evidence)
+        if item is None:
             return ToolOutcome(content="拒絕：只能查詢工具結果中出現過的交易")
-        detail = self._chain.get_transaction(tx_hash)
+        detail = self._chain.get_transaction(item.ref)
         if detail is None:
-            return ToolOutcome(content=f"查無交易 {tx_hash}")
+            return ToolOutcome(content=f"查無交易 {item.id}")
         return ToolOutcome(
             content=(
-                f"{detail.tx_hash}\n區塊：{detail.block_number}\n從：{detail.sender}\n"
+                f"{item.id}（{item.ref}）\n區塊：{detail.block_number}\n從：{detail.sender}\n"
                 f"到：{detail.recipient or '（合約建立）'}\n"
                 f"金額：{_amount(detail.value_eth)} ETH\n方法：{detail.method_id or '（無）'}"
             )
@@ -192,26 +201,52 @@ def _with_descendants(moved: AddressNode, nodes: dict[str, AddressNode]) -> dict
 def label_evidence(label: Label) -> dict[str, Evidence]:
     evidence_id = f"label:{label.address}"
     summary = f"{label.address} 為 {label.category}：{label.name}（來源 {label.source}）"
-    return {evidence_id: Evidence(id=evidence_id, kind="label", summary=summary)}
+    return {evidence_id: Evidence(id=evidence_id, kind="label", summary=summary, ref=label.address)}
 
 
-def _tx_evidence(address: str, counterparty: Counterparty) -> dict[str, Evidence]:
+def assign_tx_aliases(hashes: Iterable[str], evidence: dict[str, Evidence]) -> dict[str, str]:
+    """hash → 代號：已登記的沿用，新的依出現順序從目前最大編號往後配。"""
+    aliases = {item.ref: item.id for item in evidence.values() if item.kind == "tx"}
+    numbers = (tx_alias_number(alias) for alias in aliases.values())
+    next_number = max((number for number in numbers if number is not None), default=0) + 1
+    assigned: dict[str, str] = {}
+    for tx_hash in map(str.lower, hashes):
+        if tx_hash in assigned:
+            continue
+        if tx_hash not in aliases:
+            aliases[tx_hash] = f"T{next_number}"
+            next_number += 1
+        assigned[tx_hash] = aliases[tx_hash]
+    return assigned
+
+
+def _find_tx(cited: str, evidence: dict[str, Evidence]) -> Evidence | None:
+    key = evidence_key(cited)
+    candidates = [evidence.get(key), *(item for item in evidence.values() if item.ref == key)]
+    return next((item for item in candidates if item and item.kind == "tx"), None)
+
+
+def _tx_evidence(
+    address: str, counterparty: Counterparty, aliases: dict[str, str]
+) -> dict[str, Evidence]:
     flow = {
         "in": f"{counterparty.address} → {address}",
         "out": f"{address} → {counterparty.address}",
         "both": f"{address} ↔ {counterparty.address}",
     }[counterparty.direction]
     return {
-        tx_hash: Evidence(id=tx_hash, kind="tx", summary=flow)
+        aliases[tx_hash]: Evidence(id=aliases[tx_hash], kind="tx", summary=flow, ref=tx_hash)
         for tx_hash in counterparty.sample_hashes
     }
 
 
-def _format_counterparty(counterparty: Counterparty, label: Label | None) -> str:
+def _format_counterparty(
+    counterparty: Counterparty, label: Label | None, aliases: dict[str, str]
+) -> str:
     tag = f"[{label.category}: {label.name}]" if label else "[未知]"
     totals = ", ".join(f"{_amount(value)} {asset}" for asset, value in counterparty.totals.items())
     period = f"{_date(counterparty.first_seen)}~{_date(counterparty.last_seen)}"
-    samples = ", ".join(counterparty.sample_hashes)
+    samples = ", ".join(aliases[tx_hash] for tx_hash in counterparty.sample_hashes)
     line = (
         f"- {counterparty.address} {tag} {counterparty.direction} "
         f"{counterparty.transfer_count} 筆 | {totals or '-'} | {period} | 例：{samples}"

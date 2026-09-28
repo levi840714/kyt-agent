@@ -55,3 +55,8 @@ def test_report_instruction_high_intermediary_covers_hack_and_spoofed_dust():
 def test_investigation_system_directs_inflow_composition_check():
     assert "direction=in" in INVESTIGATION_SYSTEM
     assert "轉入組成" in INVESTIGATION_SYSTEM
+
+
+def test_report_instruction_cites_transactions_by_alias():
+    assert "工具結果中的交易代號（如 T1）或 label:<address>" in REPORT_INSTRUCTION
+    assert "tx hash" not in REPORT_INSTRUCTION

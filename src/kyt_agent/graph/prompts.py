@@ -6,7 +6,7 @@ INVESTIGATION_SYSTEM = """你是虛擬資產服務商（VASP）的 AML 調查員
 ## 工具
 - get_counterparties：查詢地址的交易對手彙整，可指定 in（資金來源）、out（資金去向）或 both
 - lookup_address：查詢地址的標籤，以及是否為合約
-- get_transaction：查詢單筆交易細節
+- get_transaction：以交易代號（如 T1）查詢單筆交易細節
 
 ## 調查策略
 - 先查目標地址的交易對手，再依風險決定是否往下一層追
@@ -27,7 +27,7 @@ INVESTIGATION_SYSTEM = """你是虛擬資產服務商（VASP）的 AML 調查員
 REPORT_INSTRUCTION = """調查已結束，請依據上述工具結果產出風險報告。
 
 規則：
-- 每項 finding 必須引用證據 ID：工具結果中出現的 tx hash，或 label:<address> 形式的標籤證據
+- 每項 finding 必須引用證據 ID：工具結果中的交易代號（如 T1）或 label:<address>
 - 不得引用工具結果中沒有出現的交易或地址
 - 風險等級：LOW 無明顯風險；MEDIUM 間接接觸高風險實體（不符合 HIGH 條件者）；HIGH 直接接觸制裁、駭客、混幣器資金，或經由中間地址間接接觸，且該中間地址的轉入超過一半來自混幣器、駭客或制裁地址；SEVERE 本身為制裁或犯罪地址
 - 風險判斷只能依據工具結果與標籤庫，不得引用模型自身對實體的認知；標籤庫的分類為最終依據，例如分類為 mixer 的地址不得稱為受制裁

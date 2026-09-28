@@ -40,7 +40,12 @@ def test_eval_reports_missing_dataset(monkeypatch, tmp_path):
 def test_show_report_renders_level_and_unverified_findings():
     console = Console(record=True, width=160)
     report = finalize(
-        draft("LOW", ["0xfake"]), floor="HIGH", unverified=[0], version=1, labels=LabelStore([])
+        draft("LOW", ["0xfake"]),
+        evidence={},
+        floor="HIGH",
+        unverified=[0],
+        version=1,
+        labels=LabelStore([]),
     )
     render.show_report(console, {"target": TARGET, "report": report.model_dump(mode="json")})
     text = console.export_text()
@@ -50,7 +55,9 @@ def test_show_report_renders_level_and_unverified_findings():
 
 def test_show_report_renders_error_prominently():
     console = Console(record=True, width=160)
-    report = finalize(draft("LOW"), floor="LOW", unverified=[], version=2, labels=LabelStore([]))
+    report = finalize(
+        draft("LOW"), evidence={}, floor="LOW", unverified=[], version=2, labels=LabelStore([])
+    )
     render.show_report(
         console,
         {

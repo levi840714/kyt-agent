@@ -3,13 +3,13 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 
 from kyt_agent.labels import LabelStore
-from kyt_agent.models import Review, RiskLevel, max_risk
+from kyt_agent.models import Evidence, Review, RiskLevel, evidence_key, max_risk
 
 
 class Finding(BaseModel):
     claim: str = Field(description="一項具體的風險發現")
     evidence: list[str] = Field(
-        min_length=1, description="支持此發現的證據 ID：tx hash 或 label:<address>"
+        min_length=1, description="支持此發現的證據 ID：交易代號（如 T1）或 label:<address>"
     )
 
 
@@ -45,27 +45,38 @@ def unknown_evidence(draft: ReportDraft, evidence_ids: set[str]) -> list[int]:
     return [
         index
         for index, finding in enumerate(draft.findings)
-        if not {item.lower() for item in finding.evidence} <= evidence_ids
+        if not {evidence_key(item) for item in finding.evidence} <= evidence_ids
     ]
 
 
 def finalize(
     draft: ReportDraft,
     *,
+    evidence: dict[str, Evidence],
     floor: RiskLevel,
     unverified: list[int],
     version: int,
     labels: LabelStore,
 ) -> RiskReport:
     return RiskReport(
-        **draft.model_dump(exclude={"risk_level", "fund_paths"}),
+        **draft.model_dump(exclude={"risk_level", "findings", "fund_paths"}),
         risk_level=max_risk(draft.risk_level, floor),
+        findings=[_resolve(finding, evidence) for finding in draft.findings],
         fund_paths=[_relabel(path, labels) for path in draft.fund_paths],
         llm_risk_level=draft.risk_level,
         risk_floor=floor,
         unverified_findings=unverified,
         version=version,
     )
+
+
+def _resolve(finding: Finding, evidence: dict[str, Evidence]) -> Finding:
+    # 代號只在案件內有意義，存檔前換回真實 hash；未登記的引用保留原樣供審核辨識
+    refs = []
+    for cited in finding.evidence:
+        item = evidence.get(evidence_key(cited))
+        refs.append(item.ref if item and item.kind == "tx" else cited)
+    return Finding(claim=finding.claim, evidence=refs)
 
 
 def _relabel(path: FundPath, labels: LabelStore) -> FundPath:

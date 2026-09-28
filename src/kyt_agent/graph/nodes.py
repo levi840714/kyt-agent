@@ -142,6 +142,7 @@ class CaseNodes:
         previous = state["report"]
         report = finalize(
             draft,
+            evidence=state["evidence"],
             floor=floor,
             unverified=invalid,
             version=previous.version + 1 if previous else 1,
