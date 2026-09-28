@@ -11,7 +11,17 @@ from kyt_agent.labels import LabelStore
 from kyt_agent.models import AddressNode
 from kyt_agent.rules import risk_floor
 from kyt_agent.tokens import TokenRegistry
-from tests.fakes import EXCHANGE, MIXER, TARGET, UNKNOWN, StubChain, label, transfer, tx_hash
+from tests.fakes import (
+    EXCHANGE,
+    MIXER,
+    SANCTIONED,
+    TARGET,
+    UNKNOWN,
+    StubChain,
+    label,
+    transfer,
+    tx_hash,
+)
 
 ROOT = {TARGET: AddressNode(address=TARGET, depth=0)}
 NO_TOKENS = TokenRegistry([])
@@ -183,3 +193,45 @@ def test_counterparty_flags_are_shown_and_spoofed_amounts_excluded(settings):
     assert line.endswith("| ⚠ 偽冒代幣 2 筆、粉塵 1 筆")
     assert "| 1 ETH |" in line
     assert tx_hash(4) in outcome.evidence
+
+
+def test_reparent_updates_registered_descendants(settings):
+    chain = StubChain(transfers={TARGET: [transfer(1, TARGET, UNKNOWN)]})
+    nodes = {
+        **ROOT,
+        EXCHANGE: AddressNode(address=EXCHANGE, depth=1, parent=TARGET),
+        UNKNOWN: AddressNode(address=UNKNOWN, depth=2, parent=EXCHANGE),
+        MIXER: AddressNode(address=MIXER, depth=3, parent=UNKNOWN, label=label(MIXER, "mixer")),
+        SANCTIONED: AddressNode(address=SANCTIONED, depth=4, parent=MIXER),
+    }
+    investigator = Investigator(chain, LabelStore([]), NO_TOKENS, settings)
+    outcome = investigator.execute("get_counterparties", {"address": TARGET}, nodes, {})
+    assert (outcome.nodes[UNKNOWN].depth, outcome.nodes[UNKNOWN].parent) == (1, TARGET)
+    assert (outcome.nodes[MIXER].depth, outcome.nodes[MIXER].parent) == (2, UNKNOWN)
+    assert (outcome.nodes[SANCTIONED].depth, outcome.nodes[SANCTIONED].parent) == (3, MIXER)
+    assert EXCHANGE not in outcome.nodes
+
+
+def test_descendant_reparented_directly_keeps_shallower_depth(settings):
+    chain = StubChain(
+        transfers={
+            TARGET: [
+                transfer(1, TARGET, UNKNOWN),
+                transfer(2, TARGET, UNKNOWN),
+                transfer(3, TARGET, MIXER),
+            ]
+        }
+    )
+    nodes = {
+        **ROOT,
+        EXCHANGE: AddressNode(address=EXCHANGE, depth=1, parent=TARGET),
+        UNKNOWN: AddressNode(address=UNKNOWN, depth=2, parent=EXCHANGE),
+        MIXER: AddressNode(address=MIXER, depth=3, parent=UNKNOWN),
+    }
+    labels = LabelStore([label(MIXER, "mixer")])
+    outcome = Investigator(chain, labels, NO_TOKENS, settings).execute(
+        "get_counterparties", {"address": TARGET}, nodes, {}
+    )
+    assert outcome.content.index(MIXER) < outcome.content.index(UNKNOWN)
+    assert (outcome.nodes[MIXER].depth, outcome.nodes[MIXER].parent) == (1, TARGET)
+    assert (outcome.nodes[UNKNOWN].depth, outcome.nodes[UNKNOWN].parent) == (1, TARGET)

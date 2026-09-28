@@ -123,16 +123,16 @@ class Investigator:
         ]
         for counterparty in shown:
             label = self._labels.get(counterparty.address)
-            known = nodes.get(counterparty.address)
+            graph = {**nodes, **new_nodes}
+            known = graph.get(counterparty.address)
             if known is None:
                 new_nodes[counterparty.address] = AddressNode(
                     address=counterparty.address, depth=node.depth + 1, parent=address, label=label
                 )
             elif known.depth > node.depth + 1:
                 # 較淺層也出現時改掛到較近的路徑，否則直接接觸的高風險對手會被當成間接
-                new_nodes[counterparty.address] = known.model_copy(
-                    update={"depth": node.depth + 1, "parent": address}
-                )
+                moved = known.model_copy(update={"depth": node.depth + 1, "parent": address})
+                new_nodes.update(_with_descendants(moved, graph))
             evidence.update(_tx_evidence(address, counterparty))
             if label:
                 evidence.update(label_evidence(label))
@@ -169,6 +169,19 @@ class Investigator:
                 f"金額：{_amount(detail.value_eth)} ETH\n方法：{detail.method_id or '（無）'}"
             )
         )
+
+
+def _with_descendants(moved: AddressNode, nodes: dict[str, AddressNode]) -> dict[str, AddressNode]:
+    # 子孫深度不跟著更新的話，風險下限與深度上限會用到過時的層數
+    updated = {moved.address: moved}
+    frontier = [moved]
+    while frontier:
+        parent = frontier.pop()
+        for child in nodes.values():
+            if child.parent == parent.address and child.depth > parent.depth + 1:
+                updated[child.address] = child.model_copy(update={"depth": parent.depth + 1})
+                frontier.append(updated[child.address])
+    return updated
 
 
 def label_evidence(label: Label) -> dict[str, Evidence]:
