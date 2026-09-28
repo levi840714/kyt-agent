@@ -86,7 +86,8 @@ def eval_row(result: CaseResult) -> str:
         return f"[red]✗[/] {result.address} 錯誤：{escape(result.error)}"
     mark = "✓" if (result.predicted in FLAGGED) == (result.expected == "risky") else "✗"
     return (
-        f"{mark} {result.address} 預期 {result.expected}｜agent {result.predicted}"
+        f"{mark} {result.address} {result.category}｜預期 {result.expected}"
+        f"｜agent {result.predicted}"
         f"｜規則 {result.baseline}｜工具 {result.tool_calls} 次"
         f"｜token {result.input_tokens + result.output_tokens}"
     )
@@ -100,10 +101,31 @@ def show_eval_summary(console: Console, summary: Summary) -> None:
     )
     table.add_row("平均工具呼叫", f"{summary.avg_tool_calls:.1f}", "-")
     table.add_row("平均 token", f"{summary.avg_tokens:,.0f}", "-")
+    table.add_row("乾淨地址平均 token", f"{summary.avg_clean_tokens:,.0f}", "-")
     cost = "-" if summary.estimated_cost_usd is None else f"${summary.estimated_cost_usd:.4f}"
     table.add_row("估算成本", cost, "-")
     table.add_row("錯誤 / 快照缺漏", f"{summary.errors} / {summary.snapshot_misses}", "-")
     console.print(table)
+    categories = Table(
+        "類別",
+        "預期",
+        "筆數",
+        "Agent 攔下率",
+        "純規則攔下率",
+        "平均 token",
+        title="依類別",
+        caption="攔下率：陽性類別即召回率，陰性類別即誤報率",
+    )
+    for name, metrics in summary.by_category.items():
+        categories.add_row(
+            name,
+            metrics.expected,
+            str(metrics.cases),
+            _pct(metrics.flag_rate),
+            _pct(metrics.baseline_flag_rate),
+            f"{metrics.avg_tokens:,.0f}",
+        )
+    console.print(categories)
 
 
 def _pct(value: float | None) -> str:

@@ -6,10 +6,11 @@ from rich.console import Console
 from typer.testing import CliRunner
 
 from kyt_agent import cli, render
+from kyt_agent.evaluation.metrics import CaseResult, summarize
 from kyt_agent.graph.nodes import ReportError
 from kyt_agent.labels import LabelStore
 from kyt_agent.report import finalize
-from tests.fakes import SANCTIONED, TARGET, draft, label
+from tests.fakes import SANCTIONED, TARGET, UNKNOWN, draft, label
 
 runner = CliRunner()
 
@@ -156,3 +157,31 @@ def test_run_case_closes_checkpointer_connection_on_report_error(monkeypatch, se
         cli._run_case(settings, "case-1", {"case_id": "case-1"})
 
     assert saver.conn.closed
+
+
+def test_eval_summary_shows_category_rates_and_clean_tokens():
+    results = [
+        CaseResult(
+            address=TARGET,
+            expected="risky",
+            category="indirect_exposure",
+            predicted="HIGH",
+            baseline="LOW",
+            input_tokens=100,
+        ),
+        CaseResult(
+            address=UNKNOWN,
+            expected="clean",
+            category="indirect_minor",
+            predicted="MEDIUM",
+            baseline="LOW",
+            input_tokens=300,
+        ),
+    ]
+    console = Console(record=True, width=160)
+    render.show_eval_summary(console, summarize("fake:model", results))
+    text = console.export_text()
+    assert "乾淨地址平均 token" in text
+    assert "indirect_exposure" in text
+    assert "indirect_minor" in text
+    assert "indirect_minor" in render.eval_row(results[1])

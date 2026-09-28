@@ -4,7 +4,7 @@ import pytest
 
 from kyt_agent.evaluation.crawler import baseline_level, crawl
 from kyt_agent.evaluation.dataset import EvalCase, load_dataset
-from kyt_agent.evaluation.metrics import CaseResult, summarize
+from kyt_agent.evaluation.metrics import CaseResult, CategoryMetrics, summarize
 from kyt_agent.evaluation.runner import run_case, write_eval_result
 from kyt_agent.graph.build import build_graph
 from kyt_agent.labels import LabelStore
@@ -64,6 +64,7 @@ def test_summarize_metrics():
         CaseResult(
             address=TARGET,
             expected="risky",
+            category="mixer_depositor",
             predicted="HIGH",
             baseline="LOW",
             tool_calls=4,
@@ -71,16 +72,44 @@ def test_summarize_metrics():
             output_tokens=100,
         ),
         CaseResult(
-            address=MIXER, expected="risky", predicted="MEDIUM", baseline="HIGH", tool_calls=2
+            address=MIXER,
+            expected="risky",
+            category="indirect_exposure",
+            predicted="MEDIUM",
+            baseline="HIGH",
+            tool_calls=2,
         ),
-        CaseResult(address=EXCHANGE, expected="clean", predicted="HIGH", baseline="LOW"),
-        CaseResult(address=UNKNOWN, expected="clean", predicted=None, baseline="LOW", error="boom"),
+        CaseResult(
+            address=EXCHANGE,
+            expected="clean",
+            category="exchange_user",
+            predicted="HIGH",
+            baseline="LOW",
+            input_tokens=300,
+            output_tokens=100,
+        ),
+        CaseResult(
+            address=UNKNOWN,
+            expected="clean",
+            category="exchange_user",
+            predicted=None,
+            baseline="LOW",
+            error="boom",
+        ),
     ]
     summary = summarize("openai:gpt-6-luna", results)
     assert (summary.recall, summary.false_positive_rate) == (0.5, 1.0)
     assert (summary.baseline_recall, summary.baseline_false_positive_rate) == (0.5, 0.0)
     assert (summary.errors, summary.avg_tool_calls) == (1, 2.0)
-    assert summary.estimated_cost_usd == pytest.approx((1000 * 0.10 + 100 * 0.50) / 1_000_000)
+    assert summary.estimated_cost_usd == pytest.approx((1300 * 0.10 + 200 * 0.50) / 1_000_000)
+    assert summary.avg_clean_tokens == 400.0
+    assert list(summary.by_category) == ["exchange_user", "indirect_exposure", "mixer_depositor"]
+    assert summary.by_category["indirect_exposure"] == CategoryMetrics(
+        expected="risky", cases=1, flag_rate=0.0, baseline_flag_rate=1.0, avg_tokens=0.0
+    )
+    assert summary.by_category["exchange_user"] == CategoryMetrics(
+        expected="clean", cases=1, flag_rate=1.0, baseline_flag_rate=0.0, avg_tokens=400.0
+    )
 
 
 def test_run_case_collects_prediction_and_usage(settings):
@@ -92,6 +121,7 @@ def test_run_case_collects_prediction_and_usage(settings):
     result = run_case(build_graph(deps), deps, case)
     assert (result.predicted, result.baseline) == ("HIGH", "HIGH")
     assert (result.tool_calls, result.input_tokens, result.output_tokens) == (1, 400, 70)
+    assert result.category == "mixer"
 
 
 def test_run_case_records_errors(settings):
@@ -99,6 +129,7 @@ def test_run_case_records_errors(settings):
     case = EvalCase(address=TARGET, expected="clean", category="normal", source="test")
     result = run_case(build_graph(deps), deps, case)
     assert result.error.startswith("ReportError")
+    assert result.category == "normal"
 
 
 def test_write_eval_result(tmp_path):

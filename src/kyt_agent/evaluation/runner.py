@@ -58,6 +58,7 @@ def run_case(graph: CompiledStateGraph, deps: Deps, case: EvalCase) -> CaseResul
         return CaseResult(
             address=case.address,
             expected=case.expected,
+            category=case.category,
             predicted=None,
             baseline=baseline,
             error=f"{type(error).__name__}: {error}",
@@ -65,6 +66,7 @@ def run_case(graph: CompiledStateGraph, deps: Deps, case: EvalCase) -> CaseResul
     return CaseResult(
         address=case.address,
         expected=case.expected,
+        category=case.category,
         predicted=final["report"].risk_level,
         baseline=baseline,
         tool_calls=final["tool_calls"],
