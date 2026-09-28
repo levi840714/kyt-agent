@@ -8,7 +8,7 @@ from rich.prompt import Prompt
 from rich.table import Table
 from rich.tree import Tree
 
-from kyt_agent.evaluation.metrics import CaseResult, Summary
+from kyt_agent.evaluation.metrics import FLAGGED, CaseResult, Summary
 from kyt_agent.report import RiskReport
 
 RISK_STYLE = {"LOW": "green", "MEDIUM": "yellow", "HIGH": "red", "SEVERE": "bold white on red"}
@@ -84,7 +84,7 @@ def show_closed(console: Console, values: dict[str, Any]) -> None:
 def eval_row(result: CaseResult) -> str:
     if result.error:
         return f"[red]✗[/] {result.address} 錯誤：{escape(result.error)}"
-    mark = "✓" if (result.predicted in ("HIGH", "SEVERE")) == (result.expected == "risky") else "✗"
+    mark = "✓" if (result.predicted in FLAGGED) == (result.expected == "risky") else "✗"
     return (
         f"{mark} {result.address} 預期 {result.expected}｜agent {result.predicted}"
         f"｜規則 {result.baseline}｜工具 {result.tool_calls} 次"
