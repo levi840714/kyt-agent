@@ -112,6 +112,8 @@ def test_sanctioned_target_skips_agent_and_floors_to_severe(settings):
     assert (final["report"].risk_level, final["report"].llm_risk_level) == ("SEVERE", "LOW")
     assert final["tool_calls"] == 0
     assert final["report"].unverified_findings == []
+    assert final["status"] == "approved"
+    assert not (settings.var_dir / "cases").exists()
 
 
 def test_sanctioned_case_survives_restart(settings, open_db):

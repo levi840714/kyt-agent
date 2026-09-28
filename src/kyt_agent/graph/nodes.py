@@ -193,12 +193,14 @@ class CaseNodes:
                 ],
             }
         status = "approved" if review.decision == "approve" else "rejected"
-        write_case_files(
-            settings.var_dir / "cases" / state["case_id"],
-            state["target"],
-            report,
-            [*state["reviews"], review],
-        )
+        # eval 的自動核准不是真正結案，寫入 var/cases 只會混入大量測試報告
+        if not self._deps.auto_approve:
+            write_case_files(
+                settings.var_dir / "cases" / state["case_id"],
+                state["target"],
+                report,
+                [*state["reviews"], review],
+            )
         self._audit(state, "case_closed", status=status)
         return {"reviews": [review], "status": status}
 
