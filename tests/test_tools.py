@@ -195,6 +195,23 @@ def test_counterparty_flags_are_shown_and_spoofed_amounts_excluded(settings):
     assert tx_hash(4) in outcome.evidence
 
 
+def test_counterparty_with_only_spoofed_transfers_shows_dash_totals(settings):
+    fake_eth = "0x" + "e" * 40
+    chain = StubChain(
+        transfers={
+            TARGET: [
+                transfer(1, UNKNOWN, TARGET, "0.3", "ETH", token_contract=fake_eth),
+                transfer(2, UNKNOWN, TARGET, "0.5", "ETH", token_contract=fake_eth),
+            ]
+        }
+    )
+    investigator = Investigator(chain, LabelStore([]), NO_TOKENS, settings)
+    outcome = investigator.execute("get_counterparties", {"address": TARGET}, ROOT, {})
+    line = next(row for row in outcome.content.splitlines() if row.startswith(f"- {UNKNOWN}"))
+    assert "| - |" in line
+    assert line.endswith("⚠ 偽冒代幣 2 筆")
+
+
 def test_reparent_updates_registered_descendants(settings):
     chain = StubChain(transfers={TARGET: [transfer(1, TARGET, UNKNOWN)]})
     nodes = {

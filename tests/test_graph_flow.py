@@ -10,7 +10,7 @@ from kyt_agent.graph.build import build_graph, case_config, open_checkpointer
 from kyt_agent.graph.nodes import CaseNodes, ReportError
 from kyt_agent.graph.state import initial_state
 from kyt_agent.labels import LabelStore
-from kyt_agent.models import RuleHit
+from kyt_agent.models import AddressNode, RuleHit
 from tests.fakes import EXCHANGE, MIXER, TARGET, UNKNOWN, StubChain, draft, label, transfer, tx_hash
 from tests.graph_fakes import AGENT_USAGE, ai_text, ai_tool_call, fake_deps, scripted_drafter
 
@@ -305,3 +305,70 @@ def test_request_more_resets_wrap_up_hint(settings, open_db):
     hints = wrap_up_hints(final["messages"])
     assert len(hints) == 2
     assert [final["messages"][index - 1].tool_call_id for index, _ in hints] == ["c1", "c2"]
+
+
+def test_wrap_up_hint_crossed_on_first_call_fires_once_after_last_tool_message(settings):
+    hinting = settings.model_copy(update={"wrap_up_hint_after": 1})
+    chain = StubChain(transfers={TARGET: [transfer(1, TARGET, UNKNOWN)]})
+    both = AIMessage(
+        content="",
+        tool_calls=[
+            {"name": "get_counterparties", "args": {"address": TARGET}, "id": "c1"},
+            {"name": "lookup_address", "args": {"address": UNKNOWN}, "id": "c2"},
+        ],
+        usage_metadata=AGENT_USAGE,
+    )
+    script = [both, ai_text("完成")]
+    deps = fake_deps(hinting, chain, LabelStore([]), script, [draft("LOW")], auto_approve=True)
+    final = build_graph(deps).invoke(
+        initial_state("case-14", TARGET, hinting), case_config("case-14")
+    )
+    hints = wrap_up_hints(final["messages"])
+    assert len(hints) == 1
+    index, _ = hints[0]
+    previous = final["messages"][index - 1]
+    assert isinstance(previous, ToolMessage)
+    assert previous.tool_call_id == "c2"
+
+
+def test_budget_skipped_calls_do_not_increase_streak(settings):
+    tight = settings.model_copy(update={"max_tool_calls": 1, "wrap_up_hint_after": 5})
+    chain = StubChain(transfers={TARGET: [transfer(1, TARGET, UNKNOWN)]})
+    both = AIMessage(
+        content="",
+        tool_calls=[
+            {"name": "get_counterparties", "args": {"address": TARGET}, "id": "c1"},
+            {"name": "get_counterparties", "args": {"address": UNKNOWN}, "id": "c2"},
+        ],
+        usage_metadata=AGENT_USAGE,
+    )
+    script = [both, ai_text("完成")]
+    deps = fake_deps(tight, chain, LabelStore([]), script, [draft("LOW")], auto_approve=True)
+    final = build_graph(deps).invoke(
+        initial_state("case-15", TARGET, tight), case_config("case-15")
+    )
+    assert final["tool_calls"] == 1
+    assert final["calls_without_risk"] == 1
+
+
+def test_reparented_already_known_risky_node_does_not_reset_streak(settings):
+    chain = StubChain(
+        transfers={TARGET: [transfer(1, EXCHANGE, TARGET), transfer(2, TARGET, MIXER)]}
+    )
+    labels = LabelStore([label(MIXER, "mixer")])
+    deps = fake_deps(settings, chain, labels, auto_approve=True)
+    state = initial_state("case-16", TARGET, settings)
+    state["nodes"] = {
+        **state["nodes"],
+        TARGET: AddressNode(address=TARGET, depth=0),
+        EXCHANGE: AddressNode(address=EXCHANGE, depth=1, parent=TARGET),
+        MIXER: AddressNode(address=MIXER, depth=2, parent=EXCHANGE, label=label(MIXER, "mixer")),
+    }
+    state["calls_without_risk"] = 2
+    state["messages"] = [
+        *state["messages"],
+        ai_tool_call("get_counterparties", "c1", address=TARGET),
+    ]
+    result = CaseNodes(deps).tools(state)
+    assert result["calls_without_risk"] == 3
+    assert (result["nodes"][MIXER].depth, result["nodes"][MIXER].parent) == (1, TARGET)
