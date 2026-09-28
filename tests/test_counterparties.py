@@ -46,3 +46,22 @@ def test_ranks_by_count_and_select_keeps_labeled_counterparties():
     labels = LabelStore([label(MIXER, "mixer")])
     selected = select_counterparties(ranked, labels, top_n=1)
     assert [c.address for c in selected] == [MIXER, EXCHANGE]
+
+
+def test_counts_flags_and_excludes_spoofed_amounts_from_totals():
+    def classify(item):
+        if item.asset == "FAKE":
+            return {"spoofed_token"}
+        return {"dust"} if item.amount < 1 else set()
+
+    transfers = [
+        transfer(1, MIXER, TARGET, "0.3", "FAKE"),
+        transfer(2, MIXER, TARGET, "0.3", "FAKE"),
+        transfer(3, MIXER, TARGET, "0.5"),
+        transfer(4, MIXER, TARGET, "2"),
+    ]
+    (mixer,) = summarize_counterparties(TARGET, transfers, classify=classify)
+    assert mixer.transfer_count == 4
+    assert mixer.flags == {"spoofed_token": 2, "dust": 1}
+    assert mixer.totals == {"ETH": Decimal("2.5")}
+    assert summarize_counterparties(TARGET, transfers)[0].flags == {}
