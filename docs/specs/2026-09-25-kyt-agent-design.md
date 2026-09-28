@@ -111,8 +111,7 @@ kyt_agent/
 - `screen(address)`：目標地址命中 `sanctioned` 時回傳 SEVERE 的 rule hit
 - `risk_floor(case_graph)`：依證據計算風險下限
   - 目標地址本身為 `sanctioned` → SEVERE
-  - 目標地址一層內有 `sanctioned` 對手 → 至少 HIGH
-  - 目標地址一層內有 `mixer` 或 `hack` 對手 → 至少 MEDIUM
+  - 目標地址一層內有 `sanctioned`、`mixer` 或 `hack` 對手 → 至少 HIGH（直接接觸即須人工審查，粉塵亦同）
   - 其餘 → LOW
 
 ### 4.5 graph

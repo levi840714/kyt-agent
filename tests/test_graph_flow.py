@@ -54,7 +54,9 @@ def test_full_case_with_supplement_round_survives_restart(settings, open_db):
     graph = build_graph(deps, open_db())
     graph.invoke(initial_state("case-1", TARGET, settings), config)
     first = graph.get_state(config).interrupts[0].value
-    assert (first["report"]["version"], first["report"]["risk_level"]) == (1, "MEDIUM")
+    first_report = first["report"]
+    assert (first_report["version"], first_report["llm_risk_level"]) == (1, "MEDIUM")
+    assert first_report["risk_level"] == "HIGH"
     assert first["allow_more"]
 
     # 以新的 graph 實例接續，模擬關掉終端機後 resume

@@ -90,7 +90,7 @@ def test_run_case_collects_prediction_and_usage(settings):
     deps = fake_deps(settings, chain, labels, script, [draft("HIGH", [f"label:{MIXER}"])], True)
     case = EvalCase(address=TARGET, expected="risky", category="mixer", source="test")
     result = run_case(build_graph(deps), deps, case)
-    assert (result.predicted, result.baseline) == ("HIGH", "MEDIUM")
+    assert (result.predicted, result.baseline) == ("HIGH", "HIGH")
     assert (result.tool_calls, result.input_tokens, result.output_tokens) == (1, 400, 70)
 
 
