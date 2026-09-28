@@ -9,6 +9,7 @@ def test_initial_state(settings):
     assert state["target"] == MIXED_CASE.lower()
     assert state["tool_call_limit"] == settings.max_tool_calls
     assert (state["review_round"], state["status"]) == (1, "investigating")
+    assert (state["calls_without_risk"], state["wrap_up_hinted"]) == (0, False)
     assert MIXED_CASE.lower() in state["messages"][1].content
     assert str(settings.max_depth) in state["messages"][1].content
 

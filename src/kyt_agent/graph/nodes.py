@@ -11,11 +11,13 @@ from kyt_agent.graph import prompts
 from kyt_agent.graph.budget import exhausted_reason
 from kyt_agent.graph.deps import Deps
 from kyt_agent.graph.state import CaseState
-from kyt_agent.graph.tools import Investigator, label_evidence
-from kyt_agent.models import AddressNode, Evidence, Review
+from kyt_agent.graph.tools import Investigator, ToolOutcome, label_evidence
+from kyt_agent.models import AddressNode, Category, Evidence, Review
 from kyt_agent.report import ReportDraft, finalize, unknown_evidence, write_case_files
 
 Usage = dict[str, int]
+# 新登記的地址帶有這些標籤時，視為發現風險跡象並重新計算收尾提示
+_RISK_SIGNALS: frozenset[Category] = frozenset({"sanctioned", "hack", "mixer", "bridge"})
 
 
 class ReportError(RuntimeError):
@@ -67,8 +69,9 @@ class CaseNodes:
         remaining = state["tool_call_limit"] - state["tool_calls"]
         nodes: dict[str, AddressNode] = {}
         evidence: dict[str, Evidence] = {}
-        messages: list[ToolMessage] = []
+        messages: list[BaseMessage] = []
         used = misses = 0
+        streak = state["calls_without_risk"]
         for call in _last_ai(state).tool_calls:
             call_id = call["id"] or ""
             if used >= remaining:
@@ -76,14 +79,13 @@ class CaseNodes:
                     ToolMessage(content="未執行：工具呼叫次數已達上限", tool_call_id=call_id)
                 )
                 continue
+            known = {**state["nodes"], **nodes}
             outcome = self._investigator.execute(
-                call["name"],
-                call["args"],
-                {**state["nodes"], **nodes},
-                {**state["evidence"], **evidence},
+                call["name"], call["args"], known, {**state["evidence"], **evidence}
             )
             used += 1
             misses += outcome.miss
+            streak = 0 if _reveals_risk(outcome, known) else streak + 1
             nodes.update(outcome.nodes)
             evidence.update(outcome.evidence)
             messages.append(ToolMessage(content=outcome.content, tool_call_id=call_id))
@@ -95,12 +97,19 @@ class CaseNodes:
                 result_sha256=digest(outcome.content),
                 result_preview=outcome.content[:200],
             )
+        hint = streak >= self._deps.settings.wrap_up_hint_after and not state["wrap_up_hinted"]
+        if hint:
+            # 放在所有 ToolMessage 之後，才不會拆開 tool_call 與 ToolMessage 的配對
+            messages.append(HumanMessage(prompts.wrap_up_message(streak)))
+            self._audit(state, "wrap_up_hint", calls_without_risk=streak)
         return {
             "messages": messages,
             "nodes": nodes,
             "evidence": evidence,
             "tool_calls": state["tool_calls"] + used,
             "snapshot_misses": state["snapshot_misses"] + misses,
+            "calls_without_risk": streak,
+            "wrap_up_hinted": state["wrap_up_hinted"] or hint,
         }
 
     def report(self, state: CaseState) -> dict[str, Any]:
@@ -169,6 +178,8 @@ class CaseNodes:
                 "review_round": state["review_round"] + 1,
                 "tool_call_limit": limit,
                 "budget_note": None,
+                "calls_without_risk": 0,
+                "wrap_up_hinted": False,
                 "messages": [
                     HumanMessage(prompts.supplement_message(report, review.comment, remaining))
                 ],
@@ -234,6 +245,13 @@ def route_after_guard(state: CaseState) -> str:
 
 def route_after_review(state: CaseState) -> str:
     return "agent" if state["status"] == "investigating" else END
+
+
+def _reveals_risk(outcome: ToolOutcome, known: dict[str, AddressNode]) -> bool:
+    return any(
+        address not in known and node.label is not None and node.label.category in _RISK_SIGNALS
+        for address, node in outcome.nodes.items()
+    )
 
 
 def _last_ai(state: CaseState) -> AIMessage:

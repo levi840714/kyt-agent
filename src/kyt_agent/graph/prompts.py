@@ -62,6 +62,10 @@ def parse_retry_message(error: object) -> str:
     return f"上一次輸出的報告無法解析（{error}），請依指定格式重新輸出完整報告。"
 
 
+def wrap_up_message(calls_without_risk: int) -> str:
+    return f"已連續 {calls_without_risk} 次查詢未發現風險跡象，請評估現有證據是否足以結案。"
+
+
 def supplement_message(report: RiskReport, comment: str, remaining_tool_calls: int) -> str:
     return (
         f"合規人員審閱了第 {report.version} 版報告"

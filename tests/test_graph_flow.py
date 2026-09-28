@@ -2,7 +2,7 @@ import json
 from dataclasses import replace
 
 import pytest
-from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from langchain_core.runnables import RunnableLambda
 from langgraph.types import Command
 
@@ -212,3 +212,81 @@ def test_invalid_review_input_reprompts_instead_of_failing(settings, open_db):
     assert final["status"] == "approved"
     assert [review.decision for review in final["reviews"]] == ["approve"]
     assert audit_events(settings, "case-9").count("human_decision") == 1
+
+
+def wrap_up_hints(messages):
+    return [
+        (index, message)
+        for index, message in enumerate(messages)
+        if isinstance(message, HumanMessage) and "足以結案" in message.text
+    ]
+
+
+def test_wrap_up_hint_follows_tool_messages_and_fires_once(settings):
+    hinting = settings.model_copy(update={"wrap_up_hint_after": 2})
+    chain = StubChain(
+        transfers={
+            TARGET: [transfer(1, TARGET, UNKNOWN)],
+            UNKNOWN: [transfer(2, UNKNOWN, EXCHANGE)],
+        }
+    )
+    script = [
+        ai_tool_call("get_counterparties", "c1", address=TARGET),
+        ai_tool_call("get_counterparties", "c2", address=UNKNOWN),
+        ai_tool_call("lookup_address", "c3", address=UNKNOWN),
+        ai_text("完成"),
+    ]
+    deps = fake_deps(hinting, chain, LabelStore([]), script, [draft("LOW")], auto_approve=True)
+    final = build_graph(deps).invoke(
+        initial_state("case-10", TARGET, hinting), case_config("case-10")
+    )
+    hints = wrap_up_hints(final["messages"])
+    assert len(hints) == 1
+    index, hint = hints[0]
+    assert "已連續 2 次查詢未發現風險跡象" in hint.text
+    previous = final["messages"][index - 1]
+    assert isinstance(previous, ToolMessage)
+    assert previous.tool_call_id == "c2"
+    assert (final["calls_without_risk"], final["wrap_up_hinted"]) == (3, True)
+    assert "wrap_up_hint" in audit_events(hinting, "case-10")
+
+
+def test_newly_found_risky_address_resets_counter(settings):
+    hinting = settings.model_copy(update={"wrap_up_hint_after": 2})
+    chain = StubChain(
+        transfers={TARGET: [transfer(1, TARGET, UNKNOWN)], UNKNOWN: [transfer(2, MIXER, UNKNOWN)]}
+    )
+    script = [
+        ai_tool_call("get_counterparties", "c1", address=TARGET),
+        ai_tool_call("get_counterparties", "c2", address=UNKNOWN),
+        ai_tool_call("lookup_address", "c3", address=UNKNOWN),
+        ai_text("完成"),
+    ]
+    labels = LabelStore([label(MIXER, "mixer")])
+    deps = fake_deps(hinting, chain, labels, script, [draft("LOW")], auto_approve=True)
+    final = build_graph(deps).invoke(
+        initial_state("case-11", TARGET, hinting), case_config("case-11")
+    )
+    assert wrap_up_hints(final["messages"]) == []
+    assert (final["calls_without_risk"], final["wrap_up_hinted"]) == (1, False)
+
+
+def test_request_more_resets_wrap_up_hint(settings, open_db):
+    hinting = settings.model_copy(update={"wrap_up_hint_after": 1})
+    chain = StubChain(transfers={TARGET: [transfer(1, TARGET, UNKNOWN)]})
+    script = [
+        ai_tool_call("get_counterparties", "c1", address=TARGET),
+        ai_text("初步結論"),
+        ai_tool_call("lookup_address", "c2", address=UNKNOWN),
+        ai_text("補查完成"),
+    ]
+    deps = fake_deps(hinting, chain, LabelStore([]), script, [draft("LOW"), draft("LOW")])
+    config = case_config("case-12")
+    graph = build_graph(deps, open_db())
+    graph.invoke(initial_state("case-12", TARGET, hinting), config)
+    more = {"decision": "request_more", "comment": "請確認對手", "reviewer": "tester"}
+    graph.invoke(Command(resume=more), config)
+    final = graph.invoke(Command(resume=APPROVE), config)
+    hints = wrap_up_hints(final["messages"])
+    assert len(hints) == 2
+    assert [final["messages"][index - 1].tool_call_id for index, _ in hints] == ["c1", "c2"]
