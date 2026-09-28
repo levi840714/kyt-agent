@@ -12,7 +12,11 @@ WEI_PER_ETH = Decimal(10) ** 18
 
 
 class EtherscanError(RuntimeError):
-    """Etherscan 回傳錯誤，或重試後仍被限流。"""
+    """Etherscan 回傳錯誤，或重試後仍失敗；訊息不含 API key。"""
+
+
+class _TransientError(Exception):
+    """限流、5xx 或連線逾時等可重試的錯誤。"""
 
 
 class EtherscanClient:
@@ -79,28 +83,50 @@ class EtherscanClient:
         attempt = 0
         while True:
             self._throttle()
-            response = self._http.get(BASE_URL, params=params)
-            response.raise_for_status()
-            body = response.json()
-            if "jsonrpc" in body:
-                if "error" in body:
-                    raise EtherscanError(body["error"]["message"])
-                return body["result"]
-            if body["status"] == "1":
-                return body["result"]
-            if body["message"].startswith("No transactions found"):
-                return []
-            if "rate limit" in str(body["result"]).lower() and attempt < self._max_retries:
+            try:
+                return _parse(self._get(params))
+            except _TransientError as error:
+                if attempt >= self._max_retries:
+                    raise EtherscanError(str(error)) from None
                 self._sleep(self._backoff * 2**attempt)
                 attempt += 1
-                continue
-            raise EtherscanError(f"{body['message']}: {body['result']}")
+
+    def _get(self, params: dict[str, Any]) -> Any:
+        # httpx 例外訊息含帶 apikey 的完整 URL，只保留狀態碼或例外類型並切斷例外鏈
+        try:
+            response = self._http.get(BASE_URL, params=params)
+            response.raise_for_status()
+        except httpx.HTTPStatusError as error:
+            message = f"HTTP {error.response.status_code}"
+            if error.response.is_server_error:
+                raise _TransientError(message) from None
+            raise EtherscanError(message) from None
+        except httpx.TransportError as error:
+            raise _TransientError(type(error).__name__) from None
+        except httpx.RequestError as error:
+            raise EtherscanError(type(error).__name__) from None
+        return response.json()
 
     def _throttle(self) -> None:
         wait = self._last_call + self._min_interval - self._clock()
         if wait > 0:
             self._sleep(wait)
         self._last_call = self._clock()
+
+
+def _parse(body: dict[str, Any]) -> Any:
+    if "jsonrpc" in body:
+        if "error" in body:
+            raise EtherscanError(body["error"]["message"])
+        return body["result"]
+    if body["status"] == "1":
+        return body["result"]
+    if body["message"].startswith("No transactions found"):
+        return []
+    message = f"{body['message']}: {body['result']}"
+    if "rate limit" in str(body["result"]).lower():
+        raise _TransientError(message)
+    raise EtherscanError(message)
 
 
 def _from_native(tx: dict[str, str]) -> Transfer | None:

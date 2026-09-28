@@ -1,8 +1,10 @@
 from decimal import Decimal
 
+import httpx
 import pytest
 
 from kyt_agent.chain.client import ContractInfo, TransactionDetail
+from kyt_agent.chain.etherscan import EtherscanClient
 from kyt_agent.chain.snapshot import SnapshotClient
 from kyt_agent.graph.tools import Investigator, tool_schemas
 from kyt_agent.labels import LabelStore
@@ -114,3 +116,26 @@ def test_snapshot_miss_is_reported(settings, tmp_path):
     outcome = replay.execute("get_counterparties", {"address": TARGET}, ROOT, {})
     assert outcome.miss
     assert "資料不可用" in outcome.content
+
+
+@pytest.mark.parametrize(
+    "failure",
+    [httpx.Response(502), httpx.ConnectTimeout("timeout")],
+)
+def test_etherscan_failure_does_not_leak_api_key(settings, failure):
+    def handler(request: httpx.Request) -> httpx.Response:
+        if isinstance(failure, Exception):
+            raise failure
+        return failure
+
+    client = EtherscanClient(
+        "super-secret-key",
+        http=httpx.Client(transport=httpx.MockTransport(handler)),
+        min_interval=0,
+        sleep=lambda _: None,
+    )
+    outcome = Investigator(client, LabelStore([]), settings).execute(
+        "get_counterparties", {"address": TARGET}, ROOT, {}
+    )
+    assert outcome.content.startswith("查詢失敗")
+    assert "super-secret-key" not in outcome.content

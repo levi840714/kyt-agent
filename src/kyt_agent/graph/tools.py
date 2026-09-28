@@ -2,7 +2,6 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Any
 
-import httpx
 from pydantic import BaseModel, Field, ValidationError
 
 from kyt_agent.chain.client import ChainClient
@@ -92,7 +91,7 @@ class Investigator:
             return ToolOutcome(content=f"參數錯誤：{error}")
         except SnapshotMissError:
             return ToolOutcome(content="資料不可用：快照中沒有這筆資料", miss=True)
-        except (EtherscanError, httpx.HTTPError) as error:
+        except EtherscanError as error:
             return ToolOutcome(content=f"查詢失敗：{error}")
 
     def _counterparties(

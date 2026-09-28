@@ -149,3 +149,59 @@ def test_get_transaction_parses_hex_fields():
 def test_get_transaction_returns_none_when_missing():
     client, _ = make_client({"eth_getTransactionByHash": [rpc(None)]})
     assert client.get_transaction("0xaa") is None
+
+
+SECRET = "super-secret-key"
+
+
+def flaky_client(*failures: httpx.Response | Exception) -> tuple[EtherscanClient, list[float]]:
+    queue = list(failures)
+    sleeps: list[float] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if queue:
+            failure = queue.pop(0)
+            if isinstance(failure, Exception):
+                raise failure
+            return failure
+        return httpx.Response(200, json=rpc(None))
+
+    http = httpx.Client(transport=httpx.MockTransport(handler))
+    client = EtherscanClient(SECRET, http=http, min_interval=0, sleep=sleeps.append)
+    return client, sleeps
+
+
+def assert_sanitized(error: BaseException) -> None:
+    assert SECRET not in str(error)
+    assert error.__cause__ is None
+    assert error.__suppress_context__
+
+
+def test_server_error_is_retried_then_succeeds():
+    client, sleeps = flaky_client(httpx.Response(502), httpx.Response(503))
+    assert client.get_transaction("0xaa") is None
+    assert sleeps == [1.0, 2.0]
+
+
+def test_persistent_server_error_hides_api_key():
+    client, sleeps = flaky_client(*[httpx.Response(502)] * 4)
+    with pytest.raises(EtherscanError, match="HTTP 502") as caught:
+        client.get_transaction("0xaa")
+    assert_sanitized(caught.value)
+    assert sleeps == [1.0, 2.0, 4.0]
+
+
+def test_client_error_is_not_retried_and_hides_api_key():
+    client, sleeps = flaky_client(httpx.Response(403))
+    with pytest.raises(EtherscanError, match="HTTP 403") as caught:
+        client.get_transaction("0xaa")
+    assert_sanitized(caught.value)
+    assert sleeps == []
+
+
+def test_timeout_is_retried_and_hides_api_key():
+    client, sleeps = flaky_client(*[httpx.ConnectTimeout(f"timeout apikey={SECRET}")] * 4)
+    with pytest.raises(EtherscanError, match="ConnectTimeout") as caught:
+        client.get_transaction("0xaa")
+    assert_sanitized(caught.value)
+    assert len(sleeps) == 3
