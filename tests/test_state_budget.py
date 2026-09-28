@@ -45,3 +45,13 @@ def test_report_instruction_defines_indirect_high_via_intermediary():
     assert "不符合 HIGH 條件者" in REPORT_INSTRUCTION
     assert "經由中間地址間接接觸" in REPORT_INSTRUCTION
     assert "超過一半" in REPORT_INSTRUCTION
+
+
+def test_report_instruction_high_intermediary_covers_hack_and_spoofed_dust():
+    assert "中間地址的轉入超過一半來自混幣器、駭客或制裁地址" in REPORT_INSTRUCTION
+    assert "即使為粉塵或偽冒代幣仍為 HIGH" in REPORT_INSTRUCTION
+
+
+def test_investigation_system_directs_inflow_composition_check():
+    assert "direction=in" in INVESTIGATION_SYSTEM
+    assert "轉入組成" in INVESTIGATION_SYSTEM
