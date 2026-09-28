@@ -50,6 +50,13 @@ def evidence_key(cited: str) -> str:
     return cited.upper() if _TX_ALIAS.fullmatch(cited) else cited.lower()
 
 
+def find_tx(cited: str, evidence: dict[str, Evidence]) -> Evidence | None:
+    """依交易代號或已登記的 hash 找出 tx 證據。"""
+    key = evidence_key(cited)
+    candidates = [evidence.get(key), *(item for item in evidence.values() if item.ref == key)]
+    return next((item for item in candidates if item and item.kind == "tx"), None)
+
+
 def tx_alias_number(evidence_id: str) -> int | None:
     match = _TX_ALIAS.fullmatch(evidence_id)
     return int(match.group(1)) if match else None

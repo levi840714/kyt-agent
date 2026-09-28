@@ -142,7 +142,11 @@ def test_budget_exhaustion_forces_report(settings):
 
 @pytest.mark.parametrize(
     ("second_evidence", "unverified", "saved"),
-    [(["T1"], [], [tx_hash(1)]), (["0xfake"], [0], ["0xfake"])],
+    [
+        (["T1"], [], [tx_hash(1)]),
+        ([tx_hash(1)], [], [tx_hash(1)]),
+        (["0xfake"], [0], ["0xfake"]),
+    ],
 )
 def test_invalid_evidence_is_retried_once(settings, second_evidence, unverified, saved):
     chain = StubChain(transfers={TARGET: [transfer(1, TARGET, UNKNOWN)]})

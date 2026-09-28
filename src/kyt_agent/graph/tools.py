@@ -18,7 +18,7 @@ from kyt_agent.counterparties import (
     summarize_counterparties,
 )
 from kyt_agent.labels import LabelStore
-from kyt_agent.models import AddressNode, Evidence, Label, evidence_key, tx_alias_number
+from kyt_agent.models import AddressNode, Evidence, Label, find_tx, tx_alias_number
 from kyt_agent.tokens import TokenRegistry, TransferFlag, classify_transfer
 
 _UNKNOWN_ADDRESS = "拒絕：只能查詢目標地址，或工具結果中出現過的地址"
@@ -170,7 +170,7 @@ class Investigator:
         )
 
     def _transaction(self, args: GetTransactionArgs, evidence: dict[str, Evidence]) -> ToolOutcome:
-        item = _find_tx(args.tx, evidence)
+        item = find_tx(args.tx, evidence)
         if item is None:
             return ToolOutcome(content="拒絕：只能查詢工具結果中出現過的交易")
         detail = self._chain.get_transaction(item.ref)
@@ -218,12 +218,6 @@ def assign_tx_aliases(hashes: Iterable[str], evidence: dict[str, Evidence]) -> d
             next_number += 1
         assigned[tx_hash] = aliases[tx_hash]
     return assigned
-
-
-def _find_tx(cited: str, evidence: dict[str, Evidence]) -> Evidence | None:
-    key = evidence_key(cited)
-    candidates = [evidence.get(key), *(item for item in evidence.values() if item.ref == key)]
-    return next((item for item in candidates if item and item.kind == "tx"), None)
 
 
 def _tx_evidence(

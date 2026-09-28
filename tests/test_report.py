@@ -1,8 +1,10 @@
 from kyt_agent.labels import LabelStore
 from kyt_agent.models import Evidence, Review
 from kyt_agent.report import (
+    Finding,
     FundPath,
     PathHop,
+    ReportDraft,
     finalize,
     to_markdown,
     unknown_evidence,
@@ -16,15 +18,23 @@ NO_LABELS = LabelStore([])
 EVIDENCE = {
     "T1": Evidence(id="T1", kind="tx", summary="s", ref=tx_hash(1)),
     "T2": Evidence(id="T2", kind="tx", summary="s", ref=tx_hash(2)),
+    "T5": Evidence(id="T5", kind="tx", summary="s", ref=tx_hash(0xABC)),
     f"label:{MIXER}": Evidence(id=f"label:{MIXER}", kind="label", summary="s", ref=MIXER),
 }
 
 
 def test_unknown_evidence_checks_aliases_and_label_ids_case_insensitively():
     cited = ["t1", " T2 ", f"LABEL:{MIXER.upper().replace('0X', '0x')}"]
-    assert unknown_evidence(draft("LOW", cited), set(EVIDENCE)) == []
-    assert unknown_evidence(draft("LOW", ["T3"]), set(EVIDENCE)) == [0]
-    assert unknown_evidence(draft("LOW", ["0xfake"]), set(EVIDENCE)) == [0]
+    assert unknown_evidence(draft("LOW", cited), EVIDENCE) == []
+    assert unknown_evidence(draft("LOW", ["T3"]), EVIDENCE) == [0]
+    assert unknown_evidence(draft("LOW", ["0xfake"]), EVIDENCE) == [0]
+
+
+def test_unknown_evidence_accepts_registered_hash_only():
+    cited = tx_hash(0xABC).upper().replace("0X", "0x")
+    assert unknown_evidence(draft("LOW", [cited, "T2"]), EVIDENCE) == []
+    assert unknown_evidence(draft("LOW", [tx_hash(9)]), EVIDENCE) == [0]
+    assert unknown_evidence(draft("LOW", [MIXER]), EVIDENCE) == [0]
 
 
 def test_finalize_replaces_tx_aliases_with_real_hashes():
@@ -34,6 +44,41 @@ def test_finalize_replaces_tx_aliases_with_real_hashes():
     )
     assert report.findings[0].evidence == [tx_hash(1), f"label:{MIXER}", tx_hash(2)]
     assert llm_draft.findings[0].evidence[0] == "t1"
+
+
+def test_finalize_keeps_cited_registered_hash():
+    cited = tx_hash(0xABC).upper().replace("0X", "0x")
+    report = finalize(
+        draft("HIGH", [cited]),
+        evidence=EVIDENCE,
+        floor="LOW",
+        unverified=[],
+        version=1,
+        labels=NO_LABELS,
+    )
+    assert report.findings[0].evidence == [tx_hash(0xABC)]
+
+
+def test_finalize_resolves_registered_aliases_in_free_text():
+    llm_draft = ReportDraft(
+        risk_level="HIGH",
+        summary="經由T1轉入混幣器，t2 亦同；T9、T10 與 ST1 未登記",
+        findings=[Finding(claim="T2 由混幣器轉入", evidence=["T2"])],
+        fund_paths=[FundPath(hops=[PathHop(address=TARGET)], note="見 (T1)")],
+        recommendation="凍結 T1 相關資金",
+        limitations=["未查詢 T2 的細節", "T9 無資料"],
+    )
+    report = finalize(
+        llm_draft, evidence=EVIDENCE, floor="LOW", unverified=[], version=1, labels=NO_LABELS
+    )
+    assert report.summary == (
+        f"經由{tx_hash(1)}轉入混幣器，{tx_hash(2)} 亦同；T9、T10 與 ST1 未登記"
+    )
+    assert report.findings[0].claim == f"{tx_hash(2)} 由混幣器轉入"
+    assert report.fund_paths[0].note == f"見 ({tx_hash(1)})"
+    assert report.recommendation == f"凍結 {tx_hash(1)} 相關資金"
+    assert report.limitations == [f"未查詢 {tx_hash(2)} 的細節", "T9 無資料"]
+    assert llm_draft.summary.startswith("經由T1")
 
 
 def test_finalize_keeps_unknown_references_as_cited():

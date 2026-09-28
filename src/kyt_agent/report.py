@@ -1,9 +1,13 @@
+import re
 from pathlib import Path
 
 from pydantic import BaseModel, Field
 
 from kyt_agent.labels import LabelStore
-from kyt_agent.models import Evidence, Review, RiskLevel, evidence_key, max_risk
+from kyt_agent.models import Evidence, Review, RiskLevel, evidence_key, find_tx, max_risk
+
+# 不用 \b：中文字元也算 \w，「經由T1轉入」會比對不到
+_ALIAS_IN_TEXT = re.compile(r"(?<![0-9A-Za-z])T\d+(?![0-9A-Za-z])", re.IGNORECASE)
 
 
 class Finding(BaseModel):
@@ -41,11 +45,14 @@ class RiskReport(ReportDraft):
     version: int
 
 
-def unknown_evidence(draft: ReportDraft, evidence_ids: set[str]) -> list[int]:
+def unknown_evidence(draft: ReportDraft, evidence: dict[str, Evidence]) -> list[int]:
+    def known(cited: str) -> bool:
+        return evidence_key(cited) in evidence or find_tx(cited, evidence) is not None
+
     return [
         index
         for index, finding in enumerate(draft.findings)
-        if not {evidence_key(item) for item in finding.evidence} <= evidence_ids
+        if not all(known(item) for item in finding.evidence)
     ]
 
 
@@ -58,11 +65,26 @@ def finalize(
     version: int,
     labels: LabelStore,
 ) -> RiskReport:
+    # 代號只在案件內有意義，存檔前換回真實 hash；未登記的引用保留原樣供審核辨識
+    def expand(text: str) -> str:
+        return _ALIAS_IN_TEXT.sub(lambda match: _cite(match.group(), evidence), text)
+
     return RiskReport(
-        **draft.model_dump(exclude={"risk_level", "findings", "fund_paths"}),
         risk_level=max_risk(draft.risk_level, floor),
-        findings=[_resolve(finding, evidence) for finding in draft.findings],
-        fund_paths=[_relabel(path, labels) for path in draft.fund_paths],
+        summary=expand(draft.summary),
+        findings=[
+            Finding(
+                claim=expand(finding.claim),
+                evidence=[_cite(item, evidence) for item in finding.evidence],
+            )
+            for finding in draft.findings
+        ],
+        fund_paths=[
+            FundPath(hops=_relabel(path.hops, labels), note=expand(path.note))
+            for path in draft.fund_paths
+        ],
+        recommendation=expand(draft.recommendation),
+        limitations=[expand(item) for item in draft.limitations],
         llm_risk_level=draft.risk_level,
         risk_floor=floor,
         unverified_findings=unverified,
@@ -70,23 +92,19 @@ def finalize(
     )
 
 
-def _resolve(finding: Finding, evidence: dict[str, Evidence]) -> Finding:
-    # 代號只在案件內有意義，存檔前換回真實 hash；未登記的引用保留原樣供審核辨識
-    refs = []
-    for cited in finding.evidence:
-        item = evidence.get(evidence_key(cited))
-        refs.append(item.ref if item and item.kind == "tx" else cited)
-    return Finding(claim=finding.claim, evidence=refs)
+def _cite(cited: str, evidence: dict[str, Evidence]) -> str:
+    item = find_tx(cited, evidence)
+    return item.ref if item else cited
 
 
-def _relabel(path: FundPath, labels: LabelStore) -> FundPath:
+def _relabel(hops: list[PathHop], labels: LabelStore) -> list[PathHop]:
     # LLM 填的標籤可能是編造的，一律以標籤庫覆寫
-    hops = []
-    for hop in path.hops:
+    relabeled = []
+    for hop in hops:
         label = labels.get(hop.address)
         text = f"{label.category}: {label.name}" if label else None
-        hops.append(PathHop(address=hop.address, label=text))
-    return FundPath(hops=hops, note=path.note)
+        relabeled.append(PathHop(address=hop.address, label=text))
+    return relabeled
 
 
 def to_markdown(report: RiskReport, target: str, reviews: list[Review]) -> str:

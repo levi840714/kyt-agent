@@ -126,8 +126,7 @@ class CaseNodes:
         )
         messages: list[BaseMessage] = [*state["messages"], HumanMessage(request)]
         draft, usage = self._draft(state, messages)
-        evidence_ids = set(state["evidence"])
-        invalid = unknown_evidence(draft, evidence_ids)
+        invalid = unknown_evidence(draft, state["evidence"])
         if invalid:
             self._audit(state, "evidence_check", invalid=invalid, retry=True)
             messages += [
@@ -136,7 +135,7 @@ class CaseNodes:
             ]
             draft, retry_usage = self._draft(state, messages)
             usage = _add(usage, retry_usage)
-            invalid = unknown_evidence(draft, evidence_ids)
+            invalid = unknown_evidence(draft, state["evidence"])
         self._audit(state, "evidence_check", invalid=invalid, retry=False)
         floor = rules.risk_floor(state["target"], state["nodes"])
         previous = state["report"]
