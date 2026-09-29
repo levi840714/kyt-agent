@@ -1,5 +1,6 @@
 import hashlib
 import json
+import os
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -20,3 +21,11 @@ class AuditLog:
 
 def digest(text: str) -> str:
     return hashlib.sha256(text.encode()).hexdigest()
+
+
+def redact_secrets(text: str) -> str:
+    """遮蔽文字中出現的 *_API_KEY 環境變數值，避免錯誤訊息把 key 寫進 audit log。"""
+    for name, value in os.environ.items():
+        if name.endswith("_API_KEY") and len(value) >= 8:
+            text = text.replace(value, "***")
+    return text
