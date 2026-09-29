@@ -6,6 +6,7 @@ from pathlib import Path
 
 from langgraph.graph.state import CompiledStateGraph
 
+from kyt_agent.chain.client import Transfer
 from kyt_agent.chain.factory import make_chain_client
 from kyt_agent.config import Settings
 from kyt_agent.evaluation.crawler import baseline_level, crawl
@@ -16,6 +17,7 @@ from kyt_agent.graph.deps import Deps, make_deps
 from kyt_agent.graph.state import initial_state
 from kyt_agent.labels import LabelStore
 from kyt_agent.models import RiskLevel
+from kyt_agent.tokens import TokenRegistry, TransferFlag, classify_transfer
 
 EVAL_DEPTH = 2
 
@@ -25,10 +27,16 @@ def record_snapshots(
 ) -> None:
     chain = make_chain_client(settings.model_copy(update={"chain_mode": "record"}))
     labels = LabelStore.from_dir(settings.data_dir / "labels")
+    registry = TokenRegistry.from_csv(settings.data_dir / "tokens.csv")
+
+    def classify(item: Transfer) -> set[TransferFlag]:
+        return classify_transfer(item, registry, settings.native_dust_threshold)
+
     for case in cases:
-        on_recorded(
-            case, crawl(chain, labels, case.address, EVAL_DEPTH, settings.top_counterparties)
+        covered = crawl(
+            chain, labels, case.address, EVAL_DEPTH, settings.top_counterparties, classify
         )
+        on_recorded(case, covered)
 
 
 def run_eval(

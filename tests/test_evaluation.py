@@ -27,6 +27,10 @@ from tests.fakes import (
 from tests.graph_fakes import ai_text, ai_tool_call, fake_deps
 
 
+def _no_flags(item):
+    return set()
+
+
 def test_load_dataset_skips_blank_lines(tmp_path):
     path = tmp_path / "dataset.jsonl"
     row = {"address": MIXED_CASE, "expected": "risky", "category": "mixer", "source": "https://x"}
@@ -41,13 +45,30 @@ def test_crawl_expands_requested_layers():
             UNKNOWN: [transfer(2, UNKNOWN, MIXER)],
         }
     )
-    assert crawl(chain, LabelStore([]), TARGET, depth=2, top_n=10) == 3
+    assert crawl(chain, LabelStore([]), TARGET, depth=2, top_n=10, classify=_no_flags) == 3
     assert {("transfers", TARGET), ("transfers", UNKNOWN), ("contract", UNKNOWN)} <= set(
         chain.calls
     )
     assert ("transfers", MIXER) not in chain.calls
     assert ("transaction", tx_hash(1)) in chain.calls
     assert ("transaction", tx_hash(2)) not in chain.calls
+
+
+def test_crawl_ranks_counterparties_by_non_spoofed_count():
+    spam = "0x" + "0" * 40
+    chain = StubChain(
+        transfers={
+            TARGET: [transfer(n, spam, TARGET, asset="ETH", token_contract=spam) for n in range(3)]
+            + [transfer(9, UNKNOWN, TARGET)]
+        }
+    )
+
+    def classify(item):
+        return {"spoofed_token"} if item.token_contract else set()
+
+    crawl(chain, LabelStore([]), TARGET, depth=2, top_n=1, classify=classify)
+    assert ("transfers", UNKNOWN) in chain.calls
+    assert ("transfers", spam) not in chain.calls
 
 
 def test_baseline_checks_every_direct_counterparty():
