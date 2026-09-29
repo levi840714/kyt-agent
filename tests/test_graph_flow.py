@@ -491,3 +491,22 @@ def test_report_generated_audit_event_keeps_summary(settings):
     entries = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
     generated = next(entry for entry in entries if entry["event"] == "report_generated")
     assert (generated["summary"], generated["risk_level"]) == ("測試摘要", "LOW")
+
+
+def test_cache_read_tokens_are_accumulated_and_audited(settings):
+    cached = {
+        "input_tokens": 100,
+        "output_tokens": 10,
+        "total_tokens": 110,
+        "input_token_details": {"cache_read": 60},
+    }
+    script = [AIMessage(content="完成", usage_metadata=cached)]
+    deps = fake_deps(settings, StubChain(), LabelStore([]), script, [draft("LOW")], True)
+    final = build_graph(deps).invoke(
+        initial_state("case-c", TARGET, settings), case_config("case-c")
+    )
+    assert final["cache_read_tokens"] == 60
+    path = settings.var_dir / "audit" / "case-c.jsonl"
+    calls = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
+    agent_call = next(c for c in calls if c["event"] == "llm_call" and c["node"] == "agent")
+    assert agent_call["cache_read_tokens"] == 60

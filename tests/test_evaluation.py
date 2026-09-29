@@ -226,3 +226,28 @@ def test_run_eval_isolates_live_etherscan_failures_per_case(settings, monkeypatc
     assert failing_result.error.startswith("EtherscanError")
     assert (ok_result.error, ok_result.baseline) == (None, "LOW")
     assert summary.errors == 1
+
+
+def test_summary_reports_cache_hit_ratio():
+    results = [
+        CaseResult(
+            address=TARGET,
+            expected="risky",
+            category="c",
+            predicted="HIGH",
+            baseline="HIGH",
+            input_tokens=1000,
+            cache_read_tokens=600,
+        ),
+        CaseResult(
+            address=MIXER,
+            expected="clean",
+            category="c",
+            predicted="LOW",
+            baseline="LOW",
+            input_tokens=1000,
+            cache_read_tokens=200,
+        ),
+    ]
+    assert summarize("fake:model", results).cache_hit_ratio == 0.4
+    assert summarize("fake:model", []).cache_hit_ratio is None

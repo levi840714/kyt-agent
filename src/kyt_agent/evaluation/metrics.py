@@ -28,6 +28,7 @@ class CaseResult(BaseModel):
     tool_calls: int = 0
     input_tokens: int = 0
     output_tokens: int = 0
+    cache_read_tokens: int = 0
     snapshot_misses: int = 0
     error: str | None = None
 
@@ -54,6 +55,7 @@ class Summary(BaseModel):
     avg_tokens: float
     avg_clean_tokens: float
     estimated_cost_usd: float | None
+    cache_hit_ratio: float | None
     snapshot_misses: int
     snapshots_filled: int
     by_category: dict[str, CategoryMetrics]
@@ -75,6 +77,7 @@ def summarize(model: str, results: Sequence[CaseResult], snapshots_filled: int =
         avg_tokens=_mean([_tokens(result) for result in ok]),
         avg_clean_tokens=_mean([_tokens(result) for result in negatives]),
         estimated_cost_usd=estimate_cost(model, ok),
+        cache_hit_ratio=_cache_hit_ratio(ok),
         snapshot_misses=sum(result.snapshot_misses for result in ok),
         snapshots_filled=snapshots_filled,
         by_category=_by_category(ok),
@@ -87,6 +90,12 @@ def estimate_cost(model: str, results: Sequence[CaseResult]) -> float | None:
         return None
     tokens = sum(r.input_tokens * price[0] + r.output_tokens * price[1] for r in results)
     return tokens / 1_000_000
+
+
+def _cache_hit_ratio(results: Sequence[CaseResult]) -> float | None:
+    input_tokens = sum(result.input_tokens for result in results)
+    cached = sum(result.cache_read_tokens for result in results)
+    return cached / input_tokens if input_tokens else None
 
 
 def _by_category(results: Sequence[CaseResult]) -> dict[str, CategoryMetrics]:

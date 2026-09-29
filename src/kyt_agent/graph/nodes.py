@@ -226,7 +226,7 @@ class CaseNodes:
             return review
 
     def _draft(self, state: CaseState, messages: list[BaseMessage]) -> tuple[ReportDraft, Usage]:
-        usage: Usage = {"input_tokens": 0, "output_tokens": 0}
+        usage: Usage = {"input_tokens": 0, "output_tokens": 0, "cache_read_tokens": 0}
         attempt = list(messages)
         for _ in range(2):
             result = self._deps.drafter.invoke(attempt)
@@ -273,9 +273,11 @@ def _last_ai(state: CaseState) -> AIMessage:
 
 def _usage(message: BaseMessage) -> Usage:
     metadata = getattr(message, "usage_metadata", None) or {}
+    details = metadata.get("input_token_details") or {}
     return {
         "input_tokens": metadata.get("input_tokens", 0),
         "output_tokens": metadata.get("output_tokens", 0),
+        "cache_read_tokens": details.get("cache_read") or 0,
     }
 
 
@@ -287,4 +289,5 @@ def _accumulate(state: CaseState, usage: Usage) -> Usage:
     return {
         "input_tokens": state["input_tokens"] + usage["input_tokens"],
         "output_tokens": state["output_tokens"] + usage["output_tokens"],
+        "cache_read_tokens": state.get("cache_read_tokens", 0) + usage["cache_read_tokens"],
     }

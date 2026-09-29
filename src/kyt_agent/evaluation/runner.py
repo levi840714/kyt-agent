@@ -89,6 +89,7 @@ def run_case(graph: CompiledStateGraph, deps: Deps, case: EvalCase) -> CaseResul
         tool_calls=final["tool_calls"],
         input_tokens=final["input_tokens"],
         output_tokens=final["output_tokens"],
+        cache_read_tokens=final.get("cache_read_tokens", 0),
         snapshot_misses=final["snapshot_misses"],
     )
 
