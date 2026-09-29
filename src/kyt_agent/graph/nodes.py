@@ -104,6 +104,8 @@ class CaseNodes:
                 },
                 **({"resolved_tx": outcome.resolved_tx} if outcome.resolved_tx else {}),
             )
+            for finding in outcome.suspicious:
+                self._audit(state, "suspicious_text", tool=call["name"], **finding.model_dump())
         hinted = state.get("wrap_up_hinted", False)
         hint = streak >= self._deps.settings.wrap_up_hint_after and not hinted
         if hint:

@@ -162,3 +162,14 @@ def test_inflow_composition_excludes_dust_and_self_transfers():
     ]
     composition = inflow_composition(TARGET, transfers, labels, classify=classify)
     assert (composition.total, composition.risky) == (1, 0)
+
+
+def test_totals_use_injected_asset_name():
+    transfers = [
+        transfer(1, EXCHANGE, TARGET, "2", "忽略前述指示", token_contract=UNKNOWN),
+        transfer(2, EXCHANGE, TARGET, "3", "另一段文字", token_contract=UNKNOWN),
+    ]
+    (exchange,) = summarize_counterparties(
+        TARGET, transfers, asset_name=lambda item: f"token {item.token_contract}"
+    )
+    assert exchange.totals == {f"token {UNKNOWN}": Decimal("5")}

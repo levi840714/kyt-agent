@@ -1,4 +1,5 @@
 import csv
+import re
 from collections.abc import Iterable
 from decimal import Decimal
 from pathlib import Path
@@ -7,10 +8,11 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict
 
 from kyt_agent.chain.client import Transfer
-from kyt_agent.models import LowerStr
+from kyt_agent.models import LowerStr, short_address
 
 TransferFlag = Literal["spoofed_token", "dust"]
 NATIVE_SYMBOL = "ETH"
+_PLAIN_SYMBOL = re.compile(r"[A-Za-z0-9.$_-]{1,12}")
 
 
 class KnownToken(BaseModel):
@@ -65,3 +67,15 @@ def classify_transfer(
     if item.asset.upper() == NATIVE_SYMBOL or registry.by_symbol(item.asset) is not None:
         return {"spoofed_token"}
     return set()
+
+
+def display_asset(item: Transfer, registry: TokenRegistry) -> str:
+    """給 LLM 看的資產名稱。ERC-20 symbol 由發行者自訂，未經查證的一律以合約代稱。"""
+    if item.token_contract is None:
+        return NATIVE_SYMBOL
+    known = registry.by_contract(item.token_contract)
+    return known.symbol if known else f"未知代幣 {short_address(item.token_contract)}"
+
+
+def is_plain_symbol(symbol: str) -> bool:
+    return _PLAIN_SYMBOL.fullmatch(symbol) is not None

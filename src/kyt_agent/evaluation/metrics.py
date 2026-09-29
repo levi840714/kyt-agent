@@ -31,6 +31,8 @@ class CaseResult(BaseModel):
     cache_read_tokens: int = 0
     snapshot_misses: int = 0
     error: str | None = None
+    run: int = 1
+    expanded: list[str] = []
 
 
 class CategoryMetrics(BaseModel):
@@ -41,6 +43,20 @@ class CategoryMetrics(BaseModel):
     flag_rate: float
     baseline_flag_rate: float
     avg_tokens: float
+
+
+class UnstableCase(BaseModel):
+    """重複執行時風險等級不一致的地址，只計入未出錯的執行。"""
+
+    address: str
+    category: str
+    expected: Expected
+    levels: list[RiskLevel]
+    flagged_runs: int
+    runs: int
+    min_tokens: int
+    max_tokens: int
+    path_differs: bool
 
 
 class Summary(BaseModel):
@@ -59,10 +75,18 @@ class Summary(BaseModel):
     snapshot_misses: int
     snapshots_filled: int
     by_category: dict[str, CategoryMetrics]
+    repeat: int = 1
+    decision_agreement: float | None = None
+    level_agreement: float | None = None
+    unstable: list[UnstableCase] = []
 
 
-def summarize(model: str, results: Sequence[CaseResult], snapshots_filled: int = 0) -> Summary:
+def summarize(
+    model: str, results: Sequence[CaseResult], snapshots_filled: int = 0, repeat: int = 1
+) -> Summary:
+    """每次執行都是一個樣本；repeat > 1 時另算同一地址跨次執行的一致性。"""
     ok = [result for result in results if result.error is None]
+    compared = _comparable_runs(ok) if repeat > 1 else []
     positives = [result for result in ok if result.expected == "risky"]
     negatives = [result for result in ok if result.expected == "clean"]
     return Summary(
@@ -81,6 +105,10 @@ def summarize(model: str, results: Sequence[CaseResult], snapshots_filled: int =
         snapshot_misses=sum(result.snapshot_misses for result in ok),
         snapshots_filled=snapshots_filled,
         by_category=_by_category(ok),
+        repeat=repeat,
+        decision_agreement=_agreement(compared, _flagged),
+        level_agreement=_agreement(compared, _level),
+        unstable=[_unstable(runs) for runs in compared if len({_level(r) for r in runs}) > 1],
     )
 
 
@@ -112,6 +140,41 @@ def _by_category(results: Sequence[CaseResult]) -> dict[str, CategoryMetrics]:
         )
         for category, rows in sorted(groups.items())
     }
+
+
+def _comparable_runs(ok: Sequence[CaseResult]) -> list[list[CaseResult]]:
+    groups: dict[str, list[CaseResult]] = defaultdict(list)
+    for result in ok:
+        groups[result.address].append(result)
+    return [sorted(runs, key=lambda r: r.run) for runs in groups.values() if len(runs) >= 2]
+
+
+def _agreement(
+    compared: Sequence[list[CaseResult]], key: Callable[[CaseResult], object]
+) -> float | None:
+    if not compared:
+        return None
+    return sum(len({key(result) for result in runs}) == 1 for runs in compared) / len(compared)
+
+
+def _unstable(runs: list[CaseResult]) -> UnstableCase:
+    tokens = [_tokens(result) for result in runs]
+    return UnstableCase(
+        address=runs[0].address,
+        category=runs[0].category,
+        expected=runs[0].expected,
+        levels=[_level(result) for result in runs],
+        flagged_runs=sum(_flagged(result) for result in runs),
+        runs=len(runs),
+        min_tokens=min(tokens),
+        max_tokens=max(tokens),
+        path_differs=len({frozenset(result.expanded) for result in runs}) > 1,
+    )
+
+
+def _level(result: CaseResult) -> RiskLevel:
+    assert result.predicted is not None, "只比較未出錯的執行"
+    return result.predicted
 
 
 def _flagged(result: CaseResult) -> bool:
