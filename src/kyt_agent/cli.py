@@ -12,11 +12,9 @@ from rich.console import Console
 
 from kyt_agent import render
 from kyt_agent.audit import AuditLog
-from kyt_agent.chain.etherscan import EtherscanError
-from kyt_agent.chain.snapshot import SnapshotMissError
 from kyt_agent.config import PROJECT_ROOT, Settings
 from kyt_agent.evaluation.dataset import load_dataset
-from kyt_agent.evaluation.metrics import CaseResult, summarize
+from kyt_agent.evaluation.metrics import CaseResult
 from kyt_agent.evaluation.runner import record_snapshots, run_eval, write_eval_result
 from kyt_agent.graph.build import build_graph, case_config, open_checkpointer
 from kyt_agent.graph.deps import make_deps
@@ -77,6 +75,12 @@ def evaluate(
 ) -> None:
     """錄製快照，或以快照重播執行 eval。"""
     settings = Settings()
+    if record and fill_missing:
+        console.print("[red]--record 與 --fill-missing 不可同時使用[/]")
+        raise typer.Exit(1)
+    if fill_missing and not settings.etherscan_api_key:
+        console.print("[red]--fill-missing 需要 ETHERSCAN_API_KEY[/]")
+        raise typer.Exit(1)
     dataset_path = PROJECT_ROOT / "eval" / "dataset.jsonl"
     try:
         cases = load_dataset(dataset_path)
@@ -90,34 +94,18 @@ def evaluate(
             lambda case, count: console.print(f"已錄製 {case.address}：{count} 個地址"),
         )
         return
-    collected: list[CaseResult] = []
 
     def record_result(result: CaseResult) -> None:
-        collected.append(result)
         console.print(render.eval_row(result))
 
-    try:
-        summary, results = run_eval(
-            settings, cases, model, record_result, fill_missing=fill_missing
-        )
-    except (SnapshotMissError, EtherscanError) as error:
-        # 付費的即時查詢中斷不該整批浪費，把已完成的案例先寫下來
-        if collected:
-            partial = summarize(model or settings.llm_model, collected)
-            path = write_eval_result(settings.var_dir / "eval", partial, collected)
-            console.print(f"[yellow]已寫入中斷前的部分結果（{len(collected)} 筆）：{path}[/]")
-        if isinstance(error, SnapshotMissError):
-            console.print(
-                f"[red]缺少快照 {error}，請先執行 kyt eval --record 或加上 --fill-missing[/]"
-            )
-        else:
-            console.print(f"[red]Etherscan 錯誤：{error}[/]")
-        raise typer.Exit(1) from error
+    summary, results = run_eval(settings, cases, model, record_result, fill_missing=fill_missing)
     path = write_eval_result(settings.var_dir / "eval", summary, results)
     render.show_eval_summary(console, summary)
     if fill_missing:
         console.print(f"補錄快照 {summary.snapshots_filled} 個檔案")
     console.print(f"結果已寫入 {path}")
+    if any((r.error or "").startswith("SnapshotMissError") for r in results):
+        console.print("[yellow]缺少快照，請先執行 kyt eval --record 或加上 --fill-missing[/]")
 
 
 def _run_case(settings: Settings, case_id: str, graph_input: Any) -> None:

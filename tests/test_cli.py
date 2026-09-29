@@ -7,7 +7,6 @@ from rich.console import Console
 from typer.testing import CliRunner
 
 from kyt_agent import cli, render
-from kyt_agent.chain.etherscan import EtherscanError
 from kyt_agent.evaluation.metrics import CaseResult, summarize
 from kyt_agent.graph.nodes import ReportError
 from kyt_agent.labels import LabelStore
@@ -195,6 +194,7 @@ def test_eval_fill_missing_is_passed_to_runner(monkeypatch, tmp_path):
     (tmp_path / "eval" / "dataset.jsonl").write_text(json.dumps(row) + "\n", encoding="utf-8")
     monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
     monkeypatch.setenv("VAR_DIR", str(tmp_path / "var"))
+    monkeypatch.setenv("ETHERSCAN_API_KEY", "test-key")
     seen: dict[str, Any] = {}
 
     def fake_run_eval(settings, cases, model, on_result, *, fill_missing):
@@ -208,49 +208,58 @@ def test_eval_fill_missing_is_passed_to_runner(monkeypatch, tmp_path):
     assert "補錄快照 2 個檔案" in result.output
 
 
-def test_eval_reports_etherscan_error(monkeypatch, tmp_path):
-    (tmp_path / "eval").mkdir()
+def _write_dataset(root):
+    (root / "eval").mkdir()
     row = {"address": TARGET, "expected": "clean", "category": "exchange_user", "source": "t"}
-    (tmp_path / "eval" / "dataset.jsonl").write_text(json.dumps(row) + "\n", encoding="utf-8")
+    (root / "eval" / "dataset.jsonl").write_text(json.dumps(row) + "\n", encoding="utf-8")
+
+
+def test_eval_hints_when_results_contain_snapshot_miss(monkeypatch, tmp_path):
+    _write_dataset(tmp_path)
     monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
     monkeypatch.setenv("VAR_DIR", str(tmp_path / "var"))
-
-    def fake_run_eval(settings, cases, model, on_result, *, fill_missing):
-        raise EtherscanError("HTTP 502")
-
-    monkeypatch.setattr(cli, "run_eval", fake_run_eval)
+    failed = CaseResult(
+        address=TARGET,
+        expected="clean",
+        category="exchange_user",
+        predicted=None,
+        baseline=None,
+        error="SnapshotMissError: transfers",
+    )
+    monkeypatch.setattr(
+        cli, "run_eval", lambda *args, **kwargs: (summarize("fake:model", [failed]), [failed])
+    )
     result = runner.invoke(cli.app, ["eval"])
-    assert result.exit_code == 1
-    assert "Etherscan" in result.output
-    assert not (tmp_path / "var" / "eval").exists()
+    assert result.exit_code == 0, result.output
+    assert "缺少快照，請先執行 kyt eval --record 或加上 --fill-missing" in result.output
 
 
-def test_eval_writes_partial_results_when_etherscan_fails_mid_run(monkeypatch, tmp_path):
-    (tmp_path / "eval").mkdir()
-    row = {"address": TARGET, "expected": "clean", "category": "exchange_user", "source": "t"}
-    (tmp_path / "eval" / "dataset.jsonl").write_text(json.dumps(row) + "\n", encoding="utf-8")
+def test_eval_omits_snapshot_hint_when_no_miss(monkeypatch, tmp_path):
+    _write_dataset(tmp_path)
     monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
     monkeypatch.setenv("VAR_DIR", str(tmp_path / "var"))
-
-    def fake_run_eval(settings, cases, model, on_result, *, fill_missing):
-        on_result(
-            CaseResult(
-                address=TARGET,
-                expected="clean",
-                category="exchange_user",
-                predicted="LOW",
-                baseline="LOW",
-            )
-        )
-        raise EtherscanError("HTTP 502")
-
-    monkeypatch.setattr(cli, "run_eval", fake_run_eval)
+    monkeypatch.setattr(cli, "run_eval", lambda *args, **kwargs: (summarize("fake:model", []), []))
     result = runner.invoke(cli.app, ["eval"])
+    assert "缺少快照" not in result.output
+
+
+def test_eval_fill_missing_requires_etherscan_key(monkeypatch, tmp_path):
+    _write_dataset(tmp_path)
+    monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
+    monkeypatch.setenv("ETHERSCAN_API_KEY", "")
+    result = runner.invoke(cli.app, ["eval", "--fill-missing"])
     assert result.exit_code == 1
-    assert "部分結果" in result.output
-    written = list((tmp_path / "var" / "eval").glob("*.json"))
-    assert len(written) == 1
-    assert json.loads(written[0].read_text(encoding="utf-8"))["results"][0]["address"] == TARGET
+    assert "--fill-missing 需要 ETHERSCAN_API_KEY" in result.output
+    assert result.exception is None or isinstance(result.exception, SystemExit)
+
+
+def test_eval_rejects_record_with_fill_missing(monkeypatch, tmp_path):
+    _write_dataset(tmp_path)
+    monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
+    monkeypatch.setenv("ETHERSCAN_API_KEY", "test-key")
+    result = runner.invoke(cli.app, ["eval", "--record", "--fill-missing"])
+    assert result.exit_code == 1
+    assert "不可同時使用" in result.output
 
 
 def test_eval_row_shows_dash_for_missing_baseline():
