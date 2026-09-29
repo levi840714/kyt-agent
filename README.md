@@ -119,6 +119,10 @@ uv run kyt eval --model openai:gpt-6-luna       # 換模型比較
 - 標籤庫沒有 `hack` 與 `bridge` 標籤，相關規則需自行加入查證過的地址才會生效
 - 部分網路環境以 IPv6 連線 Google API 會卡住，可改用 IPv4 或其他網路
 
+## LangSmith 追蹤（選配）
+
+在 `.env` 設定 `LANGSMITH_TRACING=true`、`LANGSMITH_API_KEY` 與 `LANGSMITH_PROJECT` 即可，程式不需修改。每個案件的 trace 名稱為 `kyt-case <case_id>`，並帶有 `case_id` metadata，可與 `var/audit/<case_id>.jsonl` 對照。trace 會包含完整的 prompt、工具結果與報告，調查真實客戶地址前請先確認資料政策。
+
 ## 開發
 
 ```bash
