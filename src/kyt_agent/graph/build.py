@@ -56,4 +56,10 @@ def open_checkpointer(path: Path) -> SqliteSaver:
 
 
 def case_config(case_id: str) -> RunnableConfig:
-    return {"configurable": {"thread_id": case_id}, "recursion_limit": RECURSION_LIMIT}
+    # run_name 與 metadata 讓 LangSmith trace 能以案件編號搜尋並對應 audit log
+    return {
+        "configurable": {"thread_id": case_id},
+        "recursion_limit": RECURSION_LIMIT,
+        "run_name": f"kyt-case {case_id}",
+        "metadata": {"case_id": case_id},
+    }

@@ -510,3 +510,10 @@ def test_cache_read_tokens_are_accumulated_and_audited(settings):
     calls = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
     agent_call = next(c for c in calls if c["event"] == "llm_call" and c["node"] == "agent")
     assert agent_call["cache_read_tokens"] == 60
+
+
+def test_case_config_tags_traces_with_case_id():
+    config = case_config("case-9")
+    assert config["run_name"] == "kyt-case case-9"
+    assert config["metadata"] == {"case_id": "case-9"}
+    assert config["configurable"]["thread_id"] == "case-9"
