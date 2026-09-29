@@ -45,7 +45,7 @@ def test_from_csv_reads_rows_and_tolerates_missing_file(tmp_path):
         encoding="utf-8",
     )
     assert TokenRegistry.from_csv(path).by_contract(USDT) == usdt()
-    assert len(TokenRegistry.from_csv(tmp_path / "missing.csv")) == 0
+    assert TokenRegistry.from_csv(tmp_path / "missing.csv").by_contract(USDT) is None
 
 
 def test_from_csv_rejects_unexpected_column(tmp_path):

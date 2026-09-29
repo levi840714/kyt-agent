@@ -1,14 +1,14 @@
 from pathlib import Path
-from typing import Literal
 
 from pydantic import BaseModel
 
+from kyt_agent.evaluation.metrics import Expected
 from kyt_agent.models import LowerStr
 
 
 class EvalCase(BaseModel):
     address: LowerStr
-    expected: Literal["risky", "clean"]
+    expected: Expected
     category: str
     source: str
     note: str = ""

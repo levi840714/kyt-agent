@@ -28,7 +28,7 @@ class Deps:
     auto_approve: bool = False
 
 
-# 網路卡住時讓單次 LLM 呼叫逾時失敗，避免整個案件無限期等待
+# 暫時性錯誤（限流、逾時）重試次數；再失敗就讓該次呼叫回報錯誤
 LLM_MAX_RETRIES = 2
 
 

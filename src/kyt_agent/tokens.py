@@ -52,9 +52,6 @@ class TokenRegistry:
     def by_symbol(self, symbol: str) -> KnownToken | None:
         return self._by_symbol.get(symbol.upper())
 
-    def __len__(self) -> int:
-        return len(self._by_contract)
-
 
 def classify_transfer(
     item: Transfer, registry: TokenRegistry, native_dust_threshold: Decimal

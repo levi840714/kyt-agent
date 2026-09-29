@@ -7,13 +7,11 @@ from pydantic import BaseModel
 
 from kyt_agent.chain.client import Transfer
 from kyt_agent.labels import LabelStore
-from kyt_agent.models import Category
+from kyt_agent.models import HIGH_RISK_CATEGORIES
 from kyt_agent.tokens import TransferFlag
 
 Direction = Literal["in", "out", "both"]
 Classifier = Callable[[Transfer], set[TransferFlag]]
-# 中間地址判斷「高度依賴風險來源」時計入的標籤分類（不含 bridge/exchange/defi）
-INFLOW_RISK_CATEGORIES: tuple[Category, ...] = ("sanctioned", "hack", "mixer")
 
 
 class Counterparty(BaseModel):
@@ -92,7 +90,7 @@ def inflow_composition(
             continue
         total += 1
         label = labels.get(item.sender)
-        if label and label.category in INFLOW_RISK_CATEGORIES:
+        if label and label.category in HIGH_RISK_CATEGORIES:
             by_category[label.category] += 1
     return InflowComposition(
         total=total, risky=sum(by_category.values()), by_category=dict(by_category)

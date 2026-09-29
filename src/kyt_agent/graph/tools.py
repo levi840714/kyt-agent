@@ -124,6 +124,7 @@ class Investigator:
         found = summarize_counterparties(address, transfers, args.direction, classify=self._flags)
         shown = select_counterparties(found, self._labels, self._settings.top_counterparties)
         new_nodes = {address: node.model_copy(update={"expanded": True})}
+        graph = {**nodes, **new_nodes}
         aliases = assign_tx_aliases(
             (tx_hash for item in shown for tx_hash in item.sample_hashes), known_evidence
         )
@@ -139,16 +140,18 @@ class Investigator:
         ]
         for counterparty in shown:
             label = self._labels.get(counterparty.address)
-            graph = {**nodes, **new_nodes}
             known = graph.get(counterparty.address)
             if known is None:
-                new_nodes[counterparty.address] = AddressNode(
+                created = AddressNode(
                     address=counterparty.address, depth=node.depth + 1, parent=address, label=label
                 )
+                new_nodes[created.address] = graph[created.address] = created
             elif known.depth > node.depth + 1:
                 # 較淺層也出現時改掛到較近的路徑，否則直接接觸的高風險對手會被當成間接
                 moved = known.model_copy(update={"depth": node.depth + 1, "parent": address})
-                new_nodes.update(_with_descendants(moved, graph))
+                updated = _with_descendants(moved, graph)
+                new_nodes.update(updated)
+                graph.update(updated)
             evidence.update(_tx_evidence(address, counterparty, aliases))
             if label:
                 evidence.update(label_evidence(label))
