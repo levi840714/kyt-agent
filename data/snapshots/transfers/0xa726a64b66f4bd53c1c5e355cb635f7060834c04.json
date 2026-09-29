@@ -5,7 +5,170 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0xdefe584ebb49bb6898a41be84e738cd9e22acf5f",
     "amount": "0.000210466402746936",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": null
+  },
+  {
+    "tx_hash": "0xdf94a61ed11b3af28dc4f2ff179764d33b6028622828dee8acb167a8404c225a",
+    "timestamp": 1790623799,
+    "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
+    "recipient": "0x57483d84305357f22e293a55bb7ddc2798352d40",
+    "amount": "33.898971",
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
+  },
+  {
+    "tx_hash": "0x297ba7d7db464792aa4b5b023cc852058547ba7acf2eba06e2f3f101fff5714d",
+    "timestamp": 1790622503,
+    "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
+    "recipient": "0x8782163068c7cd74d2510768a61135c1e4eb07b3",
+    "amount": "0.389476",
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
+  },
+  {
+    "tx_hash": "0x34864a701c5441caa3508d7c1e9fe1e8f4b1e27648502639d3e7e36cd2fdd67e",
+    "timestamp": 1790621843,
+    "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
+    "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
+    "amount": "80.1",
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
+  },
+  {
+    "tx_hash": "0x0997253cd59be091d142731bd69630b6096a204635230501ef0588be2eb1af08",
+    "timestamp": 1790620175,
+    "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
+    "recipient": "0xc333e80ef2dec2805f239e3f1e810612d294f771",
+    "amount": "104.999368",
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
+  },
+  {
+    "tx_hash": "0x4c0aed4fd147f605b0b2fd8180f1fdcb233d2472c7d55765d858af50275e8a5d",
+    "timestamp": 1790617559,
+    "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
+    "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
+    "amount": "76.9",
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
+  },
+  {
+    "tx_hash": "0x15fbddcb5ec30b6cc79de43dde4753e9e8b2479cd38da3caea6235daf7334353",
+    "timestamp": 1790616143,
+    "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
+    "recipient": "0x7f8233997bd34846978ca36d7c9c88b635c3af5d",
+    "amount": "83.699581",
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
+  },
+  {
+    "tx_hash": "0xa89b79580c060bd0aeb90d0ab32427ce4840d9a78d5d09e6f6c26da8cbd47c16",
+    "timestamp": 1790615735,
+    "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
+    "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
+    "amount": "83.6",
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
+  },
+  {
+    "tx_hash": "0x46a1ed7b80d5e0130874c89b12f6fdf6318bc88de0b8be8c96281dc55ad21325",
+    "timestamp": 1790615711,
+    "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
+    "recipient": "0xbc8a0f5e41857292d12ef620e2a5895ce65a5ce0",
+    "amount": "19.799547",
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
+  },
+  {
+    "tx_hash": "0xc4f2ba8993fcd789c2d27351e2a201705f15c154806955b3a5d9cadb9f6806f5",
+    "timestamp": 1790615231,
+    "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
+    "recipient": "0x51c72848c68a965f66fa7a88855f9f7784502a7f",
+    "amount": "239.999572",
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
+  },
+  {
+    "tx_hash": "0x8ebde9d6d3393f8ea18d2d8884c7f5a1ac5214827ce7f7fb2f15647f5dcd6211",
+    "timestamp": 1790614703,
+    "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
+    "recipient": "0x57483d84305357f22e293a55bb7ddc2798352d40",
+    "amount": "34.299623",
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
+  },
+  {
+    "tx_hash": "0xc8ed43ad60e3520ee9d6895845a68184d8d59d5a3b21dd784e94dbf1ed142048",
+    "timestamp": 1790613947,
+    "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
+    "recipient": "0x6455327f820edd69c4cd665b995e0fec679d7f9e",
+    "amount": "33.699691",
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
+  },
+  {
+    "tx_hash": "0x4f0bcb56a3f05821b389d3fa695ef7dc71af34ee247ed282ba5ced9c8e3bf4c8",
+    "timestamp": 1790613419,
+    "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
+    "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
+    "amount": "75.8",
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
+  },
+  {
+    "tx_hash": "0x666dd1b2e1b1d6f31402a9385b5595ee8711b272bcbaa703e0a42cb960206d5c",
+    "timestamp": 1790613347,
+    "sender": "0x0e363b7309f2f604036cca9842569d376f1ee6de",
+    "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
+    "amount": "1.5842",
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
+  },
+  {
+    "tx_hash": "0x315a000c30aac49a1e0ca78c6c4dd30cbc35cd5fb2ded52e9bae240a437d97a4",
+    "timestamp": 1790612375,
+    "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
+    "recipient": "0xbc8a0f5e41857292d12ef620e2a5895ce65a5ce0",
+    "amount": "47.099645",
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
+  },
+  {
+    "tx_hash": "0x49a5b50338f92cb614234a7869299bffaa8310df99dd1c4b155dc46a18355548",
+    "timestamp": 1790612195,
+    "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
+    "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
+    "amount": "79.2",
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
+  },
+  {
+    "tx_hash": "0xfaf41e9078d2fc6428a6d950db45de59e822e10ed742254f62f4a4c2ba799ad1",
+    "timestamp": 1790610443,
+    "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
+    "recipient": "0x2db49fea741e7d69b2cc6a4b965a37498f675fa7",
+    "amount": "0.898104",
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
+  },
+  {
+    "tx_hash": "0x1fb379dfd6738b4f42ebbdee9ed08e14294784376499c8cf0bbd982a057ad144",
+    "timestamp": 1790610395,
+    "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
+    "recipient": "0x2db49fea741e7d69b2cc6a4b965a37498f675fa7",
+    "amount": "0.001",
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
+  },
+  {
+    "tx_hash": "0x8afd5749deb77d7e0f584a939ef3c21c1a9f896ab283ccd4c1b16876aec89c10",
+    "timestamp": 1790609927,
+    "sender": "0x774e17035f619db9e869ad5559cae7d4ec18db20",
+    "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
+    "amount": "1.62981",
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x1e480d04d01e277cf646ff4fd8b62e6544e8a4d663d0afd9a8b21e8c9d3ac943",
@@ -13,7 +176,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0xeda80a46a44389bd8c2802084d3fd4c46d229d47",
     "amount": "74.788762",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xf65b22a4410fa5cc83a5fbc553e100052025c3eeee2b2f746a9b34ef2d0b136e",
@@ -21,7 +185,8 @@
     "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "76.3",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x1e56ea4a4c5499ed143ac84be2bb87bf67dbb24279f293281dcbb291d7e1f533",
@@ -29,7 +194,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0xeda80a46a44389bd8c2802084d3fd4c46d229d47",
     "amount": "0.2",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x4e7de4aa2d03b74c9540c5bbf3d5336b98ae49f996a4e29bebab6ea21e2baf48",
@@ -37,7 +203,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0xeda80a46a44389bd8c2802084d3fd4c46d229d47",
     "amount": "0.01",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xe696593404fde398643459afea3f2ed29536ffd3f6d4f931facf22a0e7f3e8b7",
@@ -45,7 +212,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0xf02ef521c1d5fccf4b4e167b16076f640b8f9da4",
     "amount": "4.99953",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x888edd33d964c5637fd3d52f8f023d53b285de40d049450ae2a158b30cf4d173",
@@ -53,7 +221,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0x57483d84305357f22e293a55bb7ddc2798352d40",
     "amount": "30.499519",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x7b1d260ae5a178e992bb2374a2f90d82eaf8719f5b3544001e1b03b635aafabc",
@@ -61,7 +230,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0x016606acc6b0cfe537acc221e3bf1bb44b4049ee",
     "amount": "2.386586",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xedeb2a5dd005ce9da0d6c1079f86705d22d1c0e890acca69cf3d04f6fbca118c",
@@ -69,7 +239,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0xbc8a0f5e41857292d12ef620e2a5895ce65a5ce0",
     "amount": "51.199543",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x516ab182a1fd5cd1f554f264a173bcd056b52c24b850aa5bf892048e16708491",
@@ -77,7 +248,8 @@
     "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "85.6",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xdfa57dcf1836e8a662559a39b4c7122dedc6777d7d66c8643a94f3a251ab5ff5",
@@ -85,7 +257,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0x5c4c6c6d0358baf2ade28ffb1723e70139cd534d",
     "amount": "12.499418",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x00f5262c933b9fd5c5dfc03a9c4b9ef86d293ca6e96fc01c92f12c9d641dd5f2",
@@ -93,7 +266,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0x51c72848c68a965f66fa7a88855f9f7784502a7f",
     "amount": "167.999417",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x60243d44ad20f22e63d9ca15378b0ebe037ac4497506cd357a1f798a1077936b",
@@ -101,7 +275,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0x57483d84305357f22e293a55bb7ddc2798352d40",
     "amount": "30.199423",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x9870937cf676abd3750eb9bc6f6624533befc485cd196895f931550511177d9f",
@@ -109,7 +284,8 @@
     "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "83.4",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x67bfe7b194067f79510f867ff494e56f5aaffe21cb060bbb93c0e153789ce5d0",
@@ -117,7 +293,8 @@
     "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "77.3",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xf1d67d8368e886a95d5590f92078406dae359d9cf86fb66c6ed85dd6e7c9d8a0",
@@ -125,7 +302,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0xbc8a0f5e41857292d12ef620e2a5895ce65a5ce0",
     "amount": "51.399507",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xaaa591a17c8f4bd3999b6cd097267c5474a815305d6ef8f3ef11a74ecbf5698b",
@@ -133,7 +311,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0x57483d84305357f22e293a55bb7ddc2798352d40",
     "amount": "33.599515",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x7c6f67b7a2e85ce1794c9421f986a94ded4efb42ffd9c910ab5b7399180a0842",
@@ -141,7 +320,8 @@
     "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "76.4",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x9d33aa4cdbca6a9f4fdfcb2b82e25f32188fad570650998a1ccb66c6521e7661",
@@ -149,7 +329,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0x6455327f820edd69c4cd665b995e0fec679d7f9e",
     "amount": "33.599641",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xb59fd3b2c0e57a6bfa6a064eb3b2bb4c325ed5548ea8b411291a2ae737069bbc",
@@ -157,7 +338,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0x5c4c6c6d0358baf2ade28ffb1723e70139cd534d",
     "amount": "13.099657",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x0c2d9308c4f4cb1faf3540949658afd4b453006bd8782950969cd673c5fe1418",
@@ -165,7 +347,8 @@
     "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "78.7",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x4d5b2da27342c268cbc1ff1421f3a677eea0179c97502405030e3e8ef1e419a9",
@@ -173,7 +356,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0xbc8a0f5e41857292d12ef620e2a5895ce65a5ce0",
     "amount": "51.099728",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xc77dd76512994b6465e1f10f70fe8032b1a7834f266b9f04ce308b46f68e694a",
@@ -181,7 +365,8 @@
     "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "75.8",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xd590f12bf87fe78d4d7b780b17d518928bf1c5abcde40abf989938952d0068d4",
@@ -189,7 +374,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0xbc8a0f5e41857292d12ef620e2a5895ce65a5ce0",
     "amount": "55.499765",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xdc81b370c312100c838c011ee3bf88ffef1d29a1b72b4222579dce26ce3e831c",
@@ -197,7 +383,8 @@
     "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "75.3",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x155058ca7bd8202775a7e73fce876e2bbdedcd0bd21598086f46afd526fcc9bf",
@@ -205,7 +392,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0x5c4c6c6d0358baf2ade28ffb1723e70139cd534d",
     "amount": "11.999713",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x0b44734c839503dfc671d81c39bba578602e9ad31cfe944d60ed5f970dae0227",
@@ -213,7 +401,8 @@
     "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "77.4",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x10e8665af15b07dcb8a078abb9f07b5f67feb51a6c4fe804447011fe37dcacde",
@@ -221,7 +410,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0xbc8a0f5e41857292d12ef620e2a5895ce65a5ce0",
     "amount": "50.899768",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x2cc838149d062963bd7ca285efd083eb3f5d058419e52f42f65eaf87918256e4",
@@ -229,7 +419,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0x57483d84305357f22e293a55bb7ddc2798352d40",
     "amount": "34.199766",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x40f61004f2299b32b6c0a287a1ef22891fffc4c63feceb9b7077719a9f632d0e",
@@ -237,7 +428,8 @@
     "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "75.6",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xee5c3efd44a0b2c623ba1ae888fbfaceb04619607c063ac8abcf0717a199c38d",
@@ -245,7 +437,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0x5bb57d897c3fa747fee7ab255054f97f693cd7a9",
     "amount": "0.055549",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xd36d1a28b50a20dbea658fcfff0bb6765963071f705e237941ba31478b0ba294",
@@ -253,7 +446,8 @@
     "sender": "0xe19ed11103265687a351662aab588a890ec598b4",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "2.272235",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x6aab091e96770b229a1e97ef2ec209d5e02324f31907f4476ec2111116166d2f",
@@ -261,7 +455,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0x51c72848c68a965f66fa7a88855f9f7784502a7f",
     "amount": "236.999686",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x5f5591fb860ea5734cb568e963f9190df84d7f6d4cced9cdc07dc5b19ef24f80",
@@ -269,7 +464,8 @@
     "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "78.3",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xff17e699d293e371611b97eb9881ddcdf8ee19e39cb09b0fafd93702e33b8efb",
@@ -277,7 +473,8 @@
     "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "77.8",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xc0aa211b8961019136851d52794a4861f1c1e8fe08ad25bb0c31f3d7b11aad2a",
@@ -285,7 +482,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0xbc8a0f5e41857292d12ef620e2a5895ce65a5ce0",
     "amount": "50.899694",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xa2515e5fbcc2e950f659f2e68adfc5dbe12ca34edc23a37b66f00291bc111b86",
@@ -293,7 +491,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0x5c4c6c6d0358baf2ade28ffb1723e70139cd534d",
     "amount": "11.999787",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xabad46fc4edd3857e7258c2ff28408f910f9bf0d57d83a5bdab8a8887aeece44",
@@ -301,7 +500,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0xbc8a0f5e41857292d12ef620e2a5895ce65a5ce0",
     "amount": "50.499787",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x0c162ed7b3297fdf2f90bea5eb59682e4e1881c33b38c6f15ad5371945089d87",
@@ -309,7 +509,8 @@
     "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "79",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xa39c75a6aa226c8c64f73df762ab8ad1977195f750de8d58a2674b047b5a8526",
@@ -317,7 +518,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0x57483d84305357f22e293a55bb7ddc2798352d40",
     "amount": "33.699801",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x46b5baa7763cc4932aa096198a1c4dea0bcd89e226c874a8a380a2b1098d42da",
@@ -325,7 +527,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0xbc8a0f5e41857292d12ef620e2a5895ce65a5ce0",
     "amount": "50.599792",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x984511d16254c65d55881b1f4603360d5462c1d2916d047e05ef12112f8ecb36",
@@ -333,7 +536,8 @@
     "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "76.9",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xd4be20b52fd0062d339fd76c9ca986ff309ec344388075c786237c78d88a86a5",
@@ -341,7 +545,8 @@
     "sender": "0x774e17035f619db9e869ad5559cae7d4ec18db20",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "1.49981",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xc50b588340957ca6b459629c1a2e4446e032b870acfad4dd9710492e516fc206",
@@ -349,7 +554,8 @@
     "sender": "0xdefe584ebb49bb6898a41be84e738cd9e22acf5f",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "0.005876",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x7fd60204f1105a4325a4ad0cc738d70c1274bd3d137455f4f78f43f3426dc314",
@@ -357,7 +563,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0xbc8a0f5e41857292d12ef620e2a5895ce65a5ce0",
     "amount": "52.59981",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xacc06b4a61960781ee488098e556104de014fae2fd7a8bcabd6540357d96c1b6",
@@ -365,7 +572,8 @@
     "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "87.5",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xc2f5a23d46c3291902f740db274dc652eab198dfef734b22c383693afe77c626",
@@ -373,7 +581,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0x57483d84305357f22e293a55bb7ddc2798352d40",
     "amount": "34.099798",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x6a1e0f09cb29ddfe8b24fe2dd7a2cc3f155b5e270b25a33bee8cb99c85196093",
@@ -381,7 +590,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0x5c4c6c6d0358baf2ade28ffb1723e70139cd534d",
     "amount": "11.899786",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xe3932db8b5057c08ecfb1da7e2e58502a861ed5776263fa34ccc2211e4e5ecd9",
@@ -389,7 +599,8 @@
     "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "75.9",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x287dc693e3a891d8b59b0db8c2d69936a7ad481d2fceedfcdfd9ad2f7848cd6d",
@@ -397,7 +608,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0xbc8a0f5e41857292d12ef620e2a5895ce65a5ce0",
     "amount": "50.799699",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x0a6a0f5c8dce07493099dbdbba4e16f20db4b1c6c0e17ab6cd3351a39be28558",
@@ -405,7 +617,8 @@
     "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "76.4",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x319fb6c33d444b61bfb0b20d3c1333d56f56dc7788aaeefc2b02ac6c6a1318e2",
@@ -413,7 +626,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0x57483d84305357f22e293a55bb7ddc2798352d40",
     "amount": "33.499685",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x9ac6ed333b2b79bb50263cc469fcef016e84358aca5aab71fde7189ff317c9fa",
@@ -421,7 +635,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0xbc8a0f5e41857292d12ef620e2a5895ce65a5ce0",
     "amount": "50.599723",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x4c786fd3719e90d70f8ba51d59b2dddcfc0f4eb2528aeabac4cb2a2373e1ef26",
@@ -429,7 +644,8 @@
     "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "77.6",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xc5b5204d9bbbea7af9ff23ce5dd10d56475fb647c5a1d954a9716d88de53f2db",
@@ -437,7 +653,8 @@
     "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "78.7",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xe561dea7db550c08c287deef8238dd2a92f4141c128963c074fb6a90679a4d10",
@@ -445,7 +662,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0x57483d84305357f22e293a55bb7ddc2798352d40",
     "amount": "33.799616",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xba2da1c0829cc9e55ee1f9d7e3120a334a4831b823691756928a29143897d89d",
@@ -453,7 +671,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0xbc8a0f5e41857292d12ef620e2a5895ce65a5ce0",
     "amount": "50.399781",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x7c9d19dab852de3f6c605a73138b34ce8cf80734a202b0159124dfe08d7da79e",
@@ -461,7 +680,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0x5c4c6c6d0358baf2ade28ffb1723e70139cd534d",
     "amount": "12.19982",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x51074e5a55e1927b3279ab878323236bdbdf1a46925c646b09459cd8df552126",
@@ -469,7 +689,8 @@
     "sender": "0x774e17035f619db9e869ad5559cae7d4ec18db20",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "3.04981",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x261e244eafb5f4ac5df8e1a260986446ad21549f4342ae4039628c59989bde55",
@@ -477,7 +698,8 @@
     "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "76.4",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x1fb9db14ccb8ab99014a70c9a75d8b633d951c054c7091437c9fa8d15bcd05e3",
@@ -485,7 +707,8 @@
     "sender": "0x774e17035f619db9e869ad5559cae7d4ec18db20",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "3.10981",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x499e7439ff0ba26c0d7a771dc6e12ce59d611db4c586f7a68d2d6ffe370259c6",
@@ -493,7 +716,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0xbc8a0f5e41857292d12ef620e2a5895ce65a5ce0",
     "amount": "51.299823",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xbbd76e9a82e82e75903efeee42da1577e7fa7bf5703e5f08bf54fd4a407c9b7d",
@@ -501,7 +725,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0x57483d84305357f22e293a55bb7ddc2798352d40",
     "amount": "33.499825",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x8d5ff5e36a1ce662d63db609401bdc76b796a27cab6f93373a85a634038c6bf1",
@@ -509,7 +734,8 @@
     "sender": "0x774e17035f619db9e869ad5559cae7d4ec18db20",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "3.09981",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x0c92eb3057561f4113fbf77d10ae7378a71997a3b1fbf0dc9647e312afb7e1d1",
@@ -517,7 +743,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0x6455327f820edd69c4cd665b995e0fec679d7f9e",
     "amount": "33.59982",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xf320be84d105f42117e0c51368e58b4113655308fc0c149ae65c878bda8ef178",
@@ -525,7 +752,8 @@
     "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "76.8",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xb92ba4a30a9f6c72c5076796ea02335a27cf21e43dddfcc6359f62ed48792008",
@@ -533,7 +761,8 @@
     "sender": "0x774e17035f619db9e869ad5559cae7d4ec18db20",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "3.21981",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x85da4aa64b667b82874f6490448a1da413e8d0d8d672b6ddea0368ab08b4e6bb",
@@ -541,7 +770,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0xbc8a0f5e41857292d12ef620e2a5895ce65a5ce0",
     "amount": "50.599824",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x72902ec72970e7019b906a1103dc683ef47ac242339456759e05dfd3b35f9d89",
@@ -549,7 +779,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0x57483d84305357f22e293a55bb7ddc2798352d40",
     "amount": "33.499833",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x129b9729372f4b2d34490cc46b53b9bb991c0b5858650189b55fea0f5eea7f5b",
@@ -557,7 +788,8 @@
     "sender": "0x774e17035f619db9e869ad5559cae7d4ec18db20",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "3.28981",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x1089ddf060629d801e455292f2ccbc0fbd064c74519ca70fa40ec913d2f91c3b",
@@ -565,7 +797,8 @@
     "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "76.2",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x804ffc19fa017462683dc25932f1b2540780dcfd1f7b97937f388160436e5562",
@@ -573,7 +806,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0x57483d84305357f22e293a55bb7ddc2798352d40",
     "amount": "33.499825",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x17e2434daca72b4e32e3e43cea222cd1db58ec98d5e1b3efb381b3fca8ed9b88",
@@ -581,7 +815,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0xbc8a0f5e41857292d12ef620e2a5895ce65a5ce0",
     "amount": "51.499828",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xa9491aaebb74a5e7caf55305f21919dc0ba52ff03eb81b1200243d9f05eb35b9",
@@ -589,7 +824,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0xbc8a0f5e41857292d12ef620e2a5895ce65a5ce0",
     "amount": "50.799826",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x12a4ce84b50774c86531e2799a204cb1d5ea22182bff77cbdc361e6df662063b",
@@ -597,7 +833,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0xc9879de36b263115ad527f679507a09cf1ba56df",
     "amount": "0.167383",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x33bdd7bdac8411dbcdbbc2df4124a7bb18ec7e75671d7dab87eafeef3ca3120d",
@@ -605,7 +842,8 @@
     "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "75.5",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xaea5e0b2435e756d3686a675ee969c704ae0e70e8a689f16859d21ad9fe3a91c",
@@ -613,7 +851,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0x5c4c6c6d0358baf2ade28ffb1723e70139cd534d",
     "amount": "11.999834",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x262881d94c838c7335e44001b8d92106711ca1f4b28717003ced3adf949c494b",
@@ -621,7 +860,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0x57483d84305357f22e293a55bb7ddc2798352d40",
     "amount": "33.299828",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xc178160173272c63b5fa17cc5894ebb76e8192b4243e4a62f013f9d6c8d87eee",
@@ -629,7 +869,8 @@
     "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "43.799",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x49c5420e40f6d4c73e43e8e9020be6ee51c5a61b0c6883ca2a7516a7088b96df",
@@ -637,7 +878,8 @@
     "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "37.599",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x666101a1fe02c325818509b1966127817c81f327025a494304f8fad5207755fb",
@@ -645,7 +887,8 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0xeae7380dd4cef6fbd1144f49e4d1e6964258a4f4",
     "amount": "75.599816",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x3c189da34877fa93c8da05e0fd1c5cf965ffd7683374dd495f58ba3041042aa7",
@@ -653,7 +896,8 @@
     "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
     "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "amount": "72.1",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0x8f3c7cec30df10c226871817aee281451eacc98a061314e1acd4b4633351290f",
@@ -661,142 +905,7 @@
     "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
     "recipient": "0x57483d84305357f22e293a55bb7ddc2798352d40",
     "amount": "33.599747",
-    "asset": "XAUt"
-  },
-  {
-    "tx_hash": "0x24667cb3a74811893935f15a2f4760735dce37f92b2317153634248e75bca6a0",
-    "timestamp": 1790573807,
-    "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
-    "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
-    "amount": "50.8",
-    "asset": "XAUt"
-  },
-  {
-    "tx_hash": "0xbbe757167f37b870975349a64bde51f25363878d1de391f9524b16d4bd824d5e",
-    "timestamp": 1790572739,
-    "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
-    "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
-    "amount": "49.8",
-    "asset": "XAUt"
-  },
-  {
-    "tx_hash": "0x6919da0cdd641e8966924b248c3e22e3342d3fb18d731b01caa98d9a04ee2c12",
-    "timestamp": 1790572619,
-    "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
-    "recipient": "0x6455327f820edd69c4cd665b995e0fec679d7f9e",
-    "amount": "33.199823",
-    "asset": "XAUt"
-  },
-  {
-    "tx_hash": "0xccaefbdfb878c3d7d472c72deb95c966f6306184cf536e1f679c66a533865e51",
-    "timestamp": 1790570483,
-    "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
-    "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
-    "amount": "51.2",
-    "asset": "XAUt"
-  },
-  {
-    "tx_hash": "0x5dec9ab562cb87e1b874a2c201d47568d67d1979c8fd08cc3498db575a43a5a2",
-    "timestamp": 1790567447,
-    "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
-    "recipient": "0xbc8a0f5e41857292d12ef620e2a5895ce65a5ce0",
-    "amount": "50.5998",
-    "asset": "XAUt"
-  },
-  {
-    "tx_hash": "0x9faa32e661789d8ca90a9c7029dfae5a8f8d75398825e3ca1a7db31101253a45",
-    "timestamp": 1790567075,
-    "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
-    "recipient": "0x6ecbe2cba8adb756a7ac74beac87c422ead8d496",
-    "amount": "0.859571",
-    "asset": "XAUt"
-  },
-  {
-    "tx_hash": "0x9a722a1118b46d96af095c2589a64ede1ad30a31f846b4a6ae648e005026f69e",
-    "timestamp": 1790566715,
-    "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
-    "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
-    "amount": "75.2",
-    "asset": "XAUt"
-  },
-  {
-    "tx_hash": "0xcf4be0af953fc1ac2c1461d3016ea2d0b074d5b1d10c916cdca5563a209abd01",
-    "timestamp": 1790566703,
-    "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
-    "recipient": "0x386b577360e1920f5d3b774ef605b5a527a31022",
-    "amount": "0.044369",
-    "asset": "XAUt"
-  },
-  {
-    "tx_hash": "0xe6f0f2f2169373827182bcd0e6c47cb7cce8d83ee6a6da2ba35e3c8ee29174db",
-    "timestamp": 1790566559,
-    "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
-    "recipient": "0x1f68053cd925d467852cfecf78bd836f33f0e4a1",
-    "amount": "1.429661",
-    "asset": "XAUt"
-  },
-  {
-    "tx_hash": "0x38bf05ca56c1bfbf2d22c1d866059ae319ab1eb67fe3757e3917be3ac30f703c",
-    "timestamp": 1790566547,
-    "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
-    "recipient": "0x57483d84305357f22e293a55bb7ddc2798352d40",
-    "amount": "33.499639",
-    "asset": "XAUt"
-  },
-  {
-    "tx_hash": "0xec4da9cc131b971e24987edbc9457e8854cc82ac69ae37273fd5795421cea895",
-    "timestamp": 1790565683,
-    "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
-    "recipient": "0xbc8a0f5e41857292d12ef620e2a5895ce65a5ce0",
-    "amount": "49.699688",
-    "asset": "XAUt"
-  },
-  {
-    "tx_hash": "0x4eb6cf80bbbf168feb00485a6be9462b4f3781ce0daab560e807ffe6aa3572a7",
-    "timestamp": 1790564087,
-    "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
-    "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
-    "amount": "74.4",
-    "asset": "XAUt"
-  },
-  {
-    "tx_hash": "0x0afcac87a791b98955fd31a4af1d22670dc9e5d8dce9f68533466ce2e013e844",
-    "timestamp": 1790563943,
-    "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
-    "recipient": "0x57483d84305357f22e293a55bb7ddc2798352d40",
-    "amount": "33.29953",
-    "asset": "XAUt"
-  },
-  {
-    "tx_hash": "0x1c53912f83317e3e19029600e8c8f7b46027e302e29e243b87287fd54c57ee55",
-    "timestamp": 1790563487,
-    "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
-    "recipient": "0x8782163068c7cd74d2510768a61135c1e4eb07b3",
-    "amount": "0.139652",
-    "asset": "XAUt"
-  },
-  {
-    "tx_hash": "0x47809d21d374f29a86898a8031ab1c39e57440a599b33da16eb111d65b163f6f",
-    "timestamp": 1790561027,
-    "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
-    "recipient": "0xbc8ae59914d09ec47d3f66d4ebbe923580ff5ce0",
-    "amount": "34.199835",
-    "asset": "XAUt"
-  },
-  {
-    "tx_hash": "0x2d8d8a80fc55dc6b1b5dd0606c3f3c3dc63e43c9083fc6b27419d9268d2b79fe",
-    "timestamp": 1790559539,
-    "sender": "0x84b38bc60f3bd82640ecefa320dab2be62e2da15",
-    "recipient": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
-    "amount": "75",
-    "asset": "XAUt"
-  },
-  {
-    "tx_hash": "0x0b889f0f14a4b672950eca2e32936ca13924de3bb99a2d94a9c84b3b1c35ba83",
-    "timestamp": 1790559035,
-    "sender": "0xa726a64b66f4bd53c1c5e355cb635f7060834c04",
-    "recipient": "0xbc8a0f5e41857292d12ef620e2a5895ce65a5ce0",
-    "amount": "34.199835",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   }
 ]

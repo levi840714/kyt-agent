@@ -9,6 +9,7 @@ from kyt_agent.chain.etherscan import EtherscanClient, EtherscanError
 
 A = "0x" + "A" * 40
 B = "0x" + "B" * 40
+TOKEN = "0x" + "C" * 40
 EMPTY = {"status": "0", "message": "No transactions found", "result": []}
 
 
@@ -41,6 +42,7 @@ def token(hash_: str, value: str, decimals: str, symbol: str) -> dict[str, str]:
         "value": value,
         "tokenDecimal": decimals,
         "tokenSymbol": symbol,
+        "contractAddress": TOKEN,
     }
 
 
@@ -73,10 +75,10 @@ def test_get_transfers_merges_native_internal_and_token_transfers():
         }
     )
     transfers = client.get_transfers(A)
-    assert [(t.tx_hash, t.amount, t.asset) for t in transfers] == [
-        ("0xaa", Decimal("1.5"), "ETH"),
-        ("0xee", Decimal("2"), "ETH"),
-        ("0xdd", Decimal("2.5"), "USDT"),
+    assert [(t.tx_hash, t.amount, t.asset, t.token_contract) for t in transfers] == [
+        ("0xaa", Decimal("1.5"), "ETH", None),
+        ("0xee", Decimal("2"), "ETH", None),
+        ("0xdd", Decimal("2.5"), "USDT", TOKEN.lower()),
     ]
     assert (transfers[0].sender, transfers[0].recipient) == (A.lower(), B.lower())
 

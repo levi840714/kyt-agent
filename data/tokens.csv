@@ -1,0 +1,5 @@
+contract,symbol,decimals,dust_threshold,source
+0xdac17f958d2ee523a2206206994597c13d831ec7,USDT,6,0.01,https://etherscan.io/token/0xdac17f958d2ee523a2206206994597c13d831ec7（ContractName TetherToken，tokentx symbol USDT、decimals 6；2026-09-29 查證）
+0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48,USDC,6,0.01,https://etherscan.io/token/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48（ContractName FiatTokenProxy，tokentx symbol USDC、decimals 6；2026-09-29 查證）
+0x6b175474e89094c44da98b954eedeac495271d0f,DAI,18,0.01,https://etherscan.io/token/0x6b175474e89094c44da98b954eedeac495271d0f（ContractName Dai，tokentx symbol DAI、decimals 18；2026-09-29 查證）
+0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2,WETH,18,0.0001,https://etherscan.io/token/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2（ContractName WETH9，tokentx symbol WETH、decimals 18；2026-09-29 查證）

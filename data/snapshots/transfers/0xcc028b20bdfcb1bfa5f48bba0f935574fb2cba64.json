@@ -5,7 +5,8 @@
     "sender": "0x9cba53990c3545bfec261b1b474e895b34c02a70",
     "recipient": "0xcc028b20bdfcb1bfa5f48bba0f935574fb2cba64",
     "amount": "1E-9",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": null
   },
   {
     "tx_hash": "0xc0dce7bd4a40f13a5f70ce11f9ebfe8b98045126d6205983844575ca351f377e",
@@ -13,7 +14,8 @@
     "sender": "0xcc028b20bdfcb1bfa5f48bba0f935574fb2cba64",
     "recipient": "0x9cbad8669bd9964be71bc99e1725df1c67949a70",
     "amount": "30.00989909561467528",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": null
   },
   {
     "tx_hash": "0xe0cc58f2104bb310e3f296b17995f4ee4fda3e03215a1a6d96bac8f51c71a119",
@@ -21,7 +23,8 @@
     "sender": "0xd5af44dd7c5f0e8c95d88713bfabcc351e06a8ee",
     "recipient": "0xcc028b20bdfcb1bfa5f48bba0f935574fb2cba64",
     "amount": "29.99994534376326",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": null
   },
   {
     "tx_hash": "0x026e4c7d900d14b540ab36800727e7d0e681aa04b052929c768c45641cf853b4",
@@ -29,7 +32,8 @@
     "sender": "0xcc028b20bdfcb1bfa5f48bba0f935574fb2cba64",
     "recipient": "0xd90e2f925da726b50c4ed8d0fb90ad053324f31b",
     "amount": "10",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": null
   },
   {
     "tx_hash": "0x8bfcab705224ca41fe621330000561a7f050e1ccbe92982398a5cc96f957a726",
@@ -37,7 +41,8 @@
     "sender": "0xd5af44dd7c5f0e8c95d88713bfabcc351e06a8ee",
     "recipient": "0xcc028b20bdfcb1bfa5f48bba0f935574fb2cba64",
     "amount": "0.009867904413517",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": null
   },
   {
     "tx_hash": "0x1252ea8105707f94c08084d6d90c427d7298475b2f405bfa148fd7c1d864f2a2",
@@ -45,7 +50,8 @@
     "sender": "0xcc028b20bdfcb1bfa5f48bba0f935574fb2cba64",
     "recipient": "0xd90e2f925da726b50c4ed8d0fb90ad053324f31b",
     "amount": "10",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": null
   },
   {
     "tx_hash": "0x9dda95f9e2131d5376474c0407ef3413a54e40e28e8115cbf58fbb1c5f5768b3",
@@ -53,7 +59,8 @@
     "sender": "0xcc028b20bdfcb1bfa5f48bba0f935574fb2cba64",
     "recipient": "0xd90e2f925da726b50c4ed8d0fb90ad053324f31b",
     "amount": "10",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": null
   },
   {
     "tx_hash": "0x7238e303e7f1bf514453a2f1b22321fc504b46fe009ba6cd1a2098d00c65575b",
@@ -61,7 +68,8 @@
     "sender": "0xd5af44dd7c5f0e8c95d88713bfabcc351e06a8ee",
     "recipient": "0xcc028b20bdfcb1bfa5f48bba0f935574fb2cba64",
     "amount": "30.010542345510567928",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": null
   },
   {
     "tx_hash": "0xe7b18b3ddf71c3703bd1e18dde5334c8fe24fcedf52e5d2938db367278c561be",
@@ -69,7 +77,8 @@
     "sender": "0xcc028b20bdfcb1bfa5f48bba0f935574fb2cba64",
     "recipient": "0x9cb9c97f78f21396ba50224cef2e46d7f4949a70",
     "amount": "30.00989909561467528",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": "0xbfb934d068d981a9723977900aebde59445f56fc"
   },
   {
     "tx_hash": "0x8525bada896a1ea346616f3a049865965e31bc99b24ed512b5c840260243c4c7",
@@ -77,7 +86,8 @@
     "sender": "0xcc028b20bdfcb1bfa5f48bba0f935574fb2cba64",
     "recipient": "0x9cba53990c3545bfec261b1b474e895b34c02a70",
     "amount": "30.00989909561467528",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": "0x7fa3f4aa3d80cee8911b764529e1924cf4f6651d"
   },
   {
     "tx_hash": "0x5c67da3687c1abce18073b72ebe3843912901a5bac0fb744288ac17a49e9ef87",
@@ -85,6 +95,7 @@
     "sender": "0xcc028b20bdfcb1bfa5f48bba0f935574fb2cba64",
     "recipient": "0x9cb9c97f78f21396ba50224cef2e46d7f4949a70",
     "amount": "30.00989909561467528",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": "0x1cbd1cf868a9643dbc8d82fe59d5641a9e8f85c2"
   }
 ]

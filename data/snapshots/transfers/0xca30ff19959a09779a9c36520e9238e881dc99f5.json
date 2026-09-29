@@ -5,7 +5,8 @@
     "sender": "0x5ace9e1098c0c1ab9d005d0c1ce682253d46c027",
     "recipient": "0xca30ff19959a09779a9c36520e9238e881dc99f5",
     "amount": "0.000006345138056",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": null
   },
   {
     "tx_hash": "0x090fc91f4ec7f43577aae6aa6cbfd97296014b4e32d6fef518220ce660783cae",
@@ -13,6 +14,7 @@
     "sender": "0x0712ea7fbb61f9a92f0dc47e47a67908f04b04de",
     "recipient": "0xca30ff19959a09779a9c36520e9238e881dc99f5",
     "amount": "1010",
-    "asset": "USDC"
+    "asset": "USDC",
+    "token_contract": "0x8fb995096949cda3105cf3a1546ecc5b81826dd4"
   }
 ]

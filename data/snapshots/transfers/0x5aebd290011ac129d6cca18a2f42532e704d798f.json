@@ -5,7 +5,8 @@
     "sender": "0x300773969b499b9768267e0c5a049f7751de79e7",
     "recipient": "0x5aebd290011ac129d6cca18a2f42532e704d798f",
     "amount": "0.0000834",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": null
   },
   {
     "tx_hash": "0xbb1bb1de32cab4499469711e2a913cae96507aecacd5bc4c506a2c9408ce2e31",
@@ -13,7 +14,8 @@
     "sender": "0x5aebd290011ac129d6cca18a2f42532e704d798f",
     "recipient": "0x64cdaa89629fe003eaa31b480d8b63372d109a53",
     "amount": "500",
-    "asset": "DAI"
+    "asset": "DAI",
+    "token_contract": "0x6b175474e89094c44da98b954eedeac495271d0f"
   },
   {
     "tx_hash": "0x17369eaa4ccc71b643b794b82e36a978526b2fd697ac0ecd1fffa05899c6f67a",
@@ -21,6 +23,7 @@
     "sender": "0x6aae3e747b2b8b8893dfc2dd0b1cd4cf57b2e807",
     "recipient": "0x5aebd290011ac129d6cca18a2f42532e704d798f",
     "amount": "500",
-    "asset": "DAI"
+    "asset": "DAI",
+    "token_contract": "0x6b175474e89094c44da98b954eedeac495271d0f"
   }
 ]

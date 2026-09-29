@@ -11,11 +11,13 @@ from kyt_agent.graph import prompts
 from kyt_agent.graph.budget import exhausted_reason
 from kyt_agent.graph.deps import Deps
 from kyt_agent.graph.state import CaseState
-from kyt_agent.graph.tools import Investigator, label_evidence
-from kyt_agent.models import AddressNode, Evidence, Review
+from kyt_agent.graph.tools import Investigator, ToolOutcome, label_evidence
+from kyt_agent.models import AddressNode, Category, Evidence, Review
 from kyt_agent.report import ReportDraft, finalize, unknown_evidence, write_case_files
 
 Usage = dict[str, int]
+# 新登記的地址帶有這些標籤時，視為發現風險跡象並重新計算收尾提示
+_RISK_SIGNALS: frozenset[Category] = frozenset({"sanctioned", "hack", "mixer", "bridge"})
 
 
 class ReportError(RuntimeError):
@@ -25,7 +27,7 @@ class ReportError(RuntimeError):
 class CaseNodes:
     def __init__(self, deps: Deps) -> None:
         self._deps = deps
-        self._investigator = Investigator(deps.chain, deps.labels, deps.settings)
+        self._investigator = Investigator(deps.chain, deps.labels, deps.tokens, deps.settings)
 
     def screen(self, state: CaseState) -> dict[str, Any]:
         target = state["target"]
@@ -67,8 +69,10 @@ class CaseNodes:
         remaining = state["tool_call_limit"] - state["tool_calls"]
         nodes: dict[str, AddressNode] = {}
         evidence: dict[str, Evidence] = {}
-        messages: list[ToolMessage] = []
+        messages: list[BaseMessage] = []
         used = misses = 0
+        # resume 舊版 checkpoint 時可能沒有這兩個欄位，缺省視為尚未累積收尾提示
+        streak = state.get("calls_without_risk", 0)
         for call in _last_ai(state).tool_calls:
             call_id = call["id"] or ""
             if used >= remaining:
@@ -76,14 +80,12 @@ class CaseNodes:
                     ToolMessage(content="未執行：工具呼叫次數已達上限", tool_call_id=call_id)
                 )
                 continue
-            outcome = self._investigator.execute(
-                call["name"],
-                call["args"],
-                {**state["nodes"], **nodes},
-                {**state["evidence"], **evidence},
-            )
+            known = {**state["nodes"], **nodes}
+            known_evidence = {**state["evidence"], **evidence}
+            outcome = self._investigator.execute(call["name"], call["args"], known, known_evidence)
             used += 1
             misses += outcome.miss
+            streak = 0 if _reveals_risk(outcome, known) else streak + 1
             nodes.update(outcome.nodes)
             evidence.update(outcome.evidence)
             messages.append(ToolMessage(content=outcome.content, tool_call_id=call_id))
@@ -94,13 +96,28 @@ class CaseNodes:
                 args=call["args"],
                 result_sha256=digest(outcome.content),
                 result_preview=outcome.content[:200],
+                # 工具結果只有代號，記下新配的代號與 hash 對應，audit log 才能獨立追溯
+                evidence={
+                    item.id: item.ref
+                    for item in outcome.evidence.values()
+                    if item.kind == "tx" and item.id not in known_evidence
+                },
+                **({"resolved_tx": outcome.resolved_tx} if outcome.resolved_tx else {}),
             )
+        hinted = state.get("wrap_up_hinted", False)
+        hint = streak >= self._deps.settings.wrap_up_hint_after and not hinted
+        if hint:
+            # 放在所有 ToolMessage 之後，才不會拆開 tool_call 與 ToolMessage 的配對
+            messages.append(HumanMessage(prompts.wrap_up_message(streak)))
+            self._audit(state, "wrap_up_hint", calls_without_risk=streak)
         return {
             "messages": messages,
             "nodes": nodes,
             "evidence": evidence,
             "tool_calls": state["tool_calls"] + used,
             "snapshot_misses": state["snapshot_misses"] + misses,
+            "calls_without_risk": streak,
+            "wrap_up_hinted": hinted or hint,
         }
 
     def report(self, state: CaseState) -> dict[str, Any]:
@@ -115,8 +132,7 @@ class CaseNodes:
         )
         messages: list[BaseMessage] = [*state["messages"], HumanMessage(request)]
         draft, usage = self._draft(state, messages)
-        evidence_ids = set(state["evidence"])
-        invalid = unknown_evidence(draft, evidence_ids)
+        invalid = unknown_evidence(draft, state["evidence"])
         if invalid:
             self._audit(state, "evidence_check", invalid=invalid, retry=True)
             messages += [
@@ -125,12 +141,13 @@ class CaseNodes:
             ]
             draft, retry_usage = self._draft(state, messages)
             usage = _add(usage, retry_usage)
-            invalid = unknown_evidence(draft, evidence_ids)
+            invalid = unknown_evidence(draft, state["evidence"])
         self._audit(state, "evidence_check", invalid=invalid, retry=False)
         floor = rules.risk_floor(state["target"], state["nodes"])
         previous = state["report"]
         report = finalize(
             draft,
+            evidence=state["evidence"],
             floor=floor,
             unverified=invalid,
             version=previous.version + 1 if previous else 1,
@@ -143,6 +160,7 @@ class CaseNodes:
             risk_level=report.risk_level,
             llm_risk_level=report.llm_risk_level,
             risk_floor=floor,
+            summary=report.summary,
         )
         return {"report": report, **_accumulate(state, usage)}
 
@@ -169,17 +187,21 @@ class CaseNodes:
                 "review_round": state["review_round"] + 1,
                 "tool_call_limit": limit,
                 "budget_note": None,
+                "calls_without_risk": 0,
+                "wrap_up_hinted": False,
                 "messages": [
                     HumanMessage(prompts.supplement_message(report, review.comment, remaining))
                 ],
             }
         status = "approved" if review.decision == "approve" else "rejected"
-        write_case_files(
-            settings.var_dir / "cases" / state["case_id"],
-            state["target"],
-            report,
-            [*state["reviews"], review],
-        )
+        # eval 的自動核准不是真正結案，寫入 var/cases 只會混入大量測試報告
+        if not self._deps.auto_approve:
+            write_case_files(
+                settings.var_dir / "cases" / state["case_id"],
+                state["target"],
+                report,
+                [*state["reviews"], review],
+            )
         self._audit(state, "case_closed", status=status)
         return {"reviews": [review], "status": status}
 
@@ -234,6 +256,13 @@ def route_after_guard(state: CaseState) -> str:
 
 def route_after_review(state: CaseState) -> str:
     return "agent" if state["status"] == "investigating" else END
+
+
+def _reveals_risk(outcome: ToolOutcome, known: dict[str, AddressNode]) -> bool:
+    return any(
+        address not in known and node.label is not None and node.label.category in _RISK_SIGNALS
+        for address, node in outcome.nodes.items()
+    )
 
 
 def _last_ai(state: CaseState) -> AIMessage:

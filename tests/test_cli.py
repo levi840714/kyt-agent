@@ -1,3 +1,4 @@
+import json
 from typing import Any
 
 import pytest
@@ -6,10 +7,11 @@ from rich.console import Console
 from typer.testing import CliRunner
 
 from kyt_agent import cli, render
+from kyt_agent.evaluation.metrics import CaseResult, summarize
 from kyt_agent.graph.nodes import ReportError
 from kyt_agent.labels import LabelStore
 from kyt_agent.report import finalize
-from tests.fakes import SANCTIONED, TARGET, draft, label
+from tests.fakes import SANCTIONED, TARGET, UNKNOWN, draft, label
 
 runner = CliRunner()
 
@@ -40,7 +42,12 @@ def test_eval_reports_missing_dataset(monkeypatch, tmp_path):
 def test_show_report_renders_level_and_unverified_findings():
     console = Console(record=True, width=160)
     report = finalize(
-        draft("LOW", ["0xfake"]), floor="HIGH", unverified=[0], version=1, labels=LabelStore([])
+        draft("LOW", ["0xfake"]),
+        evidence={},
+        floor="HIGH",
+        unverified=[0],
+        version=1,
+        labels=LabelStore([]),
     )
     render.show_report(console, {"target": TARGET, "report": report.model_dump(mode="json")})
     text = console.export_text()
@@ -50,7 +57,9 @@ def test_show_report_renders_level_and_unverified_findings():
 
 def test_show_report_renders_error_prominently():
     console = Console(record=True, width=160)
-    report = finalize(draft("LOW"), floor="LOW", unverified=[], version=2, labels=LabelStore([]))
+    report = finalize(
+        draft("LOW"), evidence={}, floor="LOW", unverified=[], version=2, labels=LabelStore([])
+    )
     render.show_report(
         console,
         {
@@ -149,3 +158,112 @@ def test_run_case_closes_checkpointer_connection_on_report_error(monkeypatch, se
         cli._run_case(settings, "case-1", {"case_id": "case-1"})
 
     assert saver.conn.closed
+
+
+def test_eval_summary_shows_category_rates_and_clean_tokens():
+    results = [
+        CaseResult(
+            address=TARGET,
+            expected="risky",
+            category="indirect_exposure",
+            predicted="HIGH",
+            baseline="LOW",
+            input_tokens=100,
+        ),
+        CaseResult(
+            address=UNKNOWN,
+            expected="clean",
+            category="indirect_minor",
+            predicted="MEDIUM",
+            baseline="LOW",
+            input_tokens=300,
+        ),
+    ]
+    console = Console(record=True, width=160)
+    render.show_eval_summary(console, summarize("fake:model", results))
+    text = console.export_text()
+    assert "乾淨地址平均 token" in text
+    assert "indirect_exposure" in text
+    assert "indirect_minor" in text
+    assert "indirect_minor" in render.eval_row(results[1])
+
+
+def test_eval_fill_missing_is_passed_to_runner(monkeypatch, tmp_path):
+    (tmp_path / "eval").mkdir()
+    row = {"address": TARGET, "expected": "clean", "category": "exchange_user", "source": "t"}
+    (tmp_path / "eval" / "dataset.jsonl").write_text(json.dumps(row) + "\n", encoding="utf-8")
+    monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
+    monkeypatch.setenv("VAR_DIR", str(tmp_path / "var"))
+    monkeypatch.setenv("ETHERSCAN_API_KEY", "test-key")
+    seen: dict[str, Any] = {}
+
+    def fake_run_eval(settings, cases, model, on_result, *, fill_missing):
+        seen["fill_missing"] = fill_missing
+        return summarize("fake:model", [], snapshots_filled=2), []
+
+    monkeypatch.setattr(cli, "run_eval", fake_run_eval)
+    result = runner.invoke(cli.app, ["eval", "--fill-missing"])
+    assert result.exit_code == 0, result.output
+    assert seen["fill_missing"] is True
+    assert "補錄快照 2 個檔案" in result.output
+
+
+def _write_dataset(root):
+    (root / "eval").mkdir()
+    row = {"address": TARGET, "expected": "clean", "category": "exchange_user", "source": "t"}
+    (root / "eval" / "dataset.jsonl").write_text(json.dumps(row) + "\n", encoding="utf-8")
+
+
+def test_eval_hints_when_results_contain_snapshot_miss(monkeypatch, tmp_path):
+    _write_dataset(tmp_path)
+    monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
+    monkeypatch.setenv("VAR_DIR", str(tmp_path / "var"))
+    failed = CaseResult(
+        address=TARGET,
+        expected="clean",
+        category="exchange_user",
+        predicted=None,
+        baseline=None,
+        error="SnapshotMissError: transfers",
+    )
+    monkeypatch.setattr(
+        cli, "run_eval", lambda *args, **kwargs: (summarize("fake:model", [failed]), [failed])
+    )
+    result = runner.invoke(cli.app, ["eval"])
+    assert result.exit_code == 0, result.output
+    assert "缺少快照，請先執行 kyt eval --record 或加上 --fill-missing" in result.output
+
+
+def test_eval_omits_snapshot_hint_when_no_miss(monkeypatch, tmp_path):
+    _write_dataset(tmp_path)
+    monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
+    monkeypatch.setenv("VAR_DIR", str(tmp_path / "var"))
+    monkeypatch.setattr(cli, "run_eval", lambda *args, **kwargs: (summarize("fake:model", []), []))
+    result = runner.invoke(cli.app, ["eval"])
+    assert "缺少快照" not in result.output
+
+
+def test_eval_fill_missing_requires_etherscan_key(monkeypatch, tmp_path):
+    _write_dataset(tmp_path)
+    monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
+    monkeypatch.setenv("ETHERSCAN_API_KEY", "")
+    result = runner.invoke(cli.app, ["eval", "--fill-missing"])
+    assert result.exit_code == 1
+    assert "--fill-missing 需要 ETHERSCAN_API_KEY" in result.output
+    assert result.exception is None or isinstance(result.exception, SystemExit)
+
+
+def test_eval_rejects_record_with_fill_missing(monkeypatch, tmp_path):
+    _write_dataset(tmp_path)
+    monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
+    monkeypatch.setenv("ETHERSCAN_API_KEY", "test-key")
+    result = runner.invoke(cli.app, ["eval", "--record", "--fill-missing"])
+    assert result.exit_code == 1
+    assert "不可同時使用" in result.output
+
+
+def test_eval_row_shows_dash_for_missing_baseline():
+    result = CaseResult(
+        address=TARGET, expected="clean", category="exchange_user", predicted="LOW", baseline=None
+    )
+    assert "規則 -" in render.eval_row(result)

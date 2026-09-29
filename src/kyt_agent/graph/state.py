@@ -28,6 +28,8 @@ class CaseState(TypedDict):
     input_tokens: int
     output_tokens: int
     snapshot_misses: int
+    calls_without_risk: int
+    wrap_up_hinted: bool
     budget_note: str | None
     report: RiskReport | None
     review_round: int
@@ -52,6 +54,8 @@ def initial_state(case_id: str, target: str, settings: Settings) -> CaseState:
         input_tokens=0,
         output_tokens=0,
         snapshot_misses=0,
+        calls_without_risk=0,
+        wrap_up_hinted=False,
         budget_note=None,
         report=None,
         review_round=1,

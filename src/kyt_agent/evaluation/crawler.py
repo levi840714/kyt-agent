@@ -1,13 +1,25 @@
 from kyt_agent import rules
 from kyt_agent.chain.client import ChainClient
-from kyt_agent.counterparties import Direction, select_counterparties, summarize_counterparties
+from kyt_agent.counterparties import (
+    Classifier,
+    Direction,
+    select_counterparties,
+    summarize_counterparties,
+)
 from kyt_agent.labels import LabelStore
 from kyt_agent.models import AddressNode, RiskLevel
 
 _DIRECTIONS: tuple[Direction, ...] = ("in", "out", "both")
 
 
-def crawl(chain: ChainClient, labels: LabelStore, address: str, depth: int, top_n: int) -> int:
+def crawl(
+    chain: ChainClient,
+    labels: LabelStore,
+    address: str,
+    depth: int,
+    top_n: int,
+    classify: Classifier,
+) -> int:
     """依 agent 工具的挑選規則展開 depth 層，回傳涵蓋的地址數。
     目標地址的交易對手樣本交易也一併錄製，供 agent 重播 get_transaction。"""
     frontier = [address.lower()]
@@ -19,7 +31,7 @@ def crawl(chain: ChainClient, labels: LabelStore, address: str, depth: int, top_
             chain.get_contract_info(current)
             transfers = chain.get_transfers(current)
             for direction in _DIRECTIONS:
-                found = summarize_counterparties(current, transfers, direction)
+                found = summarize_counterparties(current, transfers, direction, classify=classify)
                 for counterparty in select_counterparties(found, labels, top_n):
                     if layer == 0:
                         sample_hashes.update(counterparty.sample_hashes)

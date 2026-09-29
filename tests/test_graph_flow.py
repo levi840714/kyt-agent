@@ -1,17 +1,33 @@
 import json
+import re
 from dataclasses import replace
+from decimal import Decimal
 
+import ormsgpack
 import pytest
-from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from langchain_core.runnables import RunnableLambda
+from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer
 from langgraph.types import Command
 
-from kyt_agent.graph.build import build_graph, case_config, open_checkpointer
-from kyt_agent.graph.nodes import ReportError
+from kyt_agent.chain.client import TransactionDetail
+from kyt_agent.graph.build import CHECKPOINT_TYPES, build_graph, case_config, open_checkpointer
+from kyt_agent.graph.nodes import CaseNodes, ReportError
 from kyt_agent.graph.state import initial_state
 from kyt_agent.labels import LabelStore
-from kyt_agent.models import RuleHit
-from tests.fakes import EXCHANGE, MIXER, TARGET, UNKNOWN, StubChain, draft, label, transfer, tx_hash
+from kyt_agent.models import AddressNode, Evidence, RuleHit
+from tests.fakes import (
+    EXCHANGE,
+    MIXER,
+    TARGET,
+    UNKNOWN,
+    StubChain,
+    draft,
+    label,
+    transfer,
+    tx_hash,
+    tx_refs,
+)
 from tests.graph_fakes import AGENT_USAGE, ai_text, ai_tool_call, fake_deps, scripted_drafter
 
 
@@ -47,7 +63,7 @@ def test_full_case_with_supplement_round_survives_restart(settings, open_db):
         ai_tool_call("lookup_address", "c2", address=MIXER),
         ai_text("補查完成"),
     ]
-    drafts = [draft("MEDIUM", [tx_hash(1)]), draft("HIGH", [f"label:{MIXER}"])]
+    drafts = [draft("MEDIUM", ["T1"]), draft("HIGH", ["t1", f"label:{MIXER}"])]
     deps = fake_deps(settings, chain, labels, script, drafts)
     config = case_config("case-1")
 
@@ -57,6 +73,7 @@ def test_full_case_with_supplement_round_survives_restart(settings, open_db):
     first_report = first["report"]
     assert (first_report["version"], first_report["llm_risk_level"]) == (1, "MEDIUM")
     assert first_report["risk_level"] == "HIGH"
+    assert first_report["findings"][0]["evidence"] == [tx_hash(1)]
     assert first["allow_more"]
 
     # 以新的 graph 實例接續，模擬關掉終端機後 resume
@@ -73,7 +90,11 @@ def test_full_case_with_supplement_round_survives_restart(settings, open_db):
     assert final["status"] == "approved"
     assert [review.decision for review in final["reviews"]] == ["request_more", "approve"]
     assert final["tool_call_limit"] == settings.max_tool_calls + settings.supplement_tool_calls
-    assert (settings.var_dir / "cases" / "case-1" / "report.md").exists()
+    case_dir = settings.var_dir / "cases" / "case-1"
+    saved = json.loads((case_dir / "report.json").read_text(encoding="utf-8"))
+    assert saved["findings"][0]["evidence"] == [tx_hash(1), f"label:{MIXER}"]
+    markdown = (case_dir / "report.md").read_text(encoding="utf-8")
+    assert f"證據：{tx_hash(1)}, label:{MIXER}" in markdown
     events = audit_events(settings, "case-1")
     assert (events[0], events[-1]) == ("case_opened", "case_closed")
     assert events.count("human_decision") == 2
@@ -91,6 +112,8 @@ def test_sanctioned_target_skips_agent_and_floors_to_severe(settings):
     assert (final["report"].risk_level, final["report"].llm_risk_level) == ("SEVERE", "LOW")
     assert final["tool_calls"] == 0
     assert final["report"].unverified_findings == []
+    assert final["status"] == "approved"
+    assert not (settings.var_dir / "cases").exists()
 
 
 def test_sanctioned_case_survives_restart(settings, open_db):
@@ -122,8 +145,15 @@ def test_budget_exhaustion_forces_report(settings):
     assert "budget_exhausted" in audit_events(tight, "case-3")
 
 
-@pytest.mark.parametrize(("second_evidence", "unverified"), [([tx_hash(1)], []), (["0xfake"], [0])])
-def test_invalid_evidence_is_retried_once(settings, second_evidence, unverified):
+@pytest.mark.parametrize(
+    ("second_evidence", "unverified", "saved"),
+    [
+        (["T1"], [], [tx_hash(1)]),
+        ([tx_hash(1)], [], [tx_hash(1)]),
+        (["0xfake"], [0], ["0xfake"]),
+    ],
+)
+def test_invalid_evidence_is_retried_once(settings, second_evidence, unverified, saved):
     chain = StubChain(transfers={TARGET: [transfer(1, TARGET, UNKNOWN)]})
     script = [ai_tool_call("get_counterparties", "c1", address=TARGET), ai_text("完成")]
     drafts = [draft("LOW", ["0xfake"]), draft("LOW", second_evidence)]
@@ -132,6 +162,7 @@ def test_invalid_evidence_is_retried_once(settings, second_evidence, unverified)
         initial_state("case-4", TARGET, settings), case_config("case-4")
     )
     assert final["report"].unverified_findings == unverified
+    assert final["report"].findings[0].evidence == saved
 
 
 def test_unparseable_report_raises(settings):
@@ -212,3 +243,251 @@ def test_invalid_review_input_reprompts_instead_of_failing(settings, open_db):
     assert final["status"] == "approved"
     assert [review.decision for review in final["reviews"]] == ["approve"]
     assert audit_events(settings, "case-9").count("human_decision") == 1
+
+
+def test_tools_node_tolerates_checkpoint_without_wrap_up_fields(settings):
+    chain = StubChain(transfers={TARGET: [transfer(1, TARGET, UNKNOWN)]})
+    deps = fake_deps(settings, chain, LabelStore([]), auto_approve=True)
+    state = initial_state("case-13", TARGET, settings)
+    # 模擬從 v1.1 之前的 checkpoint resume：state 尚未帶有這兩個欄位
+    del state["calls_without_risk"]
+    del state["wrap_up_hinted"]
+    state["messages"] = [
+        *state["messages"],
+        ai_tool_call("get_counterparties", "c1", address=TARGET),
+    ]
+    result = CaseNodes(deps).tools(state)
+    assert (result["calls_without_risk"], result["wrap_up_hinted"]) == (1, False)
+
+
+def wrap_up_hints(messages):
+    return [
+        (index, message)
+        for index, message in enumerate(messages)
+        if isinstance(message, HumanMessage) and "足以結案" in message.text
+    ]
+
+
+def test_wrap_up_hint_follows_tool_messages_and_fires_once(settings):
+    hinting = settings.model_copy(update={"wrap_up_hint_after": 2})
+    chain = StubChain(
+        transfers={
+            TARGET: [transfer(1, TARGET, UNKNOWN)],
+            UNKNOWN: [transfer(2, UNKNOWN, EXCHANGE)],
+        }
+    )
+    script = [
+        ai_tool_call("get_counterparties", "c1", address=TARGET),
+        ai_tool_call("get_counterparties", "c2", address=UNKNOWN),
+        ai_tool_call("lookup_address", "c3", address=UNKNOWN),
+        ai_text("完成"),
+    ]
+    deps = fake_deps(hinting, chain, LabelStore([]), script, [draft("LOW")], auto_approve=True)
+    final = build_graph(deps).invoke(
+        initial_state("case-10", TARGET, hinting), case_config("case-10")
+    )
+    hints = wrap_up_hints(final["messages"])
+    assert len(hints) == 1
+    index, hint = hints[0]
+    assert "已連續 2 次查詢未發現風險跡象" in hint.text
+    previous = final["messages"][index - 1]
+    assert isinstance(previous, ToolMessage)
+    assert previous.tool_call_id == "c2"
+    assert (final["calls_without_risk"], final["wrap_up_hinted"]) == (3, True)
+    assert "wrap_up_hint" in audit_events(hinting, "case-10")
+
+
+def test_newly_found_risky_address_resets_counter(settings):
+    hinting = settings.model_copy(update={"wrap_up_hint_after": 2})
+    chain = StubChain(
+        transfers={TARGET: [transfer(1, TARGET, UNKNOWN)], UNKNOWN: [transfer(2, MIXER, UNKNOWN)]}
+    )
+    script = [
+        ai_tool_call("get_counterparties", "c1", address=TARGET),
+        ai_tool_call("get_counterparties", "c2", address=UNKNOWN),
+        ai_tool_call("lookup_address", "c3", address=UNKNOWN),
+        ai_text("完成"),
+    ]
+    labels = LabelStore([label(MIXER, "mixer")])
+    deps = fake_deps(hinting, chain, labels, script, [draft("LOW")], auto_approve=True)
+    final = build_graph(deps).invoke(
+        initial_state("case-11", TARGET, hinting), case_config("case-11")
+    )
+    assert wrap_up_hints(final["messages"]) == []
+    assert (final["calls_without_risk"], final["wrap_up_hinted"]) == (1, False)
+
+
+def test_request_more_resets_wrap_up_hint(settings, open_db):
+    hinting = settings.model_copy(update={"wrap_up_hint_after": 1})
+    chain = StubChain(transfers={TARGET: [transfer(1, TARGET, UNKNOWN)]})
+    script = [
+        ai_tool_call("get_counterparties", "c1", address=TARGET),
+        ai_text("初步結論"),
+        ai_tool_call("lookup_address", "c2", address=UNKNOWN),
+        ai_text("補查完成"),
+    ]
+    deps = fake_deps(hinting, chain, LabelStore([]), script, [draft("LOW"), draft("LOW")])
+    config = case_config("case-12")
+    graph = build_graph(deps, open_db())
+    graph.invoke(initial_state("case-12", TARGET, hinting), config)
+    more = {"decision": "request_more", "comment": "請確認對手", "reviewer": "tester"}
+    graph.invoke(Command(resume=more), config)
+    final = graph.invoke(Command(resume=APPROVE), config)
+    hints = wrap_up_hints(final["messages"])
+    assert len(hints) == 2
+    assert [final["messages"][index - 1].tool_call_id for index, _ in hints] == ["c1", "c2"]
+
+
+def test_wrap_up_hint_crossed_on_first_call_fires_once_after_last_tool_message(settings):
+    hinting = settings.model_copy(update={"wrap_up_hint_after": 1})
+    chain = StubChain(transfers={TARGET: [transfer(1, TARGET, UNKNOWN)]})
+    both = AIMessage(
+        content="",
+        tool_calls=[
+            {"name": "get_counterparties", "args": {"address": TARGET}, "id": "c1"},
+            {"name": "lookup_address", "args": {"address": UNKNOWN}, "id": "c2"},
+        ],
+        usage_metadata=AGENT_USAGE,
+    )
+    script = [both, ai_text("完成")]
+    deps = fake_deps(hinting, chain, LabelStore([]), script, [draft("LOW")], auto_approve=True)
+    final = build_graph(deps).invoke(
+        initial_state("case-14", TARGET, hinting), case_config("case-14")
+    )
+    hints = wrap_up_hints(final["messages"])
+    assert len(hints) == 1
+    index, _ = hints[0]
+    previous = final["messages"][index - 1]
+    assert isinstance(previous, ToolMessage)
+    assert previous.tool_call_id == "c2"
+
+
+def test_budget_skipped_calls_do_not_increase_streak(settings):
+    tight = settings.model_copy(update={"max_tool_calls": 1, "wrap_up_hint_after": 5})
+    chain = StubChain(transfers={TARGET: [transfer(1, TARGET, UNKNOWN)]})
+    both = AIMessage(
+        content="",
+        tool_calls=[
+            {"name": "get_counterparties", "args": {"address": TARGET}, "id": "c1"},
+            {"name": "get_counterparties", "args": {"address": UNKNOWN}, "id": "c2"},
+        ],
+        usage_metadata=AGENT_USAGE,
+    )
+    script = [both, ai_text("完成")]
+    deps = fake_deps(tight, chain, LabelStore([]), script, [draft("LOW")], auto_approve=True)
+    final = build_graph(deps).invoke(
+        initial_state("case-15", TARGET, tight), case_config("case-15")
+    )
+    assert final["tool_calls"] == 1
+    assert final["calls_without_risk"] == 1
+
+
+def test_reparented_already_known_risky_node_does_not_reset_streak(settings):
+    chain = StubChain(
+        transfers={TARGET: [transfer(1, EXCHANGE, TARGET), transfer(2, TARGET, MIXER)]}
+    )
+    labels = LabelStore([label(MIXER, "mixer")])
+    deps = fake_deps(settings, chain, labels, auto_approve=True)
+    state = initial_state("case-16", TARGET, settings)
+    state["nodes"] = {
+        **state["nodes"],
+        TARGET: AddressNode(address=TARGET, depth=0),
+        EXCHANGE: AddressNode(address=EXCHANGE, depth=1, parent=TARGET),
+        MIXER: AddressNode(address=MIXER, depth=2, parent=EXCHANGE, label=label(MIXER, "mixer")),
+    }
+    state["calls_without_risk"] = 2
+    state["messages"] = [
+        *state["messages"],
+        ai_tool_call("get_counterparties", "c1", address=TARGET),
+    ]
+    result = CaseNodes(deps).tools(state)
+    assert result["calls_without_risk"] == 3
+    assert (result["nodes"][MIXER].depth, result["nodes"][MIXER].parent) == (1, TARGET)
+
+
+def test_same_batch_calls_get_distinct_aliases(settings):
+    chain = StubChain(
+        transfers={
+            TARGET: [transfer(1, TARGET, UNKNOWN)],
+            UNKNOWN: [transfer(1, TARGET, UNKNOWN), transfer(2, UNKNOWN, EXCHANGE)],
+        }
+    )
+    both = AIMessage(
+        content="",
+        tool_calls=[
+            {"name": "get_counterparties", "args": {"address": TARGET}, "id": "c1"},
+            {"name": "get_counterparties", "args": {"address": UNKNOWN}, "id": "c2"},
+        ],
+        usage_metadata=AGENT_USAGE,
+    )
+    deps = fake_deps(settings, chain, LabelStore([]), auto_approve=True)
+    state = initial_state("case-17", TARGET, settings)
+    state["nodes"] = {TARGET: AddressNode(address=TARGET, depth=0)}
+    state["messages"] = [*state["messages"], both]
+    result = CaseNodes(deps).tools(state)
+    assert tx_refs(result["evidence"]) == {tx_hash(1): "T1", tx_hash(2): "T2"}
+    replies = {m.tool_call_id: m.text for m in result["messages"] if m.type == "tool"}
+    assert "例：T1" in replies["c1"]
+    assert "例：T2" in replies["c2"]
+    assert "例：T1" in replies["c2"]
+
+
+def test_evidence_from_old_checkpoint_deserializes_with_ref_fallback():
+    serde = JsonPlusSerializer(allowed_msgpack_modules=CHECKPOINT_TYPES)
+    old = {"id": tx_hash(1), "kind": "tx", "summary": "s"}
+    payload = ("kyt_agent.models", "Evidence", old, "model_validate_json")
+    blob = ormsgpack.packb(ormsgpack.Ext(5, ormsgpack.packb(payload)))
+    restored = serde.loads_typed(("msgpack", blob))
+    assert isinstance(restored, Evidence)
+    assert (restored.id, restored.ref) == (tx_hash(1), tx_hash(1))
+
+
+def test_audit_log_maps_every_alias_to_a_hash(settings):
+    chain = StubChain(
+        transfers={
+            TARGET: [transfer(1, TARGET, UNKNOWN), transfer(2, EXCHANGE, TARGET)],
+            UNKNOWN: [transfer(1, TARGET, UNKNOWN), transfer(3, UNKNOWN, MIXER)],
+        },
+        transactions={
+            tx_hash(3): TransactionDetail(
+                tx_hash=tx_hash(3),
+                sender=UNKNOWN,
+                recipient=MIXER,
+                value_eth=Decimal("1"),
+                block_number=1,
+                method_id="0x",
+            )
+        },
+    )
+    script = [
+        ai_tool_call("get_counterparties", "c1", address=TARGET),
+        ai_tool_call("get_counterparties", "c2", address=UNKNOWN),
+        ai_tool_call("get_transaction", "c3", tx="t3"),
+        ai_text("完成"),
+    ]
+    deps = fake_deps(settings, chain, LabelStore([]), script, [draft("LOW")], auto_approve=True)
+    build_graph(deps).invoke(initial_state("case-18", TARGET, settings), case_config("case-18"))
+
+    path = settings.var_dir / "audit" / "case-18.jsonl"
+    entries = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
+    calls = [entry for entry in entries if entry["event"] == "tool_call"]
+    mapping = {alias: ref for entry in calls for alias, ref in entry["evidence"].items()}
+    # 兩個交易對手筆數相同時依地址排序，EXCHANGE 在前
+    assert mapping == {"T1": tx_hash(2), "T2": tx_hash(1), "T3": tx_hash(3)}
+    assert calls[1]["evidence"] == {"T3": tx_hash(3)}
+    seen = {alias for entry in calls for alias in re.findall(r"T\d+", entry["result_preview"])}
+    assert seen and seen <= mapping.keys()
+    assert calls[2]["resolved_tx"] == tx_hash(3)
+
+
+def test_report_generated_audit_event_keeps_summary(settings):
+    script = [ai_text("完成")]
+    deps = fake_deps(
+        settings, StubChain(), LabelStore([]), script, [draft("LOW")], auto_approve=True
+    )
+    build_graph(deps).invoke(initial_state("case-19", TARGET, settings), case_config("case-19"))
+
+    path = settings.var_dir / "audit" / "case-19.jsonl"
+    entries = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
+    generated = next(entry for entry in entries if entry["event"] == "report_generated")
+    assert (generated["summary"], generated["risk_level"]) == ("測試摘要", "LOW")

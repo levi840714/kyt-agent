@@ -1,3 +1,4 @@
+from decimal import Decimal
 from pathlib import Path
 from typing import Literal
 
@@ -23,5 +24,8 @@ class Settings(BaseSettings):
     tx_page_size: int = 100
     supplement_tool_calls: int = 10
     max_review_rounds: int = 3
+    wrap_up_hint_after: int = 6
+    native_dust_threshold: Decimal = Decimal("0.0001")
+    llm_timeout: float = 120
     data_dir: Path = PROJECT_ROOT / "data"
     var_dir: Path = PROJECT_ROOT / "var"

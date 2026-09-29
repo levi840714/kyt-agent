@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from kyt_agent.chain.client import ContractInfo, TransactionDetail, Transfer
-from kyt_agent.models import Category, Label, RiskLevel
+from kyt_agent.models import Category, Evidence, Label, RiskLevel
 from kyt_agent.report import Finding, ReportDraft
 
 TARGET = "0x" + "1" * 40
@@ -16,12 +16,22 @@ def tx_hash(n: int) -> str:
     return "0x" + f"{n:064x}"
 
 
+def tx_refs(evidence: dict[str, Evidence]) -> dict[str, str]:
+    """hash → 代號。"""
+    return {item.ref: item.id for item in evidence.values() if item.kind == "tx"}
+
+
 def label(address: str, category: Category, name: str = "測試標籤") -> Label:
     return Label(address=address, name=name, category=category, source="test")
 
 
 def transfer(
-    n: int, sender: str, recipient: str, amount: str = "1", asset: str = "ETH"
+    n: int,
+    sender: str,
+    recipient: str,
+    amount: str = "1",
+    asset: str = "ETH",
+    token_contract: str | None = None,
 ) -> Transfer:
     return Transfer(
         tx_hash=tx_hash(n),
@@ -30,6 +40,7 @@ def transfer(
         recipient=recipient,
         amount=Decimal(amount),
         asset=asset,
+        token_contract=token_contract,
     )
 
 

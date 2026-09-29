@@ -5,7 +5,8 @@
     "sender": "0x702d4f6d045905da8097a8f794f4e7f9652a973f",
     "recipient": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "amount": "1.24E-16",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": null
   },
   {
     "tx_hash": "0x7d5358f9977ccf88e9550014a8cf25fdb2b0e85f8ca700af262e64e4aa7b94f2",
@@ -13,7 +14,8 @@
     "sender": "0x1c1c2cf2c751c7a2fab0370913f8e07fea90d881",
     "recipient": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "amount": "1.24E-16",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": null
   },
   {
     "tx_hash": "0xe393b9ec7c38546e0fb1c52182144212400a8af984d887e71732efb0522f3885",
@@ -21,7 +23,8 @@
     "sender": "0x0323718324218dcbff7c9f89ba5a5954f61a6c74",
     "recipient": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "amount": "0.0001",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": null
   },
   {
     "tx_hash": "0x1a6f980f737b735e8c34864abb61bed204cfc1c60bd0962570547b5378fbe885",
@@ -29,7 +32,8 @@
     "sender": "0x3d51807664cecbcf79b78261478830e29358f665",
     "recipient": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "amount": "22000000",
-    "asset": "GLAMDOG"
+    "asset": "GLAMDOG",
+    "token_contract": "0x21283fece254bfb7c48c22bdc1a1db7ad0e162e7"
   },
   {
     "tx_hash": "0x74f0e59fd24e910a6cd9fc9b9ebc00ab0d838aca587f6a1fc053ea0d71ec5515",
@@ -37,7 +41,8 @@
     "sender": "0xfc615b4de67e6b46b3d43c6a3fae9b373015ee88",
     "recipient": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "amount": "51000000",
-    "asset": "PIPECAT"
+    "asset": "PIPECAT",
+    "token_contract": "0xa4d0602c0e049752efe1a29fb120e93869c34e7d"
   },
   {
     "tx_hash": "0x90156b19900c04e63babcc1db16bfa0675658ebec11d6e430e5416a79f01a41e",
@@ -45,7 +50,8 @@
     "sender": "0x644cc87ba4976cdbbc465768c24720b76022b544",
     "recipient": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "amount": "100000000",
-    "asset": "XAICAT"
+    "asset": "XAICAT",
+    "token_contract": "0x019035e5b76e6c6d9484210664f3f9658148e7bd"
   },
   {
     "tx_hash": "0xb1396d3807b8f29e9dc35edab773d8809c3b589c17069b53f6f01a1771d9aee7",
@@ -53,7 +59,8 @@
     "sender": "0x644cc87ba4976cdbbc465768c24720b76022b544",
     "recipient": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "amount": "145000000",
-    "asset": "XAICAT"
+    "asset": "XAICAT",
+    "token_contract": "0x019035e5b76e6c6d9484210664f3f9658148e7bd"
   },
   {
     "tx_hash": "0xaf1f0adf2b025e65be25c598d37de988659359783a1e0b589643a931edf63462",
@@ -61,7 +68,8 @@
     "sender": "0x1f27417b3425e5d071a5a3d3b596825660ace843",
     "recipient": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "amount": "170",
-    "asset": "ha138com"
+    "asset": "ha138com",
+    "token_contract": "0xb96f8b307544645ddb31ceef8affac2366dbef39"
   },
   {
     "tx_hash": "0xaf1f0adf2b025e65be25c598d37de988659359783a1e0b589643a931edf63462",
@@ -69,7 +77,8 @@
     "sender": "0x1f7bbbf07dc53335b1f1c46df1d9a0ad1dbae843",
     "recipient": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "amount": "170",
-    "asset": "ha138com"
+    "asset": "ha138com",
+    "token_contract": "0xb96f8b307544645ddb31ceef8affac2366dbef39"
   },
   {
     "tx_hash": "0x114eabd375a9cfa32df959e92e7f759fa2bf60446fd44bc1d49ac3dafae2e086",
@@ -77,7 +86,8 @@
     "sender": "0x5265f515bbac9b5c9fad55cbc8810e75cc940048",
     "recipient": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "amount": "391",
-    "asset": "ha138com"
+    "asset": "ha138com",
+    "token_contract": "0xb96f8b307544645ddb31ceef8affac2366dbef39"
   },
   {
     "tx_hash": "0x114eabd375a9cfa32df959e92e7f759fa2bf60446fd44bc1d49ac3dafae2e086",
@@ -85,7 +95,8 @@
     "sender": "0x5267c47bca428210fb1a9e3bcfcd0e78e55fc048",
     "recipient": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "amount": "391",
-    "asset": "ha138com"
+    "asset": "ha138com",
+    "token_contract": "0xb96f8b307544645ddb31ceef8affac2366dbef39"
   },
   {
     "tx_hash": "0xd514d580374fa0a1f08bbcf2046f0e216b75c71668e2f0e59587cd9db1abf42d",
@@ -93,7 +104,8 @@
     "sender": "0xd34421bf85a978af8c993d947b3fe2012260c825",
     "recipient": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "amount": "1500",
-    "asset": "ha138com"
+    "asset": "ha138com",
+    "token_contract": "0xb96f8b307544645ddb31ceef8affac2366dbef39"
   },
   {
     "tx_hash": "0x020937d647ef18cee70c2f220fdffb79607864f587b5cf0972726cb5eb33d1d3",
@@ -101,7 +113,8 @@
     "sender": "0x49601fec61441912d3fa523ee1e97ce8192ddadf",
     "recipient": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "amount": "180",
-    "asset": "ha138com"
+    "asset": "ha138com",
+    "token_contract": "0xb96f8b307544645ddb31ceef8affac2366dbef39"
   },
   {
     "tx_hash": "0x5f3b4124879d25b89a3b899e48a50c1b22e3d88852c4693ff8adcc1903f4c683",
@@ -109,7 +122,8 @@
     "sender": "0x8813f3b1f4b5ce4957ef36d7d88731e43b0a0b2f",
     "recipient": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "amount": "300.8876",
-    "asset": "ha138com"
+    "asset": "ha138com",
+    "token_contract": "0xb96f8b307544645ddb31ceef8affac2366dbef39"
   },
   {
     "tx_hash": "0x5f3b4124879d25b89a3b899e48a50c1b22e3d88852c4693ff8adcc1903f4c683",
@@ -117,7 +131,8 @@
     "sender": "0x0dc8a1891d1536410c270c36c924aaf941aabcbc",
     "recipient": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "amount": "114",
-    "asset": "ha138com"
+    "asset": "ha138com",
+    "token_contract": "0xb96f8b307544645ddb31ceef8affac2366dbef39"
   },
   {
     "tx_hash": "0xbb6e14b8bb007e0e2e47ca76ea09b9db9195ece01f81de92ee21c209046a6511",
@@ -125,7 +140,8 @@
     "sender": "0x883527576fed3b0ff585c60755b44cc04f696b2f",
     "recipient": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "amount": "300.8876",
-    "asset": "ha138com"
+    "asset": "ha138com",
+    "token_contract": "0xb96f8b307544645ddb31ceef8affac2366dbef39"
   },
   {
     "tx_hash": "0xe334a2341a1bbd7fb172fccf87449f693553c099fee3b583cfa6f9c8a9b13689",
@@ -133,7 +149,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50efa9cbdee869aa0dbcbb9f48525c01c2ff5955",
     "amount": "140.905",
-    "asset": "U឵S឵DΤ"
+    "asset": "U឵S឵DΤ",
+    "token_contract": "0xd52ea3916267dcdbd8f06aae3234600e806ff35e"
   },
   {
     "tx_hash": "0xfda9b5bd88a843657f5e00a5554da4f2916d9a23416ea2d8132f86a13afd79e5",
@@ -141,7 +158,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "140.905",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0xdac17f958d2ee523a2206206994597c13d831ec7"
   },
   {
     "tx_hash": "0x1bdb42953d0e6a61045371ee999fba67c4e9973de7b3bc51ae596458a6e95a98",
@@ -149,7 +167,8 @@
     "sender": "0x28c6c06298d514db089934071355e5743bf21d60",
     "recipient": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "amount": "80.429",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0xdac17f958d2ee523a2206206994597c13d831ec7"
   },
   {
     "tx_hash": "0x3aac5aea3e574949495c2d2fc447db767be859400461251e4a9dad57e1637ee6",
@@ -157,7 +176,8 @@
     "sender": "0x56eddb7aa87536c09ccc2793473599fd21a8b17f",
     "recipient": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "amount": "60.476",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0xdac17f958d2ee523a2206206994597c13d831ec7"
   },
   {
     "tx_hash": "0x78fb83a869f3cbd9064f2cf808209e764fba3f65639fe710e704141417a81f0f",
@@ -165,7 +185,8 @@
     "sender": "0x8133e21e4c20509e7a337b672563ea2813b61458",
     "recipient": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "amount": "5",
-    "asset": "ARX"
+    "asset": "ARX",
+    "token_contract": "0x8133e21e4c20509e7a337b672563ea2813b61458"
   },
   {
     "tx_hash": "0x8fb863cc14be8a9ee30d020b5dd75ffaf68a663360ccbe4570f873062addf6d0",
@@ -173,7 +194,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50efa9cbdee869aa0dbcbb9f48525c01c2ff5955",
     "amount": "137528.176676",
-    "asset": "U឵S឵DΤ"
+    "asset": "U឵S឵DΤ",
+    "token_contract": "0x8a838d85bc0754f9eed8497eeaea72284b11f642"
   },
   {
     "tx_hash": "0xcaa5406734f2421e108fa1becf0de22571a4bc2049f53ee88336db56892ab733",
@@ -181,7 +203,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "137528.176676",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0xdac17f958d2ee523a2206206994597c13d831ec7"
   },
   {
     "tx_hash": "0x0ae72296495b34474f72a19513ac8149d3955b945ba55b7c220d488906a71c52",
@@ -189,7 +212,8 @@
     "sender": "0x26352d20e6a05e04a1ecc75d4a43ae9989272621",
     "recipient": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "amount": "137528.176676",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0xdac17f958d2ee523a2206206994597c13d831ec7"
   },
   {
     "tx_hash": "0x12e46e3448fdb0b71da2c082a941df5f46e8d8a21dcea45c290db6bc7e120f3b",
@@ -197,7 +221,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "13888.511113962215387853",
-    "asset": "XRGB"
+    "asset": "XRGB",
+    "token_contract": "0x5cc5e64ab764a0f1e97f23984e20fd4528356a6a"
   },
   {
     "tx_hash": "0x0188a28a1134ae816b1897d135d25d80bf573d308fd1db7d4cca3264e9e62007",
@@ -205,7 +230,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "20000",
-    "asset": "XRGB"
+    "asset": "XRGB",
+    "token_contract": "0x5cc5e64ab764a0f1e97f23984e20fd4528356a6a"
   },
   {
     "tx_hash": "0x0188a28a1134ae816b1897d135d25d80bf573d308fd1db7d4cca3264e9e62007",
@@ -213,7 +239,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x0000000000000000000000000000000000000000",
     "amount": "5.64E-15",
-    "asset": "XRGB"
+    "asset": "XRGB",
+    "token_contract": "0x5cc5e64ab764a0f1e97f23984e20fd4528356a6a"
   },
   {
     "tx_hash": "0xf23cfc22bfbcc0a1b52a5111ef64cf782384de06af72fa4c21857601e9da61a3",
@@ -221,7 +248,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "20000",
-    "asset": "XRGB"
+    "asset": "XRGB",
+    "token_contract": "0x5cc5e64ab764a0f1e97f23984e20fd4528356a6a"
   },
   {
     "tx_hash": "0xf23cfc22bfbcc0a1b52a5111ef64cf782384de06af72fa4c21857601e9da61a3",
@@ -229,7 +257,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x0000000000000000000000000000000000000000",
     "amount": "5.641E-15",
-    "asset": "XRGB"
+    "asset": "XRGB",
+    "token_contract": "0x5cc5e64ab764a0f1e97f23984e20fd4528356a6a"
   },
   {
     "tx_hash": "0xf4b813123b48ff1bac1b40e958aea200f1a3ac49099808b1f7638773cca2ec48",
@@ -237,7 +266,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "20000",
-    "asset": "XRGB"
+    "asset": "XRGB",
+    "token_contract": "0x5cc5e64ab764a0f1e97f23984e20fd4528356a6a"
   },
   {
     "tx_hash": "0xf4b813123b48ff1bac1b40e958aea200f1a3ac49099808b1f7638773cca2ec48",
@@ -245,7 +275,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x0000000000000000000000000000000000000000",
     "amount": "5.642E-15",
-    "asset": "XRGB"
+    "asset": "XRGB",
+    "token_contract": "0x5cc5e64ab764a0f1e97f23984e20fd4528356a6a"
   },
   {
     "tx_hash": "0x25304ce3b7c39e35852c0f001ce5371425e3e00acd57579a24b577f2d66742fd",
@@ -253,7 +284,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "20000",
-    "asset": "XRGB"
+    "asset": "XRGB",
+    "token_contract": "0x5cc5e64ab764a0f1e97f23984e20fd4528356a6a"
   },
   {
     "tx_hash": "0x25304ce3b7c39e35852c0f001ce5371425e3e00acd57579a24b577f2d66742fd",
@@ -261,7 +293,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x0000000000000000000000000000000000000000",
     "amount": "5.643E-15",
-    "asset": "XRGB"
+    "asset": "XRGB",
+    "token_contract": "0x5cc5e64ab764a0f1e97f23984e20fd4528356a6a"
   },
   {
     "tx_hash": "0xe40cd2f40f4ca914465436432dfe86c463b3ab3c0354df5d7394dadaa1cf33de",
@@ -269,7 +302,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "20000",
-    "asset": "XRGB"
+    "asset": "XRGB",
+    "token_contract": "0x5cc5e64ab764a0f1e97f23984e20fd4528356a6a"
   },
   {
     "tx_hash": "0xe40cd2f40f4ca914465436432dfe86c463b3ab3c0354df5d7394dadaa1cf33de",
@@ -277,7 +311,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x0000000000000000000000000000000000000000",
     "amount": "5.644E-15",
-    "asset": "XRGB"
+    "asset": "XRGB",
+    "token_contract": "0x5cc5e64ab764a0f1e97f23984e20fd4528356a6a"
   },
   {
     "tx_hash": "0xdbcc1c8b128b2f48d8d5957165c1855bc6b9708d7870787e920250e0900f3298",
@@ -285,7 +320,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "20000",
-    "asset": "XRGB"
+    "asset": "XRGB",
+    "token_contract": "0x5cc5e64ab764a0f1e97f23984e20fd4528356a6a"
   },
   {
     "tx_hash": "0xdbcc1c8b128b2f48d8d5957165c1855bc6b9708d7870787e920250e0900f3298",
@@ -293,7 +329,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x0000000000000000000000000000000000000000",
     "amount": "5.645E-15",
-    "asset": "XRGB"
+    "asset": "XRGB",
+    "token_contract": "0x5cc5e64ab764a0f1e97f23984e20fd4528356a6a"
   },
   {
     "tx_hash": "0xed862e56420902621408aec577d31d47314014221828e627e43fa035b674acb3",
@@ -301,7 +338,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "15221334550585.21837791169183",
-    "asset": "TROLL"
+    "asset": "TROLL",
+    "token_contract": "0xf8ebf4849f1fa4faf0dff2106a173d3a6cb2eb3a"
   },
   {
     "tx_hash": "0xd58ed3d6ab312d4fdc1de19cb7ad1b734dbe87176154850bddd43febd6e146fc",
@@ -309,7 +347,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "3808583098170.309010503444923",
-    "asset": "PEIPEI"
+    "asset": "PEIPEI",
+    "token_contract": "0x3ffeea07a27fab7ad1df5297fa75e77a43cb5790"
   },
   {
     "tx_hash": "0x5d5a01d77d78ef9fbc967084939846ac6bc8c4769a7aa13e1457c7fcce38c912",
@@ -317,7 +356,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "2332100178162.996860537348477",
-    "asset": "LADYS"
+    "asset": "LADYS",
+    "token_contract": "0x12970e6868f88f6557b76120662c1b3e50a646bf"
   },
   {
     "tx_hash": "0x249558cbebf26ae87168084eefa41528a0043d4b439c75cb2ff595fdd2aafa29",
@@ -325,7 +365,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "4045205.81886",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0xdac17f958d2ee523a2206206994597c13d831ec7"
   },
   {
     "tx_hash": "0xc5e8eb3b691a1318d7faa992a764443738a4167cc2bf3ad9e05cee5c6c90dbed",
@@ -333,7 +374,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "470993.32034973446055126",
-    "asset": "ZKJ"
+    "asset": "ZKJ",
+    "token_contract": "0xc71b5f631354be6853efe9c3ab6b9590f8302e81"
   },
   {
     "tx_hash": "0x0f9d52783de77d308c645aee384c7bf7595dad6298cf039760a5d2308b2fca44",
@@ -341,7 +383,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "25621.559569320066063084",
-    "asset": "ZKC"
+    "asset": "ZKC",
+    "token_contract": "0x000006c2a22ff4a44ff1f5d0f2ed65f781f55555"
   },
   {
     "tx_hash": "0x5fd454889cf1cb149a047f86b7e336529272c22e107d33ca0d9a87847c6fbdc6",
@@ -349,7 +392,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "1527169.938433279",
-    "asset": "Yee"
+    "asset": "Yee",
+    "token_contract": "0x9ac9468e7e3e1d194080827226b45d0b892c77fd"
   },
   {
     "tx_hash": "0xf81e63e3a714355526124976d9ba539aa62827aaaa1db4edbd2aec2f729bb8fa",
@@ -357,7 +401,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "39.992494",
-    "asset": "XAUt"
+    "asset": "XAUt",
+    "token_contract": "0x68749665ff8d2d112fa859aa293f07a622782f38"
   },
   {
     "tx_hash": "0xeb4e983e20b02912d4bc5a59c35b8c17efdcaa8582c4c152c73b2c123b7f135f",
@@ -365,7 +410,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "43.456982040090113063",
-    "asset": "wNXM"
+    "asset": "wNXM",
+    "token_contract": "0x0d438f3b5175bebc262bf23753c1e53d03432bde"
   },
   {
     "tx_hash": "0xc004fc9478950473a434a99ae6636b53ffa2440750164e944d24ec0971b2d410",
@@ -373,7 +419,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "325386.579054703363994377",
-    "asset": "WILD"
+    "asset": "WILD",
+    "token_contract": "0x2a3bff78b79a009976eea096a51a948a3dc00e34"
   },
   {
     "tx_hash": "0xa609ec91e4fab216d9d6c05c5ec2bd46ac1e6cc94e3c7583b3c0fbc5601e3b12",
@@ -381,7 +428,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "121015331001.4958063",
-    "asset": "VOLT"
+    "asset": "VOLT",
+    "token_contract": "0x7f792db54b0e580cdc755178443f0430cf799aca"
   },
   {
     "tx_hash": "0x5dc61e080904814612137d8658a9dcb7c051c5699b14d48560ab5c3b37709475",
@@ -389,7 +437,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "33834.635936067952674311",
-    "asset": "VISTA"
+    "asset": "VISTA",
+    "token_contract": "0xc9bca88b04581699fab5aa276ccaff7df957cbbf"
   },
   {
     "tx_hash": "0x026c75d16b06856e08ab32463d4af789b29da9af5096ae0e1259dc562b4c4dd8",
@@ -397,7 +446,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "1347043.563916418279111499",
-    "asset": "VAI"
+    "asset": "VAI",
+    "token_contract": "0xd13cfd3133239a3c73a9e535a5c4dadee36b395c"
   },
   {
     "tx_hash": "0xc24de47f67816fdf6cc76cf24815b4e2524954c749e66e47ee4193d6753d269f",
@@ -405,7 +455,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "62764.288592",
-    "asset": "USDR"
+    "asset": "USDR",
+    "token_contract": "0x7b43e3875440b44613dc3bc08e7763e6da63c8f8"
   },
   {
     "tx_hash": "0xe6db35d9dda7ad730b60dd4ba001519de88f5dba7c155bb2930994121c89f9bf",
@@ -413,7 +464,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "4935004.888233024",
-    "asset": "TSUKA"
+    "asset": "TSUKA",
+    "token_contract": "0xc5fb36dd2fb59d3b98deff88425a3f425ee469ed"
   },
   {
     "tx_hash": "0x9f45faedb1085b95ec1c8717c142692da202be2691c300b2e78433dfa0dba497",
@@ -421,7 +473,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "18205.41678788680583404",
-    "asset": "TOKE"
+    "asset": "TOKE",
+    "token_contract": "0x2e9d63788249371f1dfc918a52f8d799f4a38c94"
   },
   {
     "tx_hash": "0xdf8971e5b01c1284b32ed2c50338887e62079f3d4bb428f090b2991fbbc8f219",
@@ -429,7 +482,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "2124.649686052378036088",
-    "asset": "SSV"
+    "asset": "SSV",
+    "token_contract": "0x9d65ff81a3c488d585bbfb0bfe3c7707c7917f54"
   },
   {
     "tx_hash": "0xd626c57bfbc70d863ef9c7bed6e795819c7f394dee3402fca894390af3b8b59b",
@@ -437,7 +491,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "195258.91121701",
-    "asset": "SPX"
+    "asset": "SPX",
+    "token_contract": "0xe0f63a424a4439cbe457d80e4f4b51ad25b2c56c"
   },
   {
     "tx_hash": "0x38701c9b4e6ce55702694dbde5ad82a9b754f2380c4e0a1bf0c8967fd2bd07bd",
@@ -445,7 +500,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "191637.210571542860674045",
-    "asset": "SPK"
+    "asset": "SPK",
+    "token_contract": "0xc20059e0317de91738d13af027dfc4a50781b066"
   },
   {
     "tx_hash": "0x3b3927574013fde9e654a7faca6a778843f62f83814929da4ab339e027651564",
@@ -453,7 +509,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "53985870.686013803544120597",
-    "asset": "SPELL"
+    "asset": "SPELL",
+    "token_contract": "0x090185f2135308bad17527004364ebcc2d37e5f6"
   },
   {
     "tx_hash": "0xb840565048a9e61b9d406b3d2e669efec22c2ad6283c6cf2925696f82eaf93f0",
@@ -461,7 +518,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "28790.544836115144638224",
-    "asset": "eSOV"
+    "asset": "eSOV",
+    "token_contract": "0xbdab72602e9ad40fc6a6852caf43258113b8f7a5"
   },
   {
     "tx_hash": "0xc54cc8aa50324450dcdb6bd70c1bea55cf1f80551088b2652340f9365b5ed9d8",
@@ -469,7 +527,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "769341.616626249511835228",
-    "asset": "SNT"
+    "asset": "SNT",
+    "token_contract": "0x744d70fdbe2ba4cf95131626614a1763df805b9e"
   },
   {
     "tx_hash": "0x7cc7d87ef7495c950837a72e6c13e956c8e10e3f3fb3c19b85fc67b190739757",
@@ -477,7 +536,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "225710.393244117418627126",
-    "asset": "SKL"
+    "asset": "SKL",
+    "token_contract": "0x00c83aecc790e8a4453e5dd3b0b4b3680501a7a7"
   },
   {
     "tx_hash": "0x61a7096dca2bd4bf83adcef691cc6daf15bdefefa354099ae6b55b017ab1d0a5",
@@ -485,7 +545,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "13980.68317332",
-    "asset": "SIGN"
+    "asset": "SIGN",
+    "token_contract": "0x868fced65edbf0056c4163515dd840e9f287a4c3"
   },
   {
     "tx_hash": "0x3dc4eef6d63e493164230656f4e3882772a056f6336c50b2e41b35396ac6b73b",
@@ -493,7 +554,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "27429620.45683100038773707",
-    "asset": "SIDUS"
+    "asset": "SIDUS",
+    "token_contract": "0x549020a9cb845220d66d3e9c6d9f9ef61c981102"
   },
   {
     "tx_hash": "0x341211cf3077d745cffa76e098d061a276b623617353f57f20f1c158f3a535da",
@@ -501,7 +563,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "48399.546379256927011369",
-    "asset": "SD"
+    "asset": "SD",
+    "token_contract": "0x30d20208d987713f46dfd34ef128bb16c404d10f"
   },
   {
     "tx_hash": "0xe587be102464471e5d897f55ab805f287cf5afddb50a7d762448bc0cbfc00b6c",
@@ -509,7 +572,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "1803637.627389103546898758",
-    "asset": "SAI"
+    "asset": "SAI",
+    "token_contract": "0x3567aa22cd3ab9aef23d7e18ee0d7cf16974d7e6"
   },
   {
     "tx_hash": "0xe508aa27f8935b0a77eacbb6e4bba162e851c8a852c90cccab9f85cd58aeaa92",
@@ -517,7 +581,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "19890931.843067539960282066",
-    "asset": "RSR"
+    "asset": "RSR",
+    "token_contract": "0x320623b8e4ff03373931769a31fc52a4e78b5d70"
   },
   {
     "tx_hash": "0xb40263217a011dd91cf0b96c0a19d7618c588204f6de0c78b7d789fdb05636d9",
@@ -525,7 +590,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "1065951.553301321679766483",
-    "asset": "RLS"
+    "asset": "RLS",
+    "token_contract": "0xb5f7b021a78f470d31d762c1dda05ea549904fbd"
   },
   {
     "tx_hash": "0x4359d49719f97975d009da15f051266c0153c00acb8590a45bb28a86daad35e1",
@@ -533,7 +599,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "61149.82679625",
-    "asset": "RAVE"
+    "asset": "RAVE",
+    "token_contract": "0x17205fab260a7a6383a81452ce6315a39370db97"
   },
   {
     "tx_hash": "0x46f189cbd7a2b1625269817cca7ca8d7a1eb0978cb01bc0529becf0253a1f74f",
@@ -541,7 +608,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "97578.304588455690976717",
-    "asset": "PUNDIX"
+    "asset": "PUNDIX",
+    "token_contract": "0x0fd10b9899882a6f2fcb5c371e17e70fdee00c38"
   },
   {
     "tx_hash": "0x6904a713f2ae54eb6df3ce3e90f97612e69c1ac7bdbe59ff84d94b58321f5961",
@@ -549,7 +617,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "1618115.2406760735558619",
-    "asset": "PEOPLE"
+    "asset": "PEOPLE",
+    "token_contract": "0x7a58c0be72be218b41c608b7fe7c5bb630736c71"
   },
   {
     "tx_hash": "0x98e8c2a6407849d038407d6eb15b9d6fa2277d524e5b4364bcbd58695e43fdb5",
@@ -557,7 +626,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "84292.938202557487092095",
-    "asset": "OVR"
+    "asset": "OVR",
+    "token_contract": "0x21bfbda47a0b4b5b1248c767ee49f7caa9b23697"
   },
   {
     "tx_hash": "0x1029d89f4376cfc4e781a7fe9a187540ddf883246f49feb75b930982cd411223",
@@ -565,7 +635,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "3384084.908834777256825629",
-    "asset": "OPAI"
+    "asset": "OPAI",
+    "token_contract": "0xf8e57ac2730d3088d98b79209739b0d5ba085a03"
   },
   {
     "tx_hash": "0x1a6e40baacc81e547acbedbd812f2c5da306f5475bcd63d0cc66180c67cb4eba",
@@ -573,7 +644,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "52540.604915912197309047",
-    "asset": "ONDO"
+    "asset": "ONDO",
+    "token_contract": "0xfaba6f8e4a5e8ab82f62fe7c39859fa577269be3"
   },
   {
     "tx_hash": "0xb3b69b374119e4fde51675cbf2edaa5ba6492ee52984f8254bd7d4491fe43faa",
@@ -581,7 +653,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "304344.817504737720392409",
-    "asset": "OMG"
+    "asset": "OMG",
+    "token_contract": "0xd26114cd6ee289accf82350c8d8487fedb8a0c07"
   },
   {
     "tx_hash": "0x8efca1f9e03b964c61e614fdc45dad2153b85da8f4f77c69300fc06962276fb8",
@@ -589,7 +662,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "5921712.713122705511911918",
-    "asset": "NPC"
+    "asset": "NPC",
+    "token_contract": "0x8ed97a637a790be1feff5e888d43629dc05408f6"
   },
   {
     "tx_hash": "0x2cacfa01f709eee87941654fee91ae1ae9f16badc55cd5f04c69ff9a5b4026fe",
@@ -597,7 +671,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "429495.592283",
-    "asset": "NIL"
+    "asset": "NIL",
+    "token_contract": "0x7cf9a80db3b29ee8efe3710aadb7b95270572d47"
   },
   {
     "tx_hash": "0xa24caeb422b0001cf0b44ec69fb58c4e64bf2f597c3227b774b1607a32eb1ed1",
@@ -605,7 +680,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "5288130.670005362078761338",
-    "asset": "MUBI"
+    "asset": "MUBI",
+    "token_contract": "0x38e382f74dfb84608f3c1f10187f6bef5951de93"
   },
   {
     "tx_hash": "0x760c6381ecf99c948b867c98f2c162bbcc10aff96323b81c9aedf3d2c437d02e",
@@ -613,7 +689,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "3834.21310639208523946",
-    "asset": "MLN"
+    "asset": "MLN",
+    "token_contract": "0xec67005c4e498ec7f55e092bd1d35cbc47c91892"
   },
   {
     "tx_hash": "0x1bfd8d7f513fb364712273d1016ec6abf8959fe2a8c52d199d6c8c900920935d",
@@ -621,7 +698,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "31561292.960437000432774696",
-    "asset": "MEME"
+    "asset": "MEME",
+    "token_contract": "0xb131f4a55907b10d1f0a50d8ab8fa09ec342cd74"
   },
   {
     "tx_hash": "0x57592b8242f3550efd29d86aa7a7496ad87c9f6d18ac5ecf08609f5867bf2624",
@@ -629,7 +707,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "52106.577351689157862666",
-    "asset": "MAV"
+    "asset": "MAV",
+    "token_contract": "0x7448c7456a97769f6cd04f1e83a4a23ccdc46abd"
   },
   {
     "tx_hash": "0xbe49c22a9aa7558fa20441ab9ea0ce1afe2450d29d0412e0147b896777eba39a",
@@ -637,7 +716,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "560895.510091272256885571",
-    "asset": "MANA"
+    "asset": "MANA",
+    "token_contract": "0x0f5d2fb29fb7d3cfee444a200298f468908cc942"
   },
   {
     "tx_hash": "0x77313d39a091073a314b967e4d50a48bff876aac2f063f8d3086f95d30e66d72",
@@ -645,7 +725,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "821399.769324319464373789",
-    "asset": "LRC"
+    "asset": "LRC",
+    "token_contract": "0xbbbbca6a901c926f240b89eacb641d8aec7aeafd"
   },
   {
     "tx_hash": "0x91c50a1727e7250a49e555f631610d3f849e7a7638e32bf00b4163d56ed1ce41",
@@ -653,7 +734,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "74928.7086118177316",
-    "asset": "KNC"
+    "asset": "KNC",
+    "token_contract": "0xdefa4e8a7bcba345f687a2f1456f5edd9ce97202"
   },
   {
     "tx_hash": "0xf233130c5445ff996c91c3a63a973b1205b48ea58717d61760a1c2feb09e5c80",
@@ -661,7 +743,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "281973.734273730956807481",
-    "asset": "IXS"
+    "asset": "IXS",
+    "token_contract": "0x73d7c860998ca3c01ce8c808f5577d94d545d1b4"
   },
   {
     "tx_hash": "0x2c974cde445a237f907e176249f67f5cc7dd80fb316998190e01b5aa563a65f4",
@@ -669,7 +752,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "981746.574542181430951468",
-    "asset": "INSP"
+    "asset": "INSP",
+    "token_contract": "0x186ef81fd8e77eec8bffc3039e7ec41d5fc0b457"
   },
   {
     "tx_hash": "0x4210948ae826326c1281ed8d7ca4a638ab726e4f7ffcbf4721373587dd44bd12",
@@ -677,7 +761,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "104945.867335186335222495",
-    "asset": "IN"
+    "asset": "IN",
+    "token_contract": "0x61fac5f038515572d6f42d4bcb6b581642753d50"
   },
   {
     "tx_hash": "0xea2960993b5c94c910052f54cb21d560aa13b2549770733443505b65e71a64f4",
@@ -685,7 +770,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "11000.260404215349333535",
-    "asset": "ILV"
+    "asset": "ILV",
+    "token_contract": "0x767fe9edc9e0df98e07454847909b5e959d7ca0e"
   },
   {
     "tx_hash": "0x07776dba481bdb98c5330eb16611926deacbe586c284ceb10b8d2c21c401e5ef",
@@ -693,7 +779,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "1373096.329228474660420337",
-    "asset": "IDEX"
+    "asset": "IDEX",
+    "token_contract": "0xb705268213d593b8fd88d3fdeff93aff5cbdcfae"
   },
   {
     "tx_hash": "0x8e6007e92593f5aad39a98f65ae22a6f4cc5cac35aeaefa2fe1cbe3dc78b1eef",
@@ -701,7 +788,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "1120967672.709737417",
-    "asset": "HOPPY"
+    "asset": "HOPPY",
+    "token_contract": "0x6e79b51959cf968d87826592f46f819f92466615"
   },
   {
     "tx_hash": "0x3b97d491dcef7a4fc9f6ec67b174788cc279366a226691d346f1d60a05e883ab",
@@ -709,7 +797,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "120186.155967810488835043",
-    "asset": "H"
+    "asset": "H",
+    "token_contract": "0xcf5104d094e3864cfcbda43b82e1cefd26a016eb"
   },
   {
     "tx_hash": "0x6ac678a70a7f504cfbb75433191be5f86b966b5d8c636aa58f5b3e9c92668972",
@@ -717,7 +806,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "136730.469053057252660497",
-    "asset": "GWEI"
+    "asset": "GWEI",
+    "token_contract": "0x2798b1cc5a993085e8a9d46e80499f1b63f42204"
   },
   {
     "tx_hash": "0xe893dc61f27dd5c8706913733029849a305861bdd5a8dc86d3abaee12ea38ded",
@@ -725,7 +815,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "193032.39329922218999887",
-    "asset": "GFI"
+    "asset": "GFI",
+    "token_contract": "0xdab396ccf3d84cf2d07c4454e10c8a6f5b008d2b"
   },
   {
     "tx_hash": "0x27b431d3e38e4f1696259d22dc21f4d993b902a74d53f9c6610cb926f45e3a72",
@@ -733,7 +824,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "492618.025688242338377385",
-    "asset": "GEL"
+    "asset": "GEL",
+    "token_contract": "0x15b7c0c907e4c6b9adaaaabc300c08991d6cea05"
   },
   {
     "tx_hash": "0xa31cde3433df5a94540f8f6d91e2034bc886085f1d00c0d8c5eb381a0caaaa80",
@@ -741,7 +833,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "84117.333159787557478552",
-    "asset": "FTX Token"
+    "asset": "FTX Token",
+    "token_contract": "0x50d1c9771902476076ecfc8b2a83ad6b9355a4c9"
   },
   {
     "tx_hash": "0x00e6d36812063bec1bb6d09345de747af3ec5f06e6161a0a71463adad63194e1",
@@ -749,7 +842,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "8949.911327981515507851",
-    "asset": "FORTH"
+    "asset": "FORTH",
+    "token_contract": "0x77fba179c79de5b7653f68b5039af940ada60ce0"
   },
   {
     "tx_hash": "0x8d7aa3cc6514514e692fda8b9bc7e8ca641063104d2aed30443cb1934df2f7d5",
@@ -757,7 +851,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "10036.166310857951134792",
-    "asset": "FLUID"
+    "asset": "FLUID",
+    "token_contract": "0x6f40d4a6237c257fff2db00fa0510deeecd303eb"
   },
   {
     "tx_hash": "0xac8d3f306c7c796547e19567e577b0e0170c8fbe68d47b292b599cfdc2d33183",
@@ -765,7 +860,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "166523.817913089333284207",
-    "asset": "FIS"
+    "asset": "FIS",
+    "token_contract": "0xef3a930e1ffffacd2fc13434ac81bd278b0ecc8d"
   },
   {
     "tx_hash": "0x23613c7d2aa9e7ba627433bb18b17d06708c01aef8c7eef0c5ad35567434f8ba",
@@ -773,7 +869,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "713.611524470998230769",
-    "asset": "FARM"
+    "asset": "FARM",
+    "token_contract": "0xa0246c9032bc3a600820415ae600c6388619a14d"
   },
   {
     "tx_hash": "0xbbbb285cb10862da89587e82146c6f6ecbfb88ffc73f8e714a54d4c4347d31e4",
@@ -781,7 +878,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "118104.59088600546351675",
-    "asset": "F"
+    "asset": "F",
+    "token_contract": "0x6e15a54b5ecac17e58dadeddbe8506a7560252f9"
   },
   {
     "tx_hash": "0xa8a846beada64a3cb9b02199dc5a2572fec4be1f732cce6cbb3125942f86b3e3",
@@ -789,7 +887,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "37869.888373013279620675",
-    "asset": "EPIC"
+    "asset": "EPIC",
+    "token_contract": "0x94314a14df63779c99c0764a30e0cd22fa78fc0e"
   },
   {
     "tx_hash": "0x2f95be80ba7c950c59944c874093a28b468c9128b960aee8d39a5ece2182af9f",
@@ -797,7 +896,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "1840720.061911186917288749",
-    "asset": "DMTR"
+    "asset": "DMTR",
+    "token_contract": "0x51cb253744189f11241becb29bedd3f1b5384fdb"
   },
   {
     "tx_hash": "0x3bbfee99893eacd453385b7c03ec75fab0805a9e1a8ef7e0122b85024c2619f5",
@@ -805,7 +905,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "74739.41899944",
-    "asset": "DMAIL"
+    "asset": "DMAIL",
+    "token_contract": "0xcc6f1e1b87cfcbe9221808d2d85c501aab0b5192"
   },
   {
     "tx_hash": "0xe756ebd8f5d41597c6ec3ee4bfce49a3b8dfa39004f430b8c63ed8513a76b207",
@@ -813,7 +914,8 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "385051911.90811656",
-    "asset": "DENT"
+    "asset": "DENT",
+    "token_contract": "0x3597bfd533a99c9aa083587b074434e61eb0a258"
   },
   {
     "tx_hash": "0xa04059f8d6db1520482ea799ca3def60c2bb2dee59a7087529035adae593cbf6",
@@ -821,6 +923,7 @@
     "sender": "0xbca34ed5875079cc561840f3409a790769821dbc",
     "recipient": "0x50ef5ed097913c223827636890cfb9ed492f5955",
     "amount": "3099.544784127583602688",
-    "asset": "G-CRE"
+    "asset": "G-CRE",
+    "token_contract": "0xa3ee21c306a700e682abcdfe9baa6a08f3820419"
   }
 ]

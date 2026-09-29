@@ -5,7 +5,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x7709a3aecf0db5026d482f8df707c05b69c9599b",
     "amount": "2.188",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": null
   },
   {
     "tx_hash": "0x92e07f7fa209a21203fd42179cd45522b28680cedb1afa5ccb9bd396f2bb3bf2",
@@ -13,7 +14,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x111111125421ca6dc452d289314280a0f8842a65",
     "amount": "6.06",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": null
   },
   {
     "tx_hash": "0x615231540ecf7560189971e8cac7c5b5df9bf393033e9773c413fa3fa9be0738",
@@ -21,7 +23,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x111111125421ca6dc452d289314280a0f8842a65",
     "amount": "5.5",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": null
   },
   {
     "tx_hash": "0x332d8194391a40e113c9100e7cf205b6beeed7b1ac48f9f13ea9c919348655a2",
@@ -29,7 +32,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x111111125421ca6dc452d289314280a0f8842a65",
     "amount": "1",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": null
   },
   {
     "tx_hash": "0x8ab5b3b0b97f2da09db5ed1ec8a42c3871c0f755eae1f8e4279a6bf005275760",
@@ -37,7 +41,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x111111125421ca6dc452d289314280a0f8842a65",
     "amount": "12",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": null
   },
   {
     "tx_hash": "0xce1102eb7cf4068e3c64364ad896e241e9463f6c4465f037bfbe6fc2e851eb59",
@@ -45,7 +50,8 @@
     "sender": "0x111111125421ca6dc452d289314280a0f8842a65",
     "recipient": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "amount": "2.178893021618450174",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": null
   },
   {
     "tx_hash": "0xf66f44e1aca44a3ad2560dc4f8b8bba972c260a9526ad8bf74015d52c5963733",
@@ -53,7 +59,8 @@
     "sender": "0xb685760ebd368a891f27ae547391f4e2a289895b",
     "recipient": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "amount": "8.80518",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": null
   },
   {
     "tx_hash": "0x3c4ac26bd563ae8fd6fcc317ff2e1e971850483c944514c699ae0ee5564bfb50",
@@ -61,7 +68,8 @@
     "sender": "0xb685760ebd368a891f27ae547391f4e2a289895b",
     "recipient": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "amount": "8.790798",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": null
   },
   {
     "tx_hash": "0x6f7495fd0ac2a998d52b11efc24f56ee24abd77ae6217b73b60fccd885e756c7",
@@ -69,7 +77,8 @@
     "sender": "0xb685760ebd368a891f27ae547391f4e2a289895b",
     "recipient": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "amount": "6.974632",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": null
   },
   {
     "tx_hash": "0xb39c01b431c7274f6eee5415d267696d613037db867b1ff6eb8182b3c0aa8b0d",
@@ -77,7 +86,8 @@
     "sender": "0x6357d3843d715496257e338a878ab0b72040a918",
     "recipient": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "amount": "1",
-    "asset": "HEX"
+    "asset": "HEX",
+    "token_contract": "0x2b591e99afe9f32eaa6214f7b7629768c40eeb39"
   },
   {
     "tx_hash": "0x9593d51873aaf61b16407e2a4b8df323a901f9eb73c53c3b11c21df793df6b22",
@@ -85,7 +95,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x77097ec54b8b53939ca8b8f4c2eec3e7d2e5599b",
     "amount": "2.188",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": "0xb3284a8c05fcb84ae99d953fc6b6f5d6c1394a5e"
   },
   {
     "tx_hash": "0xaa881ce9a1f0a84e104cd315d39a6bb076f43140450459fd6433db58c0e590f4",
@@ -93,7 +104,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x770afc0685082cb53861ec3ec95eabf2c3c9599b",
     "amount": "2.188",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": "0xe3bf9bc0cec8ade5e0f1340a390c365427e6c466"
   },
   {
     "tx_hash": "0xdf0a06e7703ab2a858ff0ad0d4756affea38cb262d535846405d1c363ddab492",
@@ -101,7 +113,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x770900da8e0bbc9eff74dc1f80de46a63d07599b",
     "amount": "2.188",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": "0x944002cb5942c7b18083fb93a794bb871ae73505"
   },
   {
     "tx_hash": "0xd6ec5bef8a247a14e9df608f02dc8711be0e660c83c25c629bdb3679edaf2e38",
@@ -109,7 +122,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x770afc0685082cb53861ec3ec95eabf2c3c9599b",
     "amount": "2.188",
-    "asset": "ETH"
+    "asset": "ETH",
+    "token_contract": "0x51cdcf707843e7eae11bcaab57d4e4f4d94edffe"
   },
   {
     "tx_hash": "0xce1102eb7cf4068e3c64364ad896e241e9463f6c4465f037bfbe6fc2e851eb59",
@@ -117,7 +131,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x5141b82f5ffda4c6fe1e372978f1c5427640a190",
     "amount": "10384.842986",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0xdac17f958d2ee523a2206206994597c13d831ec7"
   },
   {
     "tx_hash": "0xe0a8b3bb9ae95d797a07a3220f6f88b90c01be94b70117f5aa551c3486f84539",
@@ -125,7 +140,8 @@
     "sender": "0x8b7da2ae323639fd4997b526700cfb0cccdbd88d",
     "recipient": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "amount": "0.01",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0xdac17f958d2ee523a2206206994597c13d831ec7"
   },
   {
     "tx_hash": "0x06920333772b9c1b7465cf516ece5a4b9229b1f3db678f34eb6deda4f9fcb580",
@@ -133,7 +149,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x8b7d954d68174c8e42b0d6f1a2b474ba0613d88d",
     "amount": "211750",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x2513c95d1d405f5703633cb0622d48898df5633a"
   },
   {
     "tx_hash": "0x29fd32b6cfe12dd14de9fd2cea1be754682d418a4ce882575bfeedac957d98e2",
@@ -141,7 +158,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x8b7dd12049b5dc456f6b30a73da64cf0dd02d88d",
     "amount": "211750",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x54f06aaf9839d30ab00ef83b4e97993ee33586bf"
   },
   {
     "tx_hash": "0x231c34026ab37c83602d868c420a0f7a1bb4d57ddd35fdfa21fba9ab578b9f50",
@@ -149,7 +167,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x8b7d954d68174c8e42b0d6f1a2b474ba0613d88d",
     "amount": "211750",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x2513c95d1d405f5703633cb0622d48898df5633a"
   },
   {
     "tx_hash": "0xb049ac5374215af6858db6fb2b72eb5045cb8127f28eda62e78046e778771d74",
@@ -157,7 +176,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x8b7f72cf339098d7123eb714e790ef4456ebd88d",
     "amount": "211750",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x3417c054742eb6889a30ad008afd226bd576024a"
   },
   {
     "tx_hash": "0xac3dd19acb2980375cde1517c708da8daa624548d69e698615735825dcc240ab",
@@ -165,7 +185,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x8b7dd21043b6a81b0b4550506ae1759089ebd88d",
     "amount": "211750",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0xdac17f958d2ee523a2206206994597c13d831ec7"
   },
   {
     "tx_hash": "0x1ed0979a621dc30d71f92c14f15379bfc2e161011c7d1f92161f4d3d0c9bdfd8",
@@ -173,7 +194,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x8b7f72cf339098d7123eb714e790ef4456ebd88d",
     "amount": "1000",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x3417c054742eb6889a30ad008afd226bd576024a"
   },
   {
     "tx_hash": "0xf9855e39b46462076d2ca15f196496e5ff016061778bc1b2869d33cff2f86d44",
@@ -181,7 +203,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x8b7f72cf339098d7123eb714e790ef4456ebd88d",
     "amount": "1000",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x3417c054742eb6889a30ad008afd226bd576024a"
   },
   {
     "tx_hash": "0x34ebf4e60520b43269e7f2fe41f4ae50759ecbab7d6683646a9941d60510cd69",
@@ -189,7 +212,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x8b7f72cf339098d7123eb714e790ef4456ebd88d",
     "amount": "1000",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x3417c054742eb6889a30ad008afd226bd576024a"
   },
   {
     "tx_hash": "0xf7cb82cecfc56cdcaef7cf0778bde1ef3db95ea4f50ae43cb5b8021ab27c3683",
@@ -197,7 +221,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x8b7f72cf339098d7123eb714e790ef4456ebd88d",
     "amount": "1000",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x3417c054742eb6889a30ad008afd226bd576024a"
   },
   {
     "tx_hash": "0x32469fef58f06c2a4d07f3a90cc8b06ff219aaabfc03f40aac6a95ce2e3d6e04",
@@ -205,7 +230,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x8b7f72cf339098d7123eb714e790ef4456ebd88d",
     "amount": "1000",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x3417c054742eb6889a30ad008afd226bd576024a"
   },
   {
     "tx_hash": "0xf79c78cd9a87e5879e22cbfe1ba2d28cebbe5be34ca67357133490011c668750",
@@ -213,7 +239,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x8b7d954d68174c8e42b0d6f1a2b474ba0613d88d",
     "amount": "211750",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x2513c95d1d405f5703633cb0622d48898df5633a"
   },
   {
     "tx_hash": "0xa28d83c16ed9d2c59fc5dd6e3e3d9a5ad8201779340839501ccb2743fbb0857f",
@@ -221,7 +248,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x8b7f72cf339098d7123eb714e790ef4456ebd88d",
     "amount": "1000",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x3417c054742eb6889a30ad008afd226bd576024a"
   },
   {
     "tx_hash": "0x5ef11ec419e1ad98a78a56b5700124afd1a398460c9ed1d4d82b6f9cfcaa23e3",
@@ -229,7 +257,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x8b7f72cf339098d7123eb714e790ef4456ebd88d",
     "amount": "1000",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x3417c054742eb6889a30ad008afd226bd576024a"
   },
   {
     "tx_hash": "0xb13a693fa2dcc414ca3da373520333083bb32b3cbef6ca6ca7cca6a1183fcc69",
@@ -237,7 +266,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x8b7dd12049b5dc456f6b30a73da64cf0dd02d88d",
     "amount": "211750",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x54f06aaf9839d30ab00ef83b4e97993ee33586bf"
   },
   {
     "tx_hash": "0x2a5b744b9b17bf5338bbd70ca494ebd2eeeb9fe0b50f1485e848b892dc5b0fec",
@@ -245,7 +275,8 @@
     "sender": "0x88da501e190ade9d48d99323aedb21c219ebd88d",
     "recipient": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "amount": "0.002117",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0xdac17f958d2ee523a2206206994597c13d831ec7"
   },
   {
     "tx_hash": "0x5b02ec1ff3de9c6bd978c87c5b3095f5af07bdfb742e45a22babbc508e2c0dba",
@@ -253,7 +284,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x8b7d954d68174c8e42b0d6f1a2b474ba0613d88d",
     "amount": "1000",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x2513c95d1d405f5703633cb0622d48898df5633a"
   },
   {
     "tx_hash": "0xd1969bd15b83f8da769f3ce65362554ba68f42332377250775139a9694f95ac1",
@@ -261,7 +293,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x8b7dd12049b5dc456f6b30a73da64cf0dd02d88d",
     "amount": "1000",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x54f06aaf9839d30ab00ef83b4e97993ee33586bf"
   },
   {
     "tx_hash": "0xd4833ce3f507bb409f1c793e628b7d46fd13995bcaee83c547c9ed2fdaa0b72b",
@@ -269,7 +302,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x8b7dd12049b5dc456f6b30a73da64cf0dd02d88d",
     "amount": "1000",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x54f06aaf9839d30ab00ef83b4e97993ee33586bf"
   },
   {
     "tx_hash": "0xb37a968733fb5dd555f80b84aee64caee72bde463f7aee61265799c41ffbfada",
@@ -277,7 +311,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x8b7d954d68174c8e42b0d6f1a2b474ba0613d88d",
     "amount": "211750",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x2513c95d1d405f5703633cb0622d48898df5633a"
   },
   {
     "tx_hash": "0x86b4c559c74339b2e9278b82b4747369498a734031d75ffc57f629217d6db6e0",
@@ -285,7 +320,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x8b7d954d68174c8e42b0d6f1a2b474ba0613d88d",
     "amount": "1000",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x2513c95d1d405f5703633cb0622d48898df5633a"
   },
   {
     "tx_hash": "0x1e6eb2bd552443f7a8eebd422d91d926fde50856cbd8b92824f6db4292e5e528",
@@ -293,7 +329,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0x8b7dd21043b6a81b0b4550506ae1759089ebd88d",
     "amount": "1000",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0xdac17f958d2ee523a2206206994597c13d831ec7"
   },
   {
     "tx_hash": "0x1dd8582c1cc1d039120f70182bb679770c6fd02a59c182b3b09ab449426d9bcf",
@@ -301,7 +338,8 @@
     "sender": "0x111111125421ca6dc452d289314280a0f8842a65",
     "recipient": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "amount": "49493.981659",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0xdac17f958d2ee523a2206206994597c13d831ec7"
   },
   {
     "tx_hash": "0x3a7c683da5b5bfde750b39ba77aaadd866c21602d817e3bc22e6a21358ee2acf",
@@ -309,7 +347,8 @@
     "sender": "0x111111125421ca6dc452d289314280a0f8842a65",
     "recipient": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "amount": "102338.597886",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0xdac17f958d2ee523a2206206994597c13d831ec7"
   },
   {
     "tx_hash": "0x92e07f7fa209a21203fd42179cd45522b28680cedb1afa5ccb9bd396f2bb3bf2",
@@ -317,7 +356,8 @@
     "sender": "0x111111125421ca6dc452d289314280a0f8842a65",
     "recipient": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "amount": "23306.556864",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0xdac17f958d2ee523a2206206994597c13d831ec7"
   },
   {
     "tx_hash": "0xaec0581ff89571c4131331730eff7a32898cde7c76b12141ecf3da3fbbfaf374",
@@ -325,7 +365,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0xa76cbcc2a6c20a517b10faa7929796faed8f6914",
     "amount": "3350",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x2513c95d1d405f5703633cb0622d48898df5633a"
   },
   {
     "tx_hash": "0x6baf4ee7860bfc9345d760d24b50773787642cfe3cdf6e34af5c4cbc13d97808",
@@ -333,7 +374,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0xa76ca4f7c89dd01c1175d935b286be0eca4f6914",
     "amount": "3350",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x54f06aaf9839d30ab00ef83b4e97993ee33586bf"
   },
   {
     "tx_hash": "0xcb1f7c05059516bb70186d5f741bbe413c65f2713cea18315df52adece9dc651",
@@ -341,7 +383,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0xa76cbcc2a6c20a517b10faa7929796faed8f6914",
     "amount": "3350",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x2513c95d1d405f5703633cb0622d48898df5633a"
   },
   {
     "tx_hash": "0xd93a896b580585a7b2605c30a5bfb752b95adeaef219a708593ea9bb6035bf1b",
@@ -349,7 +392,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0xa768370748e1794d08cd3724926bdd252ac36914",
     "amount": "3350",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x3417c054742eb6889a30ad008afd226bd576024a"
   },
   {
     "tx_hash": "0x3fe09e4ed06763a80a42ad8a1d26ae0a50e2710766843f87a0d8babb4f24fc5a",
@@ -357,7 +401,8 @@
     "sender": "0xa76c699d268007383b5cd1b84ffbdb4635e96914",
     "recipient": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "amount": "0.01",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0xdac17f958d2ee523a2206206994597c13d831ec7"
   },
   {
     "tx_hash": "0xa4627e6c73393c137f64dc3aa5e99520f38bddb9e3ed839c676e3094a50278cb",
@@ -365,7 +410,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0xa76c53e76bb898c5111bb1a03420b124d9c36914",
     "amount": "3350",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0xdac17f958d2ee523a2206206994597c13d831ec7"
   },
   {
     "tx_hash": "0xb8cbe478ea3e3db194c76319e747f5ab531b1ac63e3aee639553807af45ff5cb",
@@ -373,7 +419,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0xe534edc5269845ef4f36f36eca09435a7a104a3c",
     "amount": "20000",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x3417c054742eb6889a30ad008afd226bd576024a"
   },
   {
     "tx_hash": "0x9caf19ac08c0f64920d4b1a59f112ce8022c9444f9d71b8ae452499570f6e24b",
@@ -381,7 +428,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0xe534edc5269845ef4f36f36eca09435a7a104a3c",
     "amount": "20000",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x3417c054742eb6889a30ad008afd226bd576024a"
   },
   {
     "tx_hash": "0x778f38f6a2fac1235bea8f1d513deaf0533852b3dbe881191f9bb4e3cb1ecea9",
@@ -389,7 +437,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0xe534edc5269845ef4f36f36eca09435a7a104a3c",
     "amount": "20000",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x3417c054742eb6889a30ad008afd226bd576024a"
   },
   {
     "tx_hash": "0xe0c2ab681a9ad2869da3fbb819c88b8604070d2779e6ea7bbde063a2075a8c43",
@@ -397,7 +446,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0xe5345f29bf875210f91905ef0311463fdc2f4a3c",
     "amount": "20000",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x2513c95d1d405f5703633cb0622d48898df5633a"
   },
   {
     "tx_hash": "0xd1c11cded149324f98e8d01e0149b9ee8d4fe76bf49b92a1c0c52c66fee668a0",
@@ -405,7 +455,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0xe534e6ea83cd0ecfa464ee647df45b6ca0414a3c",
     "amount": "20000",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x54f06aaf9839d30ab00ef83b4e97993ee33586bf"
   },
   {
     "tx_hash": "0x6d7be4703272b570ea3746d324cccdd2763ad703c13a759a8c16fb421c462327",
@@ -413,7 +464,8 @@
     "sender": "0xe53486827ce3696b7a43003c732c7a3f661d4a3c",
     "recipient": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "amount": "0.01",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0xdac17f958d2ee523a2206206994597c13d831ec7"
   },
   {
     "tx_hash": "0x615231540ecf7560189971e8cac7c5b5df9bf393033e9773c413fa3fa9be0738",
@@ -421,7 +473,8 @@
     "sender": "0x111111125421ca6dc452d289314280a0f8842a65",
     "recipient": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "amount": "21183.298617",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0xdac17f958d2ee523a2206206994597c13d831ec7"
   },
   {
     "tx_hash": "0xfd47d7c48a357b3f33cfe0e933ea8d63c83ceae7e5d12758c4df7b95abf17032",
@@ -429,7 +482,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0xe5345f29bf875210f91905ef0311463fdc2f4a3c",
     "amount": "20000",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x2513c95d1d405f5703633cb0622d48898df5633a"
   },
   {
     "tx_hash": "0x71c592bc2988df6dfd364716b85021a1f9c9aa89817b75b7b16a5549e746d5f9",
@@ -437,7 +491,8 @@
     "sender": "0xe53455f598e90b87ac7d5d4bbd2074ed86000a3c",
     "recipient": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "amount": "0.002",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0xdac17f958d2ee523a2206206994597c13d831ec7"
   },
   {
     "tx_hash": "0xd83df99085ff609cfd891482038d10ec43cba92884aa91c9379c57b17ef5efa0",
@@ -445,7 +500,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0xe534edc5269845ef4f36f36eca09435a7a104a3c",
     "amount": "20000",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0x3417c054742eb6889a30ad008afd226bd576024a"
   },
   {
     "tx_hash": "0x9628ec21ad477c5808fc3e6e4031168add92fb53566a32084852c1bb66ca1aad",
@@ -453,7 +509,8 @@
     "sender": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "recipient": "0xe534c414bebaa501ba1ffdd2a22d1f9faa104a3c",
     "amount": "20000",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0xdac17f958d2ee523a2206206994597c13d831ec7"
   },
   {
     "tx_hash": "0x823505f823c143f16583d3cb5ebffe708d582b6a96d6637e98104c65a18fb5f2",
@@ -461,7 +518,8 @@
     "sender": "0x11bf2e0d39d8589c96171a4102ea39c834067e26",
     "recipient": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "amount": "17500",
-    "asset": "AICC"
+    "asset": "AICC",
+    "token_contract": "0x66a3c2fa3e467aa586e90912f977e648589cabaf"
   },
   {
     "tx_hash": "0x332d8194391a40e113c9100e7cf205b6beeed7b1ac48f9f13ea9c919348655a2",
@@ -469,7 +527,8 @@
     "sender": "0x111111125421ca6dc452d289314280a0f8842a65",
     "recipient": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "amount": "3858.909838",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0xdac17f958d2ee523a2206206994597c13d831ec7"
   },
   {
     "tx_hash": "0x8ab5b3b0b97f2da09db5ed1ec8a42c3871c0f755eae1f8e4279a6bf005275760",
@@ -477,6 +536,7 @@
     "sender": "0x111111125421ca6dc452d289314280a0f8842a65",
     "recipient": "0xfd1d3234424e60f962a1c1f8cd3fc35210e1a701",
     "amount": "46303.464005",
-    "asset": "USDT"
+    "asset": "USDT",
+    "token_contract": "0xdac17f958d2ee523a2206206994597c13d831ec7"
   }
 ]

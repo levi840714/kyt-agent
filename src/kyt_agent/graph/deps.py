@@ -12,6 +12,7 @@ from kyt_agent.config import Settings
 from kyt_agent.graph.tools import tool_schemas
 from kyt_agent.labels import LabelStore
 from kyt_agent.report import ReportDraft
+from kyt_agent.tokens import TokenRegistry
 
 
 @dataclass(frozen=True)
@@ -19,6 +20,7 @@ class Deps:
     settings: Settings
     chain: ChainClient
     labels: LabelStore
+    tokens: TokenRegistry
     audit: AuditLog
     agent_model: Runnable[Any, AIMessage]
     drafter: Runnable[Any, Any]
@@ -26,13 +28,18 @@ class Deps:
     auto_approve: bool = False
 
 
+# 暫時性錯誤（限流、逾時）重試次數；再失敗就讓該次呼叫回報錯誤
+LLM_MAX_RETRIES = 2
+
+
 def make_deps(settings: Settings, *, model: str | None = None, auto_approve: bool = False) -> Deps:
     model_name = model or settings.llm_model
-    llm = init_chat_model(model_name)
+    llm = init_chat_model(model_name, timeout=settings.llm_timeout, max_retries=LLM_MAX_RETRIES)
     return Deps(
         settings=settings,
         chain=make_chain_client(settings),
         labels=LabelStore.from_dir(settings.data_dir / "labels"),
+        tokens=TokenRegistry.from_csv(settings.data_dir / "tokens.csv"),
         audit=AuditLog(settings.var_dir / "audit"),
         agent_model=llm.bind_tools(tool_schemas()),
         drafter=llm.with_structured_output(ReportDraft, include_raw=True),

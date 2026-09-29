@@ -139,6 +139,7 @@ def _from_native(tx: dict[str, str]) -> Transfer | None:
         recipient=tx["to"] or tx["contractAddress"],
         amount=Decimal(tx["value"]) / WEI_PER_ETH,
         asset="ETH",
+        token_contract=None,
     )
 
 
@@ -151,4 +152,5 @@ def _from_token(tx: dict[str, str]) -> Transfer:
         recipient=tx["to"],
         amount=Decimal(tx["value"]) / Decimal(10) ** decimals,
         asset=tx["tokenSymbol"] or "UNKNOWN",
+        token_contract=tx["contractAddress"],
     )
