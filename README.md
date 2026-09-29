@@ -152,4 +152,4 @@ uv run pytest -m integration     # 串接真實 LLM
 uv run ruff format src tests && uv run ruff check src tests && uv run mypy src
 ```
 
-設計文件：[v1](docs/specs/2026-09-25-kyt-agent-design.md)、[v1.1](docs/specs/2026-09-29-kyt-agent-v1.1-design.md)
+設計文件：[v1](docs/specs/2026-09-25-kyt-agent-design.md)、[v1.1](docs/specs/2026-09-29-kyt-agent-v1.1-design.md)、[v1.2](docs/specs/2026-09-30-kyt-agent-v1.2-design.md)

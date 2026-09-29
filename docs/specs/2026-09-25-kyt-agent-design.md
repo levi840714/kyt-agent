@@ -106,13 +106,13 @@ kyt_agent/
 - `ChainClient` Protocol：`get_transfers(address)`（合併一般交易、internal 交易與 token 轉帳，各取最近 `TX_PAGE_SIZE` 筆）、`get_transaction(tx_hash)`、`get_contract_info(address)`，回傳 pydantic 模型
 - `EtherscanClient`：Etherscan V2（`chainid=1`），處理 rate limit 重試與錯誤
 - `SnapshotClient`：包裝任一 client
-  - `record`：委派給內部 client，並以「方法名稱 + 參數」為 key，將 `ChainClient` 的 pydantic 輸出寫入 `data/snapshots/`
+  - `record`：委派給內部 client，並將 `ChainClient` 的 pydantic 輸出寫入 `data/snapshots/<kind>/<address 或 tx hash>.json`（kind 為 `transfers`、`contracts`、`transactions`）
   - `replay`：只讀快照；缺少時拋出 `SnapshotMissError`，不回退到網路
 
 ### 4.3 labels
 
 - CSV 欄位：`address, name, category, source`
-- `category`：`sanctioned`、`mixer`、`exchange`、`defi`、`bridge`、`hack`
+- `category`：`sanctioned`、`mixer`、`exchange`、`defi`、`bridge`、`hack`（v1.2 新增 `relayer`）
 - `kyt labels sync-ofac`：從公開的 OFAC SDN 解析清單（0xB10C/ofac-sanctioned-digital-currency-addresses）匯入 ETH 地址至 `data/labels/ofac.csv`
 - 其他標籤手動維護於 `data/labels/manual.csv`，每筆必須有可查證的 `source`
 

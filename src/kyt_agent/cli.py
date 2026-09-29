@@ -13,7 +13,7 @@ from rich.console import Console
 from rich.markup import escape
 
 from kyt_agent import render
-from kyt_agent.audit import AuditLog
+from kyt_agent.audit import AuditLog, redact_secrets
 from kyt_agent.config import PROJECT_ROOT, Settings
 from kyt_agent.evaluation.dataset import load_dataset
 from kyt_agent.evaluation.metrics import CaseResult
@@ -27,7 +27,6 @@ from kyt_agent.evaluation.runner import (
 )
 from kyt_agent.graph.build import build_graph, case_config, open_checkpointer
 from kyt_agent.graph.deps import make_deps
-from kyt_agent.graph.nodes import ReportError
 from kyt_agent.graph.state import initial_state
 from kyt_agent.labels import fetch_ofac_labels, write_labels_csv
 
@@ -173,9 +172,10 @@ def _run_case(settings: Settings, case_id: str, graph_input: Any) -> None:
                 return
         try:
             _drive(graph, config, graph_input)
-        except ReportError as error:
+        except CaseFailed as error:
             AuditLog(settings.var_dir / "audit").record(case_id, "case_error", error=str(error))
-            console.print(f"[red]案件失敗：{error}[/]")
+            console.print(f"[red]案件失敗：{escape(str(error))}[/]")
+            console.print(f"進度已保存，可用 kyt resume {case_id} 重試")
             raise typer.Exit(1) from error
 
 
@@ -190,7 +190,16 @@ def _drive(graph: CompiledStateGraph, config: RunnableConfig, graph_input: Any) 
     render.show_closed(console, snapshot.values)
 
 
+class CaseFailed(RuntimeError):
+    """graph 執行失敗；案件狀態仍保存在 checkpoint，可用 kyt resume 重試。"""
+
+
 def _stream(graph: CompiledStateGraph, config: RunnableConfig, graph_input: Any) -> None:
-    with console.status("調查中…"):
-        for update in graph.stream(graph_input, config, stream_mode="updates"):
-            render.show_progress(console, update)
+    # 只包住 graph 執行：審核提示被中斷（EOF）屬正常操作，不應記成案件失敗
+    try:
+        with console.status("調查中…"):
+            for update in graph.stream(graph_input, config, stream_mode="updates"):
+                render.show_progress(console, update)
+    except Exception as error:
+        message = redact_secrets(f"{type(error).__name__}: {error}")[:500]
+        raise CaseFailed(message) from error

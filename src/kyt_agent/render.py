@@ -46,13 +46,15 @@ def show_report(console: Console, payload: dict[str, Any]) -> None:
         claim = escape(finding.claim)
         if index in report.unverified_findings:
             claim = f"[red]（未驗證）[/]{claim}"
-        findings.add_row(str(index + 1), claim, "\n".join(finding.evidence))
+        findings.add_row(
+            str(index + 1), claim, "\n".join(escape(item) for item in finding.evidence)
+        )
     console.print(findings)
     tree = Tree("資金路徑")
     for path in report.fund_paths:
         branch = tree.add(escape(path.note))
         for hop in path.hops:
-            branch = branch.add(f"{hop.address} [dim]{escape(hop.label or '未知')}[/]")
+            branch = branch.add(f"{escape(hop.address)} [dim]{escape(hop.label or '未知')}[/]")
     console.print(tree)
     console.print(Panel(escape(report.recommendation), title="建議"))
     if report.limitations:

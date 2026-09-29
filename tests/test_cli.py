@@ -1,4 +1,5 @@
 import json
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -11,7 +12,7 @@ from kyt_agent.evaluation.metrics import CaseResult, summarize
 from kyt_agent.evaluation.runner import write_eval_result
 from kyt_agent.graph.nodes import ReportError
 from kyt_agent.labels import LabelStore
-from kyt_agent.report import finalize
+from kyt_agent.report import FundPath, PathHop, finalize
 from tests.fakes import SANCTIONED, TARGET, UNKNOWN, draft, label
 
 runner = CliRunner()
@@ -118,16 +119,18 @@ class _FakeSnapshot:
 
 
 class _FakeGraph:
-    def __init__(self, snapshot: _FakeSnapshot, *, fail: bool = False) -> None:
+    def __init__(
+        self, snapshot: _FakeSnapshot, *, fail: bool = False, error: Exception | None = None
+    ) -> None:
         self._snapshot = snapshot
-        self._fail = fail
+        self._error = error or (ReportError("報告格式解析失敗") if fail else None)
 
     def get_state(self, config: Any) -> _FakeSnapshot:
         return self._snapshot
 
     def stream(self, graph_input: Any, config: Any, stream_mode: str):
-        if self._fail:
-            raise ReportError("報告格式解析失敗")
+        if self._error:
+            raise self._error
         return iter(())
 
 
@@ -451,3 +454,65 @@ def test_eval_resume_rejects_record(monkeypatch, tmp_path):
     result = runner.invoke(cli.app, ["eval", "--record", "--resume", str(previous_path)])
     assert result.exit_code == 1
     assert "--record 與 --resume 不可同時使用" in result.output
+
+
+def _audit_events(settings, case_id: str) -> list[dict[str, Any]]:
+    path = settings.var_dir / "audit" / f"{case_id}.jsonl"
+    if not path.exists():
+        return []
+    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
+
+
+def test_run_case_audits_any_graph_failure_without_leaking_keys(monkeypatch, settings):
+    monkeypatch.setenv("GOOGLE_API_KEY", "secret-google-key-123")
+    _patch_checkpointer(monkeypatch, _FakeSaver())
+    snapshot = _FakeSnapshot({"case_id": "case-1", "status": "investigating"})
+    timeout = TimeoutError("GET https://x/models?key=secret-google-key-123 timed out")
+    monkeypatch.setattr(
+        cli, "build_graph", lambda deps, checkpointer: _FakeGraph(snapshot, error=timeout)
+    )
+
+    with pytest.raises(typer.Exit):
+        cli._run_case(settings, "case-1", {"case_id": "case-1"})
+
+    errors = [e for e in _audit_events(settings, "case-1") if e["event"] == "case_error"]
+    assert len(errors) == 1
+    assert errors[0]["error"].startswith("TimeoutError")
+    assert "secret-google-key-123" not in errors[0]["error"]
+
+
+def test_run_case_does_not_audit_reviewer_interrupting_the_prompt(monkeypatch, settings):
+    _patch_checkpointer(monkeypatch, _FakeSaver())
+    pending = _FakeSnapshot(
+        {"case_id": "case-1"}, interrupts=(SimpleNamespace(value={"allow_more": True}),)
+    )
+    monkeypatch.setattr(cli, "build_graph", lambda deps, checkpointer: _FakeGraph(pending))
+    monkeypatch.setattr(cli.render, "show_report", lambda console, payload: None)
+
+    def closed_stdin(console: Any, *, allow_more: bool) -> dict[str, str]:
+        raise EOFError
+
+    monkeypatch.setattr(cli.render, "ask_decision", closed_stdin)
+
+    with pytest.raises(EOFError):
+        cli._run_case(settings, "case-1", None)
+
+    assert _audit_events(settings, "case-1") == []
+
+
+def test_show_report_does_not_render_markup_in_evidence_or_addresses():
+    console = Console(record=True, width=200)
+    report = finalize(
+        draft("HIGH", ["[bold red]T9[/bold red]"]),
+        floor="LOW",
+        unverified=[0],
+        version=1,
+        labels=LabelStore([]),
+        evidence={},
+    ).model_copy(
+        update={"fund_paths": [FundPath(hops=[PathHop(address="[blink]0xabc[/blink]")], note="n")]}
+    )
+    render.show_report(console, {"target": TARGET, "report": report.model_dump(mode="json")})
+    text = console.export_text()
+    assert "[bold red]T9[/bold red]" in text
+    assert "[blink]0xabc[/blink]" in text
