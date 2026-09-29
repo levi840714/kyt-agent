@@ -8,6 +8,7 @@ from typer.testing import CliRunner
 
 from kyt_agent import cli, render
 from kyt_agent.evaluation.metrics import CaseResult, summarize
+from kyt_agent.evaluation.runner import write_eval_result
 from kyt_agent.graph.nodes import ReportError
 from kyt_agent.labels import LabelStore
 from kyt_agent.report import finalize
@@ -197,7 +198,7 @@ def test_eval_fill_missing_is_passed_to_runner(monkeypatch, tmp_path):
     monkeypatch.setenv("ETHERSCAN_API_KEY", "test-key")
     seen: dict[str, Any] = {}
 
-    def fake_run_eval(settings, cases, model, on_result, *, fill_missing, repeat):
+    def fake_run_eval(settings, cases, model, on_result, *, fill_missing, repeat, previous=()):
         seen["fill_missing"] = fill_missing
         return summarize("fake:model", [], snapshots_filled=2), []
 
@@ -275,7 +276,7 @@ def test_eval_repeat_is_passed_to_runner(monkeypatch, tmp_path):
     monkeypatch.setenv("VAR_DIR", str(tmp_path / "var"))
     seen: dict[str, Any] = {}
 
-    def fake_run_eval(settings, cases, model, on_result, *, fill_missing, repeat):
+    def fake_run_eval(settings, cases, model, on_result, *, fill_missing, repeat, previous=()):
         seen["repeat"] = repeat
         return summarize("fake:model", [], repeat=repeat), []
 
@@ -341,3 +342,112 @@ def test_eval_row_shows_run_number_when_repeated():
     result = _repeated(TARGET, "HIGH", 2, 10)
     assert "[2/3]" in render.eval_row(result, repeat=3)
     assert "[2/" not in render.eval_row(result)
+
+
+def _result(run, error=None):
+    return CaseResult(
+        address=TARGET,
+        expected="clean",
+        category="exchange_user",
+        predicted=None if error else "LOW",
+        baseline="LOW",
+        input_tokens=100,
+        error=error,
+        run=run,
+    )
+
+
+def _previous_file(tmp_path, results, model="fake:model", repeat=3):
+    return write_eval_result(
+        tmp_path / "previous", summarize(model, results, repeat=repeat), results
+    )
+
+
+def _resume_env(monkeypatch, tmp_path):
+    _write_dataset(tmp_path)
+    monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
+    monkeypatch.setenv("VAR_DIR", str(tmp_path / "var"))
+
+
+def test_eval_resume_reuses_previous_runs_and_writes_new_file(monkeypatch, tmp_path):
+    _resume_env(monkeypatch, tmp_path)
+    previous = [_result(1), _result(2, "RuntimeError: cap"), _result(3, "RuntimeError: cap")]
+    previous_path = _previous_file(tmp_path, previous)
+    seen: dict[str, Any] = {}
+
+    def fake_run_eval(settings, cases, model, on_result, *, fill_missing, repeat, previous=()):
+        seen.update(model=model, repeat=repeat, previous=list(previous))
+        fresh = [_result(2), _result(3)]
+        for item in fresh:
+            on_result(item)
+        results = [previous[0], *fresh]
+        return summarize("fake:model", results, repeat=repeat), results
+
+    monkeypatch.setattr(cli, "run_eval", fake_run_eval)
+    result = runner.invoke(cli.app, ["eval", "--resume", str(previous_path)])
+
+    assert result.exit_code == 0, result.output
+    assert (seen["model"], seen["repeat"], seen["previous"]) == ("fake:model", 3, previous)
+    assert "沿用先前 1 次成功執行，本次重新執行 2 次" in result.output
+    assert "估算成本含沿用的執行" in result.output
+    (written,) = (tmp_path / "var" / "eval").glob("*.json")
+    assert written != previous_path
+    assert len(json.loads(written.read_text(encoding="utf-8"))["results"]) == 3
+    assert len(json.loads(previous_path.read_text(encoding="utf-8"))["results"]) == 3
+
+
+def test_eval_resume_passes_fill_missing(monkeypatch, tmp_path):
+    _resume_env(monkeypatch, tmp_path)
+    monkeypatch.setenv("ETHERSCAN_API_KEY", "test-key")
+    previous_path = _previous_file(tmp_path, [_result(1)], repeat=1)
+    seen: dict[str, Any] = {}
+
+    def fake_run_eval(settings, cases, model, on_result, *, fill_missing, repeat, previous=()):
+        seen["fill_missing"] = fill_missing
+        return summarize("fake:model", [], snapshots_filled=1), []
+
+    monkeypatch.setattr(cli, "run_eval", fake_run_eval)
+    args = ["eval", "--resume", str(previous_path), "--fill-missing"]
+    assert runner.invoke(cli.app, args).exit_code == 0
+    assert seen["fill_missing"] is True
+
+
+@pytest.mark.parametrize("path", ["missing.json", "invalid.json"])
+def test_eval_resume_reports_unreadable_file(monkeypatch, tmp_path, path):
+    _resume_env(monkeypatch, tmp_path)
+    (tmp_path / "invalid.json").write_text("not json", encoding="utf-8")
+    monkeypatch.setattr(cli, "run_eval", lambda *args, **kwargs: pytest.fail("不應執行"))
+    result = runner.invoke(cli.app, ["eval", "--resume", str(tmp_path / path)])
+    assert result.exit_code == 1
+    assert "找不到" in result.output or "不是有效的" in result.output
+    assert isinstance(result.exception, SystemExit)
+
+
+@pytest.mark.parametrize(
+    ("extra", "message"),
+    [(["--model", "fake:other"], "fake:model"), (["--repeat", "2"], "--repeat")],
+)
+def test_eval_resume_rejects_mismatched_options(monkeypatch, tmp_path, extra, message):
+    _resume_env(monkeypatch, tmp_path)
+    previous_path = _previous_file(tmp_path, [_result(1)])
+    monkeypatch.setattr(cli, "run_eval", lambda *args, **kwargs: pytest.fail("不應執行"))
+    result = runner.invoke(cli.app, ["eval", "--resume", str(previous_path), *extra])
+    assert result.exit_code == 1
+    assert message in result.output
+    assert isinstance(result.exception, SystemExit)
+
+
+def test_eval_resume_accepts_matching_options(monkeypatch, tmp_path):
+    _resume_env(monkeypatch, tmp_path)
+    previous_path = _previous_file(tmp_path, [_result(1)])
+    monkeypatch.setattr(cli, "run_eval", lambda *args, **kwargs: (summarize("fake:model", []), []))
+    args = ["eval", "--resume", str(previous_path), "--model", "fake:model", "--repeat", "3"]
+    assert runner.invoke(cli.app, args).exit_code == 0
+
+
+def test_eval_resume_rejects_record(monkeypatch, tmp_path):
+    _resume_env(monkeypatch, tmp_path)
+    previous_path = _previous_file(tmp_path, [_result(1)])
+    result = runner.invoke(cli.app, ["eval", "--record", "--resume", str(previous_path)])
+    assert result.exit_code == 1
+    assert "--record 與 --resume 不可同時使用" in result.output

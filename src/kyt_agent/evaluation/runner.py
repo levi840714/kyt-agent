@@ -1,6 +1,6 @@
 import json
 import uuid
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -20,6 +20,10 @@ from kyt_agent.models import RiskLevel
 from kyt_agent.tokens import TokenRegistry, TransferFlag, classify_transfer
 
 EVAL_DEPTH = 2
+
+
+class ResumeError(Exception):
+    """--resume 的來源檔或參數不合法。"""
 
 
 def record_snapshots(
@@ -47,7 +51,9 @@ def run_eval(
     *,
     fill_missing: bool = False,
     repeat: int = 1,
+    previous: Sequence[CaseResult] = (),
 ) -> tuple[Summary, list[CaseResult]]:
+    """previous 中成功的執行原樣沿用，只重跑出錯或缺漏的 (地址, 次數)。"""
     # 補錄模式為 read-through：有快照就重播，缺漏時才即時查詢並寫入快照
     mode = "record" if fill_missing else "replay"
     eval_settings = settings.model_copy(update={"chain_mode": mode, "max_depth": EVAL_DEPTH})
@@ -55,9 +61,13 @@ def run_eval(
     before = _count_snapshots(snapshots)
     deps = make_deps(eval_settings, model=model, auto_approve=True)
     graph = build_graph(deps)
+    reusable = {(r.address, r.run): r for r in previous if r.error is None}
     results: list[CaseResult] = []
     for case in cases:
         for run in range(1, repeat + 1):
+            if (reused := reusable.get((case.address, run))) is not None:
+                results.append(reused)
+                continue
             result = run_case(graph, deps, case, run)
             on_result(result)
             results.append(result)
@@ -111,3 +121,25 @@ def write_eval_result(directory: Path, summary: Summary, results: list[CaseResul
     body = {"summary": summary.model_dump(), "results": [r.model_dump() for r in results]}
     path.write_text(json.dumps(body, ensure_ascii=False, indent=2), encoding="utf-8")
     return path
+
+
+def load_eval_result(path: Path) -> tuple[Summary, list[CaseResult]]:
+    try:
+        body = json.loads(path.read_text(encoding="utf-8"))
+        summary = Summary.model_validate(body["summary"])
+        return summary, [CaseResult.model_validate(row) for row in body["results"]]
+    except FileNotFoundError as error:
+        raise ResumeError(f"找不到 eval 結果檔：{path}") from error
+    except OSError as error:
+        raise ResumeError(f"無法讀取 eval 結果檔：{path}（{error.strerror}）") from error
+    except (ValueError, KeyError, TypeError) as error:
+        raise ResumeError(f"{path} 不是有效的 eval 結果檔") from error
+
+
+def resume_options(summary: Summary, model: str | None, repeat: int | None) -> tuple[str, int]:
+    """接續執行必須沿用同一模型與次數，否則一致性指標會混入不同條件的結果。"""
+    if model is not None and model != summary.model:
+        raise ResumeError(f"--model {model} 與先前結果的模型 {summary.model} 不同，不可混用")
+    if repeat is not None and repeat != summary.repeat:
+        raise ResumeError(f"--repeat {repeat} 與先前結果的 {summary.repeat} 次不同，不可混用")
+    return summary.model, summary.repeat
