@@ -22,3 +22,10 @@ def test_environment_overrides(monkeypatch):
     settings = Settings(_env_file=None)
     assert (settings.chain_mode, settings.max_depth) == ("replay", 2)
     assert settings.native_dust_threshold == Decimal("0.001")
+
+
+def test_llm_timeout_default_and_override(monkeypatch):
+    monkeypatch.delenv("LLM_TIMEOUT", raising=False)
+    assert Settings(_env_file=None).llm_timeout == 120
+    monkeypatch.setenv("LLM_TIMEOUT", "30")
+    assert Settings(_env_file=None).llm_timeout == 30

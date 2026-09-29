@@ -26,5 +26,6 @@ class Settings(BaseSettings):
     max_review_rounds: int = 3
     wrap_up_hint_after: int = 6
     native_dust_threshold: Decimal = Decimal("0.0001")
+    llm_timeout: float = 120
     data_dir: Path = PROJECT_ROOT / "data"
     var_dir: Path = PROJECT_ROOT / "var"

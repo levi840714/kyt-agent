@@ -28,9 +28,13 @@ class Deps:
     auto_approve: bool = False
 
 
+# 網路卡住時讓單次 LLM 呼叫逾時失敗，避免整個案件無限期等待
+LLM_MAX_RETRIES = 2
+
+
 def make_deps(settings: Settings, *, model: str | None = None, auto_approve: bool = False) -> Deps:
     model_name = model or settings.llm_model
-    llm = init_chat_model(model_name)
+    llm = init_chat_model(model_name, timeout=settings.llm_timeout, max_retries=LLM_MAX_RETRIES)
     return Deps(
         settings=settings,
         chain=make_chain_client(settings),
