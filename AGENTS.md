@@ -72,3 +72,4 @@ uv run ruff format src tests && uv run ruff check src tests && uv run mypy src
 - `.env` 不進版控，只提交 `.env.example`
 - 不在 log、錯誤訊息或工具輸出中出現 API key；Etherscan 錯誤只保留狀態碼或例外類型
 - 主網只讀，專案內不存在任何私鑰或簽名邏輯
+- 鏈上字串（代幣 symbol、合約名稱、ENS 等）由任何人自訂，不得原文送入 LLM；以查證過的資料或地址代稱顯示，原文只以 sha256 與預覽記入 audit log

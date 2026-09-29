@@ -17,6 +17,10 @@ def max_risk(*levels: RiskLevel) -> RiskLevel:
     return max(levels, key=RISK_ORDER.index)
 
 
+def short_address(address: str) -> str:
+    return f"{address[:6]}…{address[-4:]}"
+
+
 class Label(BaseModel):
     address: LowerStr
     name: str

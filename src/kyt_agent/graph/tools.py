@@ -1,10 +1,12 @@
+import re
 from collections.abc import Iterable
 from datetime import UTC, datetime
 from decimal import Decimal
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field, ValidationError
 
+from kyt_agent.audit import digest
 from kyt_agent.chain.client import ChainClient, Transfer
 from kyt_agent.chain.etherscan import EtherscanError
 from kyt_agent.chain.snapshot import SnapshotMissError
@@ -19,10 +21,19 @@ from kyt_agent.counterparties import (
 )
 from kyt_agent.labels import LabelStore
 from kyt_agent.models import AddressNode, Evidence, Label, find_tx, tx_alias_number
-from kyt_agent.tokens import TokenRegistry, TransferFlag, classify_transfer
+from kyt_agent.tokens import (
+    TokenRegistry,
+    TransferFlag,
+    classify_transfer,
+    display_asset,
+    is_plain_symbol,
+)
 
 _UNKNOWN_ADDRESS = "拒絕：只能查詢目標地址，或工具結果中出現過的地址"
 _FLAG_NAMES: dict[TransferFlag, str] = {"spoofed_token": "偽冒代幣", "dust": "粉塵"}
+_SOLIDITY_IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_]{0,63}")
+_PREVIEW_CHARS = 40
+SuspiciousField = Literal["token_symbol", "contract_name"]
 
 
 class GetCounterpartiesArgs(BaseModel):
@@ -64,12 +75,26 @@ def tool_schemas() -> list[dict[str, Any]]:
     ]
 
 
+class SuspiciousText(BaseModel):
+    """格式不符的鏈上字串，可能夾帶給 LLM 的指令：只記入 audit log，不放進工具結果。"""
+
+    field: SuspiciousField
+    address: str
+    sha256: str
+    preview: str
+
+    @classmethod
+    def of(cls, field: SuspiciousField, address: str, text: str) -> "SuspiciousText":
+        return cls(field=field, address=address, sha256=digest(text), preview=text[:_PREVIEW_CHARS])
+
+
 class ToolOutcome(BaseModel):
     content: str
     nodes: dict[str, AddressNode] = {}
     evidence: dict[str, Evidence] = {}
     miss: bool = False
     resolved_tx: str | None = None
+    suspicious: list[SuspiciousText] = []
 
 
 class Investigator:
@@ -121,7 +146,9 @@ class Investigator:
         if not node.expanded and expanded >= self._settings.max_addresses:
             return ToolOutcome(content=f"拒絕：已展開 {expanded} 個地址，達到上限")
         transfers = list(self._chain.get_transfers(address))
-        found = summarize_counterparties(address, transfers, args.direction, classify=self._flags)
+        found = summarize_counterparties(
+            address, transfers, args.direction, classify=self._flags, asset_name=self._asset_name
+        )
         shown = select_counterparties(found, self._labels, self._settings.top_counterparties)
         new_nodes = {address: node.model_copy(update={"expanded": True})}
         graph = {**nodes, **new_nodes}
@@ -156,10 +183,18 @@ class Investigator:
             if label:
                 evidence.update(label_evidence(label))
             lines.append(_format_counterparty(counterparty, label, aliases))
-        return ToolOutcome(content="\n".join(lines), nodes=new_nodes, evidence=evidence)
+        return ToolOutcome(
+            content="\n".join(lines),
+            nodes=new_nodes,
+            evidence=evidence,
+            suspicious=_suspicious_symbols(transfers),
+        )
 
     def _flags(self, item: Transfer) -> set[TransferFlag]:
         return classify_transfer(item, self._tokens, self._settings.native_dust_threshold)
+
+    def _asset_name(self, item: Transfer) -> str:
+        return display_asset(item, self._tokens)
 
     def _lookup(self, args: LookupAddressArgs, nodes: dict[str, AddressNode]) -> ToolOutcome:
         address = args.address.lower()
@@ -167,11 +202,19 @@ class Investigator:
             return ToolOutcome(content=_UNKNOWN_ADDRESS)
         label = self._labels.get(address)
         info = self._chain.get_contract_info(address)
-        kind = f"合約（{info.name or '未驗證'}）" if info.is_contract else "一般地址（EOA）"
+        suspicious: list[SuspiciousText] = []
+        kind = "一般地址（EOA）"
+        if info.is_contract:
+            name = info.name or "未驗證"
+            if info.name and not _SOLIDITY_IDENTIFIER.fullmatch(info.name):
+                suspicious.append(SuspiciousText.of("contract_name", address, info.name))
+                name = "名稱不符格式，已略過"
+            kind = f"合約（{name}）"
         tag = f"{label.category}：{label.name}（來源 {label.source}）" if label else "無"
         return ToolOutcome(
             content=f"{address}\n類型：{kind}\n標籤：{tag}",
             evidence=label_evidence(label) if label else {},
+            suspicious=suspicious,
         )
 
     def _transaction(self, args: GetTransactionArgs, evidence: dict[str, Evidence]) -> ToolOutcome:
@@ -189,6 +232,15 @@ class Investigator:
             ),
             resolved_tx=item.ref,
         )
+
+
+def _suspicious_symbols(transfers: Iterable[Transfer]) -> list[SuspiciousText]:
+    found: dict[tuple[str, str], SuspiciousText] = {}
+    for item in transfers:
+        if item.token_contract and not is_plain_symbol(item.asset):
+            finding = SuspiciousText.of("token_symbol", item.token_contract, item.asset)
+            found.setdefault((finding.address, finding.sha256), finding)
+    return list(found.values())
 
 
 def _with_descendants(moved: AddressNode, nodes: dict[str, AddressNode]) -> dict[str, AddressNode]:
