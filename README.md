@@ -89,6 +89,21 @@ uv run kyt eval --resume var/eval/<檔名>.json    # 接續被中斷的 eval，�
   - v1.1（2026-09-29）：間接曝險 5、困難陰性 2（中間地址風險轉入低於 10%）、relayer 下游 1（中間地址疑似 Tornado Cash relayer，依審查政策列為陰性）
 - `data/snapshots/`：eval 用的 Etherscan 快照
 
+## 一致性測試（2026-09-29，Gemini 3.8 Flash，28 筆 × 3 次）
+
+含 relayer 標籤與注入防護後，以同一批快照每筆重跑 3 次（`kyt eval --repeat 3`）。84 次中 81 次成功；`indirect_minor` 其中 1 筆的 3 次因 API 消費上限未執行，可用 `--resume` 補跑。
+
+| 指標 | 結果 |
+| ---- | ---- |
+| 決策一致率（是否攔下） | 100%（27/27） |
+| 等級一致率 | 96%（26/27） |
+| 召回率 / 誤報率（所有執行） | 100% / 0% |
+| 純規則召回率 | 67% |
+| 平均 token | 23,539 |
+
+- 唯一等級不一致的是 relayer 下游案例（MEDIUM / MEDIUM / LOW），三次都未攔下，決策一致
+- 間接曝險 5 筆三次皆為 HIGH；relayer 標籤加入後，v1.1 的唯一誤報消失
+
 ## Eval 結果：v1.1（2026-09-29，Gemini 3.8 Flash）
 
 | 指標 | v1.1 Agent | v1.1 純規則 | v1 Agent |
