@@ -160,6 +160,7 @@ class CaseNodes:
             risk_level=report.risk_level,
             llm_risk_level=report.llm_risk_level,
             risk_floor=floor,
+            summary=report.summary,
         )
         return {"report": report, **_accumulate(state, usage)}
 

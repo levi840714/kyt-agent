@@ -478,3 +478,16 @@ def test_audit_log_maps_every_alias_to_a_hash(settings):
     seen = {alias for entry in calls for alias in re.findall(r"T\d+", entry["result_preview"])}
     assert seen and seen <= mapping.keys()
     assert calls[2]["resolved_tx"] == tx_hash(3)
+
+
+def test_report_generated_audit_event_keeps_summary(settings):
+    script = [ai_text("完成")]
+    deps = fake_deps(
+        settings, StubChain(), LabelStore([]), script, [draft("LOW")], auto_approve=True
+    )
+    build_graph(deps).invoke(initial_state("case-19", TARGET, settings), case_config("case-19"))
+
+    path = settings.var_dir / "audit" / "case-19.jsonl"
+    entries = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
+    generated = next(entry for entry in entries if entry["event"] == "report_generated")
+    assert (generated["summary"], generated["risk_level"]) == ("測試摘要", "LOW")
