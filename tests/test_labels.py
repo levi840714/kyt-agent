@@ -37,3 +37,9 @@ def test_fetch_ofac_labels_downloads_published_list():
     transport = httpx.MockTransport(lambda request: httpx.Response(200, text=f"{MIXER}\n"))
     labels = fetch_ofac_labels(httpx.Client(transport=transport))
     assert labels[0].address == MIXER
+
+
+def test_relayer_is_a_known_category_below_mixer():
+    store = LabelStore([label(MIXER, "relayer"), label(MIXER, "mixer")])
+    assert store.get(MIXER).category == "mixer"
+    assert LabelStore([label(EXCHANGE, "relayer")]).get(EXCHANGE).category == "relayer"

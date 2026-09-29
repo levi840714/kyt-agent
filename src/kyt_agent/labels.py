@@ -11,7 +11,15 @@ OFAC_ETH_URL = (
     "/lists/sanctioned_addresses_ETH.txt"
 )
 FIELDS = ("address", "name", "category", "source")
-_SEVERITY: tuple[Category, ...] = ("defi", "exchange", "bridge", "mixer", "hack", "sanctioned")
+_SEVERITY: tuple[Category, ...] = (
+    "defi",
+    "exchange",
+    "relayer",
+    "bridge",
+    "mixer",
+    "hack",
+    "sanctioned",
+)
 
 
 class LabelStore:

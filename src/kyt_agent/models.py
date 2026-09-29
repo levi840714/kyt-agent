@@ -6,7 +6,7 @@ from pydantic import AfterValidator, BaseModel, model_validator
 LowerStr = Annotated[str, AfterValidator(str.lower)]
 RiskLevel = Literal["LOW", "MEDIUM", "HIGH", "SEVERE"]
 RISK_ORDER: tuple[RiskLevel, ...] = ("LOW", "MEDIUM", "HIGH", "SEVERE")
-Category = Literal["sanctioned", "hack", "mixer", "bridge", "exchange", "defi"]
+Category = Literal["sanctioned", "hack", "mixer", "bridge", "relayer", "exchange", "defi"]
 # 目標本身或直接接觸即須人工審查，與報告 prompt 的 HIGH 定義一致
 HIGH_RISK_CATEGORIES: frozenset[Category] = frozenset({"sanctioned", "hack", "mixer"})
 Decision = Literal["approve", "reject", "request_more"]
