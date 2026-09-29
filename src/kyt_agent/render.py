@@ -102,6 +102,7 @@ def show_eval_summary(console: Console, summary: Summary) -> None:
     table.add_row("平均工具呼叫", f"{summary.avg_tool_calls:.1f}", "-")
     table.add_row("平均 token", f"{summary.avg_tokens:,.0f}", "-")
     table.add_row("乾淨地址平均 token", f"{summary.avg_clean_tokens:,.0f}", "-")
+    table.add_row("input 快取命中率", _pct(summary.cache_hit_ratio), "-")
     cost = "-" if summary.estimated_cost_usd is None else f"${summary.estimated_cost_usd:.4f}"
     table.add_row("估算成本", cost, "-")
     table.add_row("錯誤 / 快照缺漏", f"{summary.errors} / {summary.snapshot_misses}", "-")

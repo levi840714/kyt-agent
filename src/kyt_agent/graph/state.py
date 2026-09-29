@@ -27,6 +27,7 @@ class CaseState(TypedDict):
     tool_call_limit: int
     input_tokens: int
     output_tokens: int
+    cache_read_tokens: int
     snapshot_misses: int
     calls_without_risk: int
     wrap_up_hinted: bool
@@ -53,6 +54,7 @@ def initial_state(case_id: str, target: str, settings: Settings) -> CaseState:
         tool_call_limit=settings.max_tool_calls,
         input_tokens=0,
         output_tokens=0,
+        cache_read_tokens=0,
         snapshot_misses=0,
         calls_without_risk=0,
         wrap_up_hinted=False,

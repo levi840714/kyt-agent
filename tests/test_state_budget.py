@@ -60,3 +60,8 @@ def test_investigation_system_directs_inflow_composition_check():
 def test_report_instruction_cites_transactions_by_alias():
     assert "工具結果中的交易代號（如 T1）或 label:<address>" in REPORT_INSTRUCTION
     assert "tx hash" not in REPORT_INSTRUCTION
+
+
+def test_prompts_exempt_known_relayers_from_intermediary_rule():
+    assert "relayer" in INVESTIGATION_SYSTEM
+    assert "標籤為 relayer 的中間地址不適用「超過一半」規則" in REPORT_INSTRUCTION

@@ -76,6 +76,7 @@ uv run kyt eval --model openai:gpt-6-luna       # 換模型比較
 
 - `data/labels/ofac.csv`：OFAC SDN 的 ETH 地址（`kyt labels sync-ofac` 更新）
 - `data/labels/manual.csv`：手動查證的混幣器、交易所、DeFi 地址，每筆附來源
+- `data/labels/relayers.csv`：Tornado Cash relayer（123 個），取自 Tornado.Cash Relayer Registry 合約的 `RelayerRegistered` 事件；經由 relayer 間接接觸混幣器，除非有其他風險跡象，最高判定為 MEDIUM
 - `data/tokens.csv`：經查證的主流代幣（USDT、USDC、DAI、WETH），供偽冒代幣與粉塵判斷
 - `eval/dataset.jsonl`：28 筆 eval 地址（15 陽性、13 陰性），皆從鏈上實際查得並註明來源
   - v1（2026-09-28）：混幣器存款人 5、制裁直接往來 3、制裁粉塵 2、交易所用戶 10
@@ -112,7 +113,7 @@ uv run kyt eval --model openai:gpt-6-luna       # 換模型比較
 
 ## 已知限制
 
-- 無法辨識 Tornado Cash relayer 等服務營運者，其下游地址可能被判為間接曝險
+- 只辨識已在 Relayer Registry 登記的 Tornado Cash relayer，未登記的服務營運者下游仍可能被判為間接曝險
 - 困難陰性與粉塵案例各只有 2 筆，相關指標僅供參考
 - 轉入比例以每個端點最近 `TX_PAGE_SIZE`（預設 100）筆的轉帳計算，不代表完整歷史
 - 標籤庫沒有 `hack` 與 `bridge` 標籤，相關規則需自行加入查證過的地址才會生效
