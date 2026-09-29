@@ -9,6 +9,7 @@ from rich.table import Table
 from rich.tree import Tree
 
 from kyt_agent.evaluation.metrics import FLAGGED, CaseResult, Summary
+from kyt_agent.models import short_address
 from kyt_agent.report import RiskReport
 
 RISK_STYLE = {"LOW": "green", "MEDIUM": "yellow", "HIGH": "red", "SEVERE": "bold white on red"}
@@ -81,12 +82,13 @@ def show_closed(console: Console, values: dict[str, Any]) -> None:
     )
 
 
-def eval_row(result: CaseResult) -> str:
+def eval_row(result: CaseResult, repeat: int = 1) -> str:
+    run = escape(f"[{result.run}/{repeat}] ") if repeat > 1 else ""
     if result.error:
-        return f"[red]✗[/] {result.address} 錯誤：{escape(result.error)}"
+        return f"[red]✗[/] {run}{result.address} 錯誤：{escape(result.error)}"
     mark = "✓" if (result.predicted in FLAGGED) == (result.expected == "risky") else "✗"
     return (
-        f"{mark} {result.address} {result.category}｜預期 {result.expected}"
+        f"{mark} {run}{result.address} {result.category}｜預期 {result.expected}"
         f"｜agent {result.predicted}"
         f"｜規則 {result.baseline or '-'}｜工具 {result.tool_calls} 次"
         f"｜token {result.input_tokens + result.output_tokens}"
@@ -127,6 +129,37 @@ def show_eval_summary(console: Console, summary: Summary) -> None:
             f"{metrics.avg_tokens:,.0f}",
         )
     console.print(categories)
+    if summary.repeat > 1:
+        _show_consistency(console, summary)
+
+
+def _show_consistency(console: Console, summary: Summary) -> None:
+    table = Table(
+        "指標",
+        "數值",
+        title=f"一致性（每筆執行 {summary.repeat} 次）",
+        caption="排除出錯的執行；成功不足 2 次的地址不列入",
+    )
+    table.add_row("決策一致率（是否攔下）", _pct(summary.decision_agreement))
+    table.add_row("等級一致率", _pct(summary.level_agreement))
+    console.print(table)
+    if not summary.unstable:
+        console.print("無不穩定案例")
+        return
+    unstable = Table(
+        "地址", "類別", "預期", "各次等級", "攔下次數", "token 範圍", "路徑不同", title="不穩定案例"
+    )
+    for item in summary.unstable:
+        unstable.add_row(
+            short_address(item.address),
+            item.category,
+            item.expected,
+            " / ".join(item.levels),
+            f"{item.flagged_runs}/{item.runs}",
+            f"{item.min_tokens:,}–{item.max_tokens:,}",
+            "是" if item.path_differs else "否",
+        )
+    console.print(unstable)
 
 
 def _pct(value: float | None) -> str:

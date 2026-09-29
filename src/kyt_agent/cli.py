@@ -72,6 +72,7 @@ def evaluate(
     fill_missing: bool = typer.Option(
         False, "--fill-missing", help="重播時即時補錄缺漏的快照（需要 ETHERSCAN_API_KEY）"
     ),
+    repeat: int = typer.Option(1, "--repeat", min=1, help="每筆案例執行 N 次，計算結果一致性"),
 ) -> None:
     """錄製快照，或以快照重播執行 eval。"""
     settings = Settings()
@@ -96,9 +97,11 @@ def evaluate(
         return
 
     def record_result(result: CaseResult) -> None:
-        console.print(render.eval_row(result))
+        console.print(render.eval_row(result, repeat))
 
-    summary, results = run_eval(settings, cases, model, record_result, fill_missing=fill_missing)
+    summary, results = run_eval(
+        settings, cases, model, record_result, fill_missing=fill_missing, repeat=repeat
+    )
     path = write_eval_result(settings.var_dir / "eval", summary, results)
     render.show_eval_summary(console, summary)
     if fill_missing:

@@ -46,6 +46,7 @@ def run_eval(
     on_result: Callable[[CaseResult], None],
     *,
     fill_missing: bool = False,
+    repeat: int = 1,
 ) -> tuple[Summary, list[CaseResult]]:
     # 補錄模式為 read-through：有快照就重播，缺漏時才即時查詢並寫入快照
     mode = "record" if fill_missing else "replay"
@@ -56,14 +57,16 @@ def run_eval(
     graph = build_graph(deps)
     results: list[CaseResult] = []
     for case in cases:
-        result = run_case(graph, deps, case)
-        on_result(result)
-        results.append(result)
+        for run in range(1, repeat + 1):
+            result = run_case(graph, deps, case, run)
+            on_result(result)
+            results.append(result)
     filled = _count_snapshots(snapshots) - before
-    return summarize(deps.model_name, results, snapshots_filled=filled), results
+    summary = summarize(deps.model_name, results, snapshots_filled=filled, repeat=repeat)
+    return summary, results
 
 
-def run_case(graph: CompiledStateGraph, deps: Deps, case: EvalCase) -> CaseResult:
+def run_case(graph: CompiledStateGraph, deps: Deps, case: EvalCase, run: int = 1) -> CaseResult:
     case_id = f"eval-{uuid.uuid4().hex[:12]}"
     baseline: RiskLevel | None = None
     try:
@@ -79,6 +82,7 @@ def run_case(graph: CompiledStateGraph, deps: Deps, case: EvalCase) -> CaseResul
             predicted=None,
             baseline=baseline,
             error=f"{type(error).__name__}: {error}",
+            run=run,
         )
     return CaseResult(
         address=case.address,
@@ -91,6 +95,8 @@ def run_case(graph: CompiledStateGraph, deps: Deps, case: EvalCase) -> CaseResul
         output_tokens=final["output_tokens"],
         cache_read_tokens=final.get("cache_read_tokens", 0),
         snapshot_misses=final["snapshot_misses"],
+        run=run,
+        expanded=sorted(address for address, node in final["nodes"].items() if node.expanded),
     )
 
 

@@ -197,7 +197,7 @@ def test_eval_fill_missing_is_passed_to_runner(monkeypatch, tmp_path):
     monkeypatch.setenv("ETHERSCAN_API_KEY", "test-key")
     seen: dict[str, Any] = {}
 
-    def fake_run_eval(settings, cases, model, on_result, *, fill_missing):
+    def fake_run_eval(settings, cases, model, on_result, *, fill_missing, repeat):
         seen["fill_missing"] = fill_missing
         return summarize("fake:model", [], snapshots_filled=2), []
 
@@ -267,3 +267,77 @@ def test_eval_row_shows_dash_for_missing_baseline():
         address=TARGET, expected="clean", category="exchange_user", predicted="LOW", baseline=None
     )
     assert "規則 -" in render.eval_row(result)
+
+
+def test_eval_repeat_is_passed_to_runner(monkeypatch, tmp_path):
+    _write_dataset(tmp_path)
+    monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
+    monkeypatch.setenv("VAR_DIR", str(tmp_path / "var"))
+    seen: dict[str, Any] = {}
+
+    def fake_run_eval(settings, cases, model, on_result, *, fill_missing, repeat):
+        seen["repeat"] = repeat
+        return summarize("fake:model", [], repeat=repeat), []
+
+    monkeypatch.setattr(cli, "run_eval", fake_run_eval)
+    result = runner.invoke(cli.app, ["eval", "--repeat", "3"])
+    assert result.exit_code == 0, result.output
+    assert seen["repeat"] == 3
+
+
+@pytest.mark.parametrize("value", ["0", "-1"])
+def test_eval_rejects_repeat_below_one(monkeypatch, tmp_path, value):
+    _write_dataset(tmp_path)
+    monkeypatch.setattr(cli, "PROJECT_ROOT", tmp_path)
+    called: list[bool] = []
+    monkeypatch.setattr(cli, "run_eval", lambda *args, **kwargs: called.append(True))
+    result = runner.invoke(cli.app, ["eval", "--repeat", value])
+    assert result.exit_code == 2
+    assert called == []
+
+
+def _repeated(address, level, run, tokens, expanded=()):
+    return CaseResult(
+        address=address,
+        expected="risky",
+        category="indirect_exposure",
+        predicted=level,
+        baseline="LOW",
+        input_tokens=tokens,
+        run=run,
+        expanded=list(expanded),
+    )
+
+
+def test_eval_summary_shows_consistency_section_when_repeated():
+    results = [
+        _repeated(TARGET, "HIGH", 1, 1200, [TARGET]),
+        _repeated(TARGET, "MEDIUM", 2, 900, [TARGET, UNKNOWN]),
+        _repeated(TARGET, "HIGH", 3, 1500, [TARGET]),
+        _repeated(UNKNOWN, "HIGH", 1, 500),
+        _repeated(UNKNOWN, "HIGH", 2, 500),
+        _repeated(UNKNOWN, "HIGH", 3, 500),
+    ]
+    console = Console(record=True, width=160)
+    render.show_eval_summary(console, summarize("fake:model", results, repeat=3))
+    text = console.export_text()
+    assert "一致性" in text
+    assert "決策一致率" in text and "50%" in text
+    assert "等級一致率" in text
+    assert "不穩定案例" in text
+    row = next(line for line in text.splitlines() if "0x1111…1111" in line)
+    for cell in ("indirect_exposure", "HIGH / MEDIUM / HIGH", "2/3", "900–1,500", "是"):
+        assert cell in row
+    assert "0x4444…4444" not in text
+
+
+def test_eval_summary_omits_consistency_section_for_single_run():
+    console = Console(record=True, width=160)
+    render.show_eval_summary(console, summarize("fake:model", [_repeated(TARGET, "HIGH", 1, 1)]))
+    assert "一致性" not in console.export_text()
+
+
+def test_eval_row_shows_run_number_when_repeated():
+    result = _repeated(TARGET, "HIGH", 2, 10)
+    assert "[2/3]" in render.eval_row(result, repeat=3)
+    assert "[2/" not in render.eval_row(result)

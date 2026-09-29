@@ -63,6 +63,7 @@ uv run kyt eval --record                        # 錄製 eval 快照（資料集
 uv run kyt eval                                 # 用快照重播跑 eval
 uv run kyt eval --fill-missing                  # 重播，缺漏的快照即時補錄（需要 ETHERSCAN_API_KEY）
 uv run kyt eval --model openai:gpt-6-luna       # 換模型比較
+uv run kyt eval --repeat 3                      # 每筆跑 3 次，計算決策與等級一致率並列出不穩定案例
 ```
 
 產出：
