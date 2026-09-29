@@ -10,13 +10,14 @@ kyt_agent/
 ├── pyproject.toml / uv.lock / README.md / .env.example
 ├── data/
 │   ├── labels/            # 地址標籤庫（OFAC 與手動查證）
-│   └── snapshots/         # eval 用的 Etherscan 快照
+│   ├── snapshots/         # eval 用的 Etherscan 快照
+│   └── tokens.csv         # 已知代幣，供偽冒代幣與粉塵判斷
 ├── eval/dataset.jsonl     # eval 資料集
 ├── src/kyt_agent/
 │   ├── cli.py / render.py # Typer 指令與 rich 顯示
 │   ├── config.py          # Settings（pydantic-settings）
 │   ├── models.py          # 共用領域模型
-│   ├── labels.py / rules.py / counterparties.py / report.py / audit.py
+│   ├── labels.py / tokens.py / rules.py / counterparties.py / report.py / audit.py
 │   ├── chain/             # ChainClient Protocol、Etherscan、快照
 │   ├── graph/             # LangGraph：state、nodes、tools、prompts、組裝
 │   └── evaluation/        # 資料集、爬蟲、指標、runner
